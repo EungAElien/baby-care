@@ -99,11 +99,11 @@ npm ci
 npm run test:supabase
 ```
 
-이 명령은 `baby-care-b03-local` 로컬 스택을 시작하고 **해당 로컬 DB만 초기화**한 뒤 migration, 합성 seed, DB·RLS·문맥·Auth/Storage HTTP 시험을 순서대로 실행한다. linked/운영 프로젝트에 `db reset`, `db push`를 실행하지 않는다.
+이 명령은 매 실행마다 임시 `supabase/` 복사본, `baby-care-b13-<고유값>` project id와 사용하지 않는 포트를 배정한다. 그 빈 DB에 migration과 합성 seed를 적용하고 DB·RLS·문맥·Auth/Storage HTTP·구성 컨테이너 시험을 순서대로 실행한 뒤 자신이 만든 자원만 제거한다. 기존 `baby-care-b03-local`, 다른 작업의 컨테이너, linked/운영 프로젝트에는 `db reset`, `db push`, `stop`을 실행하지 않는다.
 
-API 단계는 단위·실제 로컬 통합 시험 57개를 함께 실행하고 90% coverage 기준을 적용한다. 2026-09-20 B-09 최종 실행에서는 90.41%였으며, 수치는 코드 변경에 따라 달라져도 기준 미달이면 명령이 실패한다.
+API 단계는 단위·실제 로컬 통합 시험을 함께 실행하고 90% coverage 기준을 적용한다. 필수 통합 함수가 실제로 수집·실행됐는지와 예상하지 않은 skip 0건을 별도로 확인한다. 테스트 추가를 막는 고정 개수는 사용하지 않으며 실행 당시 개수·coverage는 `.artifacts/verification/` 보고서에 기록한다.
 
-개별 실행은 다음과 같다.
+고정 `baby-care-b03-local`을 수동으로 다루는 아래 개별 명령은 개발 진단용이며 B-13 필수 게이트가 아니다. 실행 중인 다른 작업과 project id·포트를 먼저 확인해야 한다.
 
 ```bash
 npm run supabase:start

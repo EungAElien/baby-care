@@ -1,3 +1,4 @@
+import argparse
 import copy
 import json
 from pathlib import Path
@@ -8,7 +9,21 @@ from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT202012
 
-folder=Path(__file__).resolve().parent
+parser = argparse.ArgumentParser(description='Validate the Baby Care integration contract.')
+parser.add_argument(
+    '--contract-dir',
+    type=Path,
+    default=Path(__file__).resolve().parent,
+    help='Directory containing the generated OpenAPI and fixture JSON files.',
+)
+parser.add_argument(
+    '--output',
+    type=Path,
+    help='Validation summary destination. Defaults to <contract-dir>/validation.json.',
+)
+args = parser.parse_args()
+
+folder=args.contract_dir.resolve()
 doc=json.loads((folder/'openapi계약.json').read_text(encoding='utf-8'))
 fixtures=json.loads((folder/'목 응답과 시험 사용자 배치.json').read_text(encoding='utf-8'))
 registry=REGISTRY
@@ -80,5 +95,7 @@ verify_refs(doc)
 assert len(registry)==len({v['operationId'] for p in doc['paths'].values() for v in p.values()})
 
 summary={'openapi_validation':'passed','reference_validation':'passed','operations':len(registry),'paths':len(doc['paths']),'schemas':len(doc['components']['schemas']),'response_examples_validated':len(fixtures['scenarios']),'request_examples_validated':requests,'invalid_contract_examples_rejected':negative,'not_verified':['Live FastAPI implementation','Supabase RLS and Storage runtime behavior','Actual accounts or OTP','Real audio or LLM model execution','Browser end-to-end behavior']}
-(folder/'validation.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+output_path = args.output.resolve() if args.output else folder/'validation.json'
+output_path.parent.mkdir(parents=True, exist_ok=True)
+output_path.write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
 print(json.dumps(summary,ensure_ascii=False,indent=2))

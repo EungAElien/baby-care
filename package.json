@@ -9,7 +9,13 @@
     "test:supabase:context": "bash scripts/test-supabase-context.sh",
     "test:supabase:api-db": "bash scripts/test-api-postgres-authorization.sh",
     "test:supabase:http": "node scripts/test-supabase-http.mjs",
-    "test:supabase": "npm run supabase:start && npm run supabase:reset && npm run test:supabase:db && npm run test:supabase:context && npm run test:supabase:api-db && npm run test:supabase:http"
+    "test:supabase": "python3 scripts/verification/verify.py integration",
+    "verify:quick": "python3 scripts/verification/verify.py quick",
+    "verify:container": "python3 scripts/verification/verify.py container",
+    "verify:integration": "python3 scripts/verification/verify.py integration",
+    "verify:failure-detection": "python3 scripts/verification/verify.py failure-detection",
+    "verify:generated": "python3 scripts/verification/check_generated.py",
+    "verify:sensitive": "python3 scripts/verification/scan_sensitive.py .artifacts/verification"
   },
   "devDependencies": {
     "supabase": "2.117.0"

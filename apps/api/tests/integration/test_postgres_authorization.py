@@ -21,6 +21,10 @@ pytestmark = pytest.mark.integration
 def _database_url() -> str:
     value = os.environ.get("BABY_CARE_TEST_DATABASE_URL")
     if value is None:
+        if os.environ.get("BABY_CARE_REQUIRE_INTEGRATION") == "1":
+            pytest.fail(
+                "BABY_CARE_TEST_DATABASE_URL is required when integration tests are mandatory"
+            )
         pytest.skip("BABY_CARE_TEST_DATABASE_URL is required for the local integration test")
     return value
 

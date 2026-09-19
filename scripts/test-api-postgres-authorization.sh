@@ -3,7 +3,9 @@ set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 db_container="${SUPABASE_DB_CONTAINER:-supabase_db_baby-care-b03-local}"
+supabase_workdir="${SUPABASE_WORKDIR:-$repo_dir}"
 configured_python="${API_PYTHON:-$repo_dir/apps/api/.venv/bin/python}"
+artifact_dir="${BABY_CARE_VERIFICATION_ARTIFACT_DIR:-}"
 
 if ! docker inspect "$db_container" >/dev/null 2>&1; then
   echo "Local Supabase database container is not running: $db_container" >&2
@@ -18,7 +20,7 @@ trap restore_set_option EXIT
 docker exec "$db_container" psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
   -c "grant baby_app to postgres with set true" >/dev/null
 
-status_json="$(cd "$repo_dir" && npx supabase status -o json 2>/dev/null)"
+status_json="$(cd "$repo_dir" && npx supabase --workdir "$supabase_workdir" status -o json 2>/dev/null)"
 status_value() {
   STATUS_JSON="$status_json" node -e \
     'const value = JSON.parse(process.env.STATUS_JSON)[process.argv[1]]; if (!value) process.exit(2); process.stdout.write(value)' \
@@ -30,7 +32,16 @@ api_url="$(status_value API_URL)"
 anon_key="$(status_value ANON_KEY)"
 service_role_key="$(status_value SERVICE_ROLE_KEY)"
 issuer="$api_url/auth/v1"
-mailpit_url="http://127.0.0.1:54324"
+mailpit_url="$(status_value MAILPIT_URL)"
+
+pytest_args=(-q)
+if [[ -n "$artifact_dir" ]]; then
+  mkdir -p "$artifact_dir"
+  pytest_args+=(
+    "--junitxml=$artifact_dir/api-integration-junit.xml"
+    "--cov-report=xml:$artifact_dir/api-coverage.xml"
+  )
+fi
 
 if [[ "$configured_python" == */* ]]; then
   resolved_python="$configured_python"
@@ -47,7 +58,8 @@ if [[ -n "${resolved_python:-}" && -x "$resolved_python" ]]; then
   BABY_CARE_TEST_SUPABASE_ISSUER="$issuer" \
   BABY_CARE_TEST_SUPABASE_JWKS_URL="$api_url/auth/v1/.well-known/jwks.json" \
   BABY_CARE_TEST_MAILPIT_URL="$mailpit_url" \
-    "$resolved_python" -m pytest -q
+  BABY_CARE_REQUIRE_INTEGRATION=1 \
+    "$resolved_python" -m pytest "${pytest_args[@]}"
   exit 0
 fi
 
@@ -67,5 +79,6 @@ docker run --rm --add-host=host.docker.internal:host-gateway \
   -e "BABY_CARE_TEST_SUPABASE_ISSUER=$issuer" \
   -e "BABY_CARE_TEST_SUPABASE_JWKS_URL=$docker_api_url/auth/v1/.well-known/jwks.json" \
   -e "BABY_CARE_TEST_MAILPIT_URL=$docker_mailpit_url" \
+  -e "BABY_CARE_REQUIRE_INTEGRATION=1" \
   baby-care-api:b04-integration \
   -c 'python -m pip install --quiet --require-hashes --no-deps -r requirements-dev.lock && PYTHONPATH=src python -m pytest -q'
