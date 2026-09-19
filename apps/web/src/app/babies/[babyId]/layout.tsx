@@ -5,7 +5,7 @@
 // hidden-existence shape the contract requires for real 404s (§2).
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useMockSession } from "@/lib/mock/session";
+import { useMockSession, useSyncPrivateScope } from "@/lib/mock/session";
 import { BabyShell } from "@/components/baby-shell";
 import { ErrorState } from "@/components/screen-state";
 
@@ -13,6 +13,7 @@ export default function BabyLayout({ children }: Readonly<{ children: React.Reac
   const { babyId } = useParams<{ babyId: string }>();
   const router = useRouter();
   const session = useMockSession();
+  useSyncPrivateScope(babyId);
 
   useEffect(() => {
     if (!session.alias) router.replace("/login");

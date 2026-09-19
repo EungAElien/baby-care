@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, Clock, BarChart3, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockBabyLabel } from "@/lib/mock/fixtures";
 import { useMockSession } from "@/lib/mock/session";
+import { useDraft } from "@/lib/mock/draft";
 
 type NavItem = Readonly<{ href: string; label: string; icon: typeof Home }>;
 
@@ -27,8 +29,19 @@ export function BabyShell({
   const pathname = usePathname();
   const router = useRouter();
   const session = useMockSession();
+  const draft = useDraft();
   const items = navItems(babyId);
   const otherBabies = session.activeMemberships.filter((membership) => membership.baby_id !== babyId);
+  const [pendingSwitch, setPendingSwitch] = useState<string | null>(null);
+
+  function requestSwitch(nextBabyId: string) {
+    if (nextBabyId === babyId) return;
+    if (draft.hasLiveText(babyId)) {
+      setPendingSwitch(nextBabyId);
+    } else {
+      router.push(`/babies/${nextBabyId}`);
+    }
+  }
 
   return (
     <div className="mx-auto flex min-h-svh max-w-xl flex-col bg-background">
@@ -51,7 +64,7 @@ export function BabyShell({
               id="baby-switch"
               className="h-11 rounded-md border border-border bg-background px-2 text-sm"
               value={babyId}
-              onChange={(event) => router.push(`/babies/${event.target.value}`)}
+              onChange={(event) => requestSwitch(event.target.value)}
             >
               <option value={babyId}>{mockBabyLabel(babyId)}</option>
               {otherBabies.map((membership) => (
@@ -73,6 +86,57 @@ export function BabyShell({
           </button>
         </div>
       </header>
+
+      {pendingSwitch && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="switch-draft-title"
+          className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-6"
+        >
+          <div className="flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-card p-4">
+            <h2 id="switch-draft-title" className="text-sm font-semibold text-foreground">
+              저장하지 않은 빠른 기록이 있어요
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              다른 아기로 전환하면 지금 화면의 입력은 사라져요. 어떻게 할까요?
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => setPendingSwitch(null)}
+                className="min-h-11 rounded-md border border-border px-4 text-sm text-foreground"
+              >
+                계속 작성
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  draft.saveLiveAsDraft(babyId);
+                  const target = pendingSwitch;
+                  setPendingSwitch(null);
+                  router.push(`/babies/${target}`);
+                }}
+                className="min-h-11 rounded-md border border-border px-4 text-sm text-foreground"
+              >
+                개인 초안 저장 후 전환
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  draft.discardLive(babyId);
+                  const target = pendingSwitch;
+                  setPendingSwitch(null);
+                  router.push(`/babies/${target}`);
+                }}
+                className="min-h-11 rounded-md border border-destructive/40 px-4 text-sm text-destructive"
+              >
+                버리고 전환
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="flex-1 px-4 py-4 pb-24">{children}</main>
 

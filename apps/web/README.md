@@ -1,6 +1,6 @@
-# A-01 ①·② 웹 기반
+# A-01·A-03 웹 기반
 
-이 폴더는 A-01의 ①·② 범위를 구현합니다. ①은 Next.js App Router/TypeScript/Tailwind/shadcn 설정, React Hook Form·Zod·TanStack Query 의존성, `openapi계약.json`에서 생성한 타입과 브라우저 사용자 Bearer용 API 클라이언트입니다. ②는 SC01~SC10 라우트 껍데기·공통 모바일 레이아웃과, 계약의 합성 fixture로 화면 사이를 이동해 보는 목 네비게이션입니다. Supabase OTP 연결, 실제 API 연동, 배포는 포함하지 않습니다.
+이 폴더는 A-01(①·②)과 A-03 범위를 구현합니다. A-01 ①은 Next.js App Router/TypeScript/Tailwind/shadcn 설정, React Hook Form·Zod·TanStack Query 의존성, `openapi계약.json`에서 생성한 타입과 브라우저 사용자 Bearer용 API 클라이언트입니다. A-01 ②는 SC01~SC10 라우트 껍데기·공통 모바일 레이아웃과, 계약의 합성 fixture로 화면 사이를 이동해 보는 목 네비게이션입니다. A-03은 그 위에 초대 수락·탈퇴·동의·아기 전환 시 미저장 초안 처리를 목 세션으로 얹었습니다. Supabase OTP 연결, 실제 API 연동, 배포는 포함하지 않습니다.
 
 ## 로컬 검증
 
@@ -34,6 +34,17 @@ npm.cmd run build
 | SC10 공동양육 | `/babies/[babyId]/care-team` | OWNER만 초대 발급 섹션 노출 |
 
 실제 저장·업로드·분석 실행·상담은 연결하지 않았습니다. 화면에 쓰인 값은 모두 `data_origin=DEMO`/`inference_mode=STUB`이며 각 화면에 `SourceBadge`로 표시합니다.
+
+## 공동양육·초대·개인 초안 (A-03)
+
+| 화면/기능 | 경로 | 비고 |
+| --- | --- | --- |
+| 초대 수락 | `/invite/accept#token=<demo-accept\|demo-expired\|demo-wrong-email\|demo-used>` | 토큰은 fragment로만 받고 마운트 즉시 주소창에서 지운다. 수락하면 실제로 목 세션에 CAREGIVER 멤버십이 더해진다(탭 메모리, 재로그인 시 초기화). |
+| 공동양육 나가기 | `/babies/[babyId]/care-team` | CAREGIVER는 확정 클릭 후 `/login`으로 이동(재접근 차단), OWNER는 409 `OWNER_REQUIRED` 문구를 본다 |
+| 내 계정 | `/account` | 아기 멤버십이 없어도(예: 탈퇴한 `removed_a`) 본인 학습 동의·삭제 신청 진입점을 유지한다 |
+| 아기 전환 시 미저장 초안 | 헤더의 아기 전환 select | SC05에 입력이 있으면 "계속 작성/개인 초안 저장 후 전환/버리고 전환"을 물어보고, 저장한 초안은 그 아기로 돌아왔을 때 다시 채워진다 |
+
+초대 발급·재발급 버튼은 아직 비활성 상태이며, 아기 생성 폼과 실제 Supabase OTP 로그인은 B의 실제 계정·API 연동 후 붙입니다.
 
 실제 환경을 사용할 때만 `.env.example`을 참고해 공개 설정을 입력하세요. `.env.local`은 버전 관리 대상이 아니며, `service_role`/secret·DB·LLM 자격 증명을 `NEXT_PUBLIC_`에 두면 안 됩니다. 아직 실제 Supabase 클라이언트·계정·FastAPI 주소는 연결하지 않았습니다.
 
