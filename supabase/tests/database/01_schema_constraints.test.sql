@@ -3,7 +3,7 @@ create extension if not exists pgtap with schema extensions;
 begin;
 set local search_path = extensions, public;
 
-select plan(41);
+select plan(45);
 
 select has_schema('baby_data', 'private business schema exists');
 select has_schema('baby_private', 'private helper schema exists');
@@ -32,6 +32,16 @@ select has_table('baby_data', 'observed_auth_sessions', 'least-privilege session
 select has_table('baby_data', 'session_revocation_rules', 'session cutoff rule table exists');
 select has_table('baby_data', 'guardian_verifications', 'child-data gate table exists');
 select has_table('baby_data', 'resource_invalidations', 'derived-resource invalidation table exists');
+select has_table('baby_data', 'shared_change_feed_state', 'durable per-baby feed state exists');
+select has_table('baby_data', 'shared_changes', 'durable shared change history exists');
+select has_function(
+    'baby_private', 'record_shared_changes', array['uuid', 'jsonb'],
+    'shared writers use one checked transactional interface'
+);
+select has_index(
+    'baby_data', 'shared_changes', 'shared_changes_revision_lookup_idx',
+    'incremental feed lookup index exists'
+);
 
 select is(
     (
@@ -63,7 +73,7 @@ select is(
            and c.relrowsecurity
            and c.relforcerowsecurity
     ),
-    37,
+    39,
     'every business table has FORCE ROW LEVEL SECURITY'
 );
 

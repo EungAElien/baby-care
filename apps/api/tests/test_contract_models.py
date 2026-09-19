@@ -22,6 +22,7 @@ from baby_care_api.models.b04 import (
     PatchBaby,
 )
 from baby_care_api.models.care_events import CareEvent, CreateCareEvent
+from baby_care_api.models.changes import Changes
 from baby_care_api.models.errors import ApiError, ErrorCode
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
@@ -65,6 +66,36 @@ def test_first_shared_record_fixture_round_trips_through_contract_models() -> No
     _validator("CareEvent").validate(response_json)
     assert request_json == scenario["request"]["body"]
     assert response_json == scenario["response"]["body"]
+
+
+@pytest.mark.parametrize(
+    "scenario_name",
+    [
+        "changes_initial_resync",
+        "changes_incremental",
+        "changes_empty",
+        "changes_deleted",
+        "changes_history_or_limit_resync",
+    ],
+)
+def test_change_feed_fixtures_round_trip_through_contract_model(
+    scenario_name: str,
+) -> None:
+    payload = _scenario(scenario_name)["response"]["body"]
+
+    response = Changes.model_validate(payload)
+
+    response_json = response.model_dump(mode="json")
+    _validator("Changes").validate(response_json)
+    assert response_json == payload
+
+
+def test_change_feed_runtime_model_enforces_contract_limit() -> None:
+    payload = deepcopy(_scenario("changes_incremental")["response"]["body"])
+    payload["changes"] = [payload["changes"][0]] * 501
+
+    with pytest.raises(ValidationError, match="at most 500"):
+        Changes.model_validate(payload)
 
 
 @pytest.mark.parametrize(

@@ -8,8 +8,8 @@ from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 API_V1_PREFIX = "/v1"
-CONTRACT_VERSION = "1.1.0"
-SERVICE_VERSION = "0.2.0"
+CONTRACT_VERSION = "1.1.1"
+SERVICE_VERSION = "0.3.0"
 
 
 class RuntimeEnvironment(StrEnum):

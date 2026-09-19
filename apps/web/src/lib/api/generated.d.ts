@@ -883,7 +883,7 @@ export interface paths {
         };
         /**
          * getChanges
-         * @description Foreground fallback every 5 seconds. Realtime carries only change signals; fetch data through FastAPI.
+         * @description Primary foreground recovery path. Returns coalesced identifiers for all committed shared changes after since_revision through one atomic current_revision boundary. Empty changes means no change only when resync_required=false. Initial revision 0, retained-history gaps, future revisions, or more than 500 distinct resources return an empty list with resync_required=true. Poll every 5 seconds only while visible and immediately on return; this interval is not a 5-second screen guarantee. Realtime remains disabled until SEC30 and SEC31 are verified.
          */
         get: operations["getChanges"];
         put?: never;
@@ -1198,7 +1198,7 @@ export interface components {
         };
         Capabilities: {
             /** @constant */
-            contract_version: "1.1.0";
+            contract_version: "1.1.1";
             audio_model: components["schemas"]["ModelInfo"];
             supported_mime_types: string[];
             /** @constant */
@@ -2275,18 +2275,30 @@ export interface components {
             next_cursor: string | null;
         };
         Change: {
-            /** @enum {string} */
+            /**
+             * @description Identifies the existing authorized FastAPI resource to refetch. DELETION never exposes a requester-private DeletionJob.
+             * @enum {string}
+             */
             resource_type: "BABY" | "MEMBERSHIP" | "CARE_EVENT" | "EPISODE" | "ANALYSIS" | "RECOMMENDATION" | "STATE_OBSERVATION" | "OUTCOME" | "DELETION";
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Opaque identifier only. The change feed never contains resource bodies, caregiver text, audio URLs, or tokens.
+             */
             resource_id: string;
+            /** @description Actual version of the changed resource after the mutation, including the tombstone version when deleted=true. */
             version: number;
+            /** @description When true, remove this resource from the scoped cache. A later response with a lower version must not restore it. */
             deleted: boolean;
         };
+        /** @description Authorization-scoped invalidation feed. Save current_revision only after every required refetch or the documented full-resync flow succeeds. */
         Changes: {
             /** Format: uuid */
             baby_id: string;
+            /** @description A complete high-water mark for this response. When resync_required=false, every committed shared change in (since_revision, current_revision] is represented after same-resource coalescing. */
             current_revision: number;
+            /** @description At most one latest item per resource. One mutation may invalidate multiple resources, such as a CareEvent and the Baby whose public context_revision advanced. Ordering is not a client conflict-resolution rule; use resource version. */
             changes: components["schemas"]["Change"][];
+            /** @description If true, changes is empty and the client must perform a full authorized refetch. This covers initial revision 0, pruned history, a future revision, and more than 500 distinct changed resources. */
             resync_required: boolean;
             /** Format: date-time */
             server_time: string;
@@ -4621,7 +4633,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Success. Foreground fallback every 5 seconds. Realtime carries only change signals; fetch data through FastAPI. */
+            /** @description Success. Primary foreground recovery path. Returns coalesced identifiers for all committed shared changes after since_revision through one atomic current_revision boundary. Empty changes means no change only when resync_required=false. Initial revision 0, retained-history gaps, future revisions, or more than 500 distinct resources return an empty list with resync_required=true. Poll every 5 seconds only while visible and immediately on return; this interval is not a 5-second screen guarantee. Realtime remains disabled until SEC30 and SEC31 are verified. */
             200: {
                 headers: {
                     "X-Request-ID"?: string;

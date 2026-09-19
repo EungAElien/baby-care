@@ -11,6 +11,9 @@ begin
     if (select count(*) from baby_data.babies) <> 2 then
         raise exception 'owner request did not see the expected two active memberships';
     end if;
+    if (select count(*) from baby_data.shared_change_feed_state) <> 2 then
+        raise exception 'owner request did not see the expected two change-feed states';
+    end if;
 end;
 $$;
 rollback;
@@ -26,6 +29,9 @@ begin
     if (select count(*) from baby_data.babies) <> 0 then
         raise exception 'missing request context did not fail closed';
     end if;
+    if (select count(*) from baby_data.shared_change_feed_state) <> 0 then
+        raise exception 'missing request context exposed change-feed state';
+    end if;
 end;
 $$;
 
@@ -35,6 +41,9 @@ do $$
 begin
     if (select count(*) from baby_data.babies) <> 1 then
         raise exception 'caregiver request inherited another user access';
+    end if;
+    if (select count(*) from baby_data.shared_change_feed_state) <> 1 then
+        raise exception 'caregiver request inherited another user change-feed state';
     end if;
 end;
 $$;
@@ -47,6 +56,9 @@ do $$
 begin
     if (select count(*) from baby_data.babies) <> 2 then
         raise exception 'explicit cross-user context replacement failed';
+    end if;
+    if (select count(*) from baby_data.shared_change_feed_state) <> 2 then
+        raise exception 'explicit cross-user change-feed context replacement failed';
     end if;
 end;
 $$;
@@ -62,6 +74,9 @@ begin
     end if;
     if (select count(*) from baby_data.babies) <> 0 then
         raise exception 'post-commit request without context did not fail closed';
+    end if;
+    if (select count(*) from baby_data.shared_change_feed_state) <> 0 then
+        raise exception 'post-commit request exposed change-feed state';
     end if;
 end;
 $$;

@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Annotated, Literal, cast
 from uuid import UUID
 
-from fastapi import APIRouter, Header, Query, Request, status
+from fastapi import APIRouter, Header, Query, Request, Response, status
 
 from baby_care_api.core.config import API_V1_PREFIX
 from baby_care_api.core.errors import ApiException
@@ -47,6 +47,7 @@ from baby_care_api.models.b04 import (
     TimelineItemPage,
 )
 from baby_care_api.models.care_events import CareEvent, CreateCareEvent, PatchCareEvent
+from baby_care_api.models.changes import Changes
 from baby_care_api.models.errors import ErrorCode, ErrorDetails
 from baby_care_api.services.auth_provider import SupabaseSessionRevocationProvider
 from baby_care_api.services.b04 import PostgresBabyCareService
@@ -610,6 +611,30 @@ async def get_timeline(
         cursor=cursor,
         limit=limit,
     )
+
+
+@router.get(
+    "/babies/{baby_id}/changes",
+    response_model=Changes,
+    operation_id="getChanges",
+)
+async def get_changes(
+    baby_id: UUID,
+    request: Request,
+    response: Response,
+    since_revision: Annotated[int, Query(ge=0)],
+    authorization: AuthorizationHeader = None,
+) -> Changes:
+    principal = await _principal(request, authorization)
+    result = await _service(request).get_changes(
+        principal,
+        baby_id,
+        since_revision=since_revision,
+    )
+    response.headers["Cache-Control"] = "private, no-store"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Vary"] = "Authorization"
+    return result
 
 
 @router.post(

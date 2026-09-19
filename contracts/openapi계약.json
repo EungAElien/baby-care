@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Baby care team integration contract",
-    "version": "1.1.0",
-    "description": "P0 frontend integration agreement dated 2026-09-20, covering A-01 to A-11. B-04 adds authentication recovery, reauthentication, invite reissue, child-data gate status, and private draft listing. Internal training curator/export APIs retain the v2 scope and are not browser endpoints."
+    "version": "1.1.1",
+    "description": "P0 frontend integration agreement dated 2026-09-20, covering A-01 to A-11. B-04 adds authentication recovery, reauthentication, invite reissue, child-data gate status, and private draft listing. B-09 clarifies the existing changes polling semantics without changing its response fields. Internal training curator/export APIs retain the v2 scope and are not browser endpoints."
   },
   "servers": [
     {
@@ -3968,7 +3968,7 @@
       "get": {
         "operationId": "getChanges",
         "summary": "getChanges",
-        "description": "Foreground fallback every 5 seconds. Realtime carries only change signals; fetch data through FastAPI.",
+        "description": "Primary foreground recovery path. Returns coalesced identifiers for all committed shared changes after since_revision through one atomic current_revision boundary. Empty changes means no change only when resync_required=false. Initial revision 0, retained-history gaps, future revisions, or more than 500 distinct resources return an empty list with resync_required=true. Poll every 5 seconds only while visible and immediately on return; this interval is not a 5-second screen guarantee. Realtime remains disabled until SEC30 and SEC31 are verified.",
         "tags": [
           "Read"
         ],
@@ -3988,13 +3988,14 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 0,
+              "description": "Last fully applied feed revision for this user and baby scope. Use 0 only to bootstrap a full resync."
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Success. Foreground fallback every 5 seconds. Realtime carries only change signals; fetch data through FastAPI.",
+            "description": "Success. Primary foreground recovery path. Returns coalesced identifiers for all committed shared changes after since_revision through one atomic current_revision boundary. Empty changes means no change only when resync_required=false. Initial revision 0, retained-history gaps, future revisions, or more than 500 distinct resources return an empty list with resync_required=true. Poll every 5 seconds only while visible and immediately on return; this interval is not a 5-second screen guarantee. Realtime remains disabled until SEC30 and SEC31 are verified.",
             "headers": {
               "X-Request-ID": {
                 "schema": {
@@ -5349,7 +5350,7 @@
         "type": "object",
         "properties": {
           "contract_version": {
-            "const": "1.1.0",
+            "const": "1.1.1",
             "type": "string"
           },
           "audio_model": {
@@ -10851,18 +10852,22 @@
               "STATE_OBSERVATION",
               "OUTCOME",
               "DELETION"
-            ]
+            ],
+            "description": "Identifies the existing authorized FastAPI resource to refetch. DELETION never exposes a requester-private DeletionJob."
           },
           "resource_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Opaque identifier only. The change feed never contains resource bodies, caregiver text, audio URLs, or tokens."
           },
           "version": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "description": "Actual version of the changed resource after the mutation, including the tombstone version when deleted=true."
           },
           "deleted": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "When true, remove this resource from the scoped cache. A later response with a lower version must not restore it."
           }
         },
         "required": [
@@ -10882,16 +10887,20 @@
           },
           "current_revision": {
             "type": "integer",
-            "minimum": 0
+            "minimum": 0,
+            "description": "A complete high-water mark for this response. When resync_required=false, every committed shared change in (since_revision, current_revision] is represented after same-resource coalescing."
           },
           "changes": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Change"
-            }
+            },
+            "maxItems": 500,
+            "description": "At most one latest item per resource. One mutation may invalidate multiple resources, such as a CareEvent and the Baby whose public context_revision advanced. Ordering is not a client conflict-resolution rule; use resource version."
           },
           "resync_required": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "If true, changes is empty and the client must perform a full authorized refetch. This covers initial revision 0, pruned history, a future revision, and more than 500 distinct changed resources."
           },
           "server_time": {
             "type": "string",
@@ -10905,7 +10914,8 @@
           "resync_required",
           "server_time"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Authorization-scoped invalidation feed. Save current_revision only after every required refetch or the documented full-resync flow succeeds."
       },
       "SimilarCase": {
         "type": "object",
@@ -12679,6 +12689,11 @@
     "playback_ttl_seconds": 60,
     "upload_session_ttl_seconds": 900,
     "foreground_refresh_seconds": 5,
+    "change_feed_max_items": 500,
+    "change_feed_history_retention_days": 90,
+    "change_feed_initial_revision": 0,
+    "change_feed_initial_requires_resync": true,
+    "realtime_enabled": false,
     "observation_heartbeat_seconds": 10,
     "observation_lease_seconds": 30
   }

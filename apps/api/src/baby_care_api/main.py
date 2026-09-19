@@ -46,6 +46,7 @@ B04_IMPLEMENTED_OPERATIONS = [
     "getActiveBaby",
     "getCareEntry",
     "getCareEvent",
+    "getChanges",
     "getChildDataVerification",
     "getDeletion",
     "getSessionRevocation",
@@ -171,8 +172,9 @@ def create_app(
         title="Baby Care API",
         version=SERVICE_VERSION,
         description=(
-            "B-04 account, shared-care, and record API. The canonical business contract is "
-            "version 1.1.0 at contracts/openapi계약.json."
+            "B-04 account, shared-care, and record API with the B-09 durable change feed. "
+            "The canonical business contract is version 1.1.1 at "
+            "contracts/openapi계약.json."
         ),
         lifespan=lifespan,
     )

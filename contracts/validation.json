@@ -4,7 +4,7 @@
   "operations": 70,
   "paths": 60,
   "schemas": 127,
-  "response_examples_validated": 53,
+  "response_examples_validated": 58,
   "request_examples_validated": 13,
   "invalid_contract_examples_rejected": [
     "ABSTAIN cannot return cause candidates",

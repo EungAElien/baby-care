@@ -60,6 +60,7 @@ from baby_care_api.models.care_events import (
     CreateCareEvent,
     PatchCareEvent,
 )
+from baby_care_api.models.changes import Change, Changes
 from baby_care_api.models.errors import ErrorCode, ErrorDetails
 from baby_care_api.services.security import (
     AuthenticatedPrincipal,
@@ -72,10 +73,13 @@ from baby_care_api.services.security import (
 type DatabaseRow = dict[str, Any]
 type DatabaseConnection = psycopg.AsyncConnection[DatabaseRow]
 type IdempotencyReplay = tuple[str, UUID | None, int] | None
+type SharedChangeInput = tuple[str, UUID, int, bool]
 
 
 class PostgresBabyCareService:
     """B-04 application service using only the least-privilege ``baby_app`` role."""
+
+    MAX_SHARED_CHANGES = 500
 
     def __init__(
         self,
@@ -522,7 +526,7 @@ class PostgresBabyCareService:
             try:
                 cursor = await connection.execute(
                     """
-                    select created_baby_id
+                    select created_baby_id, created_membership_id
                       from baby_private.create_baby_with_owner(%s, %s, %s, %s, %s)
                     """,
                     (
@@ -537,11 +541,20 @@ class PostgresBabyCareService:
                 if created is None:
                     raise ApiException.service_unavailable()
                 baby_id = created["created_baby_id"]
+                membership_id = created["created_membership_id"]
             except psycopg.errors.UniqueViolation as exc:
                 raise ApiException(
                     ErrorCode.OWNER_BABY_LIMIT,
                     "A user can own only one active baby.",
                 ) from exc
+            await self._record_shared_changes(
+                connection,
+                baby_id=baby_id,
+                changes=[
+                    ("BABY", baby_id, 1, False),
+                    ("MEMBERSHIP", membership_id, 1, False),
+                ],
+            )
             await self._complete_idempotency(
                 connection,
                 principal,
@@ -640,6 +653,7 @@ class PostgresBabyCareService:
                 if not (await cursor.fetchone())["owner"]:  # type: ignore[index]
                     await self._baby_access(connection, baby_id, principal.user_id)
                     raise self._owner_only()
+                await self._lock_shared_change_feed(connection, baby_id)
                 values = {
                     "alias": request.alias,
                     "birth_date": request.birth_date,
@@ -673,6 +687,11 @@ class PostgresBabyCareService:
                         ErrorCode.VERSION_CONFLICT,
                         "The baby profile changed before this update.",
                     )
+                await self._record_shared_changes(
+                    connection,
+                    baby_id=baby_id,
+                    changes=[("BABY", baby_id, request.version + 1, False)],
+                )
                 await self._complete_idempotency(
                     connection,
                     principal,
@@ -724,6 +743,7 @@ class PostgresBabyCareService:
                 payload=request.model_dump(mode="json"),
             )
             if replay is None:
+                await self._lock_shared_change_feed(connection, baby_id)
                 cursor = await connection.execute(
                     """
                     update baby_data.baby_memberships
@@ -742,6 +762,11 @@ class PostgresBabyCareService:
                         "The membership changed before this update.",
                     )
                 membership_id = row["membership_id"]
+                await self._record_shared_changes(
+                    connection,
+                    baby_id=baby_id,
+                    changes=[("MEMBERSHIP", membership_id, request.version + 1, False)],
+                )
                 await self._complete_idempotency(
                     connection,
                     principal,
@@ -839,6 +864,11 @@ class PostgresBabyCareService:
                     ErrorCode.VERSION_CONFLICT,
                     "The membership changed before this request.",
                 )
+            await self._record_shared_changes(
+                connection,
+                baby_id=baby_id,
+                changes=[("MEMBERSHIP", current["membership_id"], version + 1, True)],
+            )
             cursor = await connection.execute(
                 """
                 update baby_data.baby_memberships
@@ -1294,6 +1324,18 @@ class PostgresBabyCareService:
             if accepted is None:
                 raise self._not_found()
             baby_id = accepted["accepted_baby_id"]
+            await self._record_shared_changes(
+                connection,
+                baby_id=baby_id,
+                changes=[
+                    (
+                        "MEMBERSHIP",
+                        accepted["accepted_membership_id"],
+                        1,
+                        False,
+                    )
+                ],
+            )
             await self._complete_idempotency(
                 connection,
                 principal,
@@ -1487,7 +1529,7 @@ class PostgresBabyCareService:
         resource_id: UUID,
         resource_version: int,
         reason: Literal["CREATED", "UPDATED", "DELETION_REQUESTED"],
-    ) -> None:
+    ) -> int:
         cursor = await connection.execute(
             """
             select baby_private.advance_baby_context_revision(%s) as context_revision
@@ -1513,6 +1555,62 @@ class PostgresBabyCareService:
                 row["context_revision"],
             ),
         )
+        cursor = await connection.execute(
+            "select version from baby_data.babies where baby_id = %s",
+            (baby_id,),
+        )
+        baby = await cursor.fetchone()
+        if baby is None:
+            raise self._not_found()
+        return cast(int, baby["version"])
+
+    async def _record_shared_changes(
+        self,
+        connection: DatabaseConnection,
+        *,
+        baby_id: UUID,
+        changes: list[SharedChangeInput],
+    ) -> int:
+        payload = [
+            {
+                "resource_type": resource_type,
+                "resource_id": str(resource_id),
+                "version": version,
+                "deleted": deleted,
+            }
+            for resource_type, resource_id, version, deleted in changes
+        ]
+        try:
+            cursor = await connection.execute(
+                "select baby_private.record_shared_changes(%s, %s::jsonb) as revision",
+                (baby_id, json.dumps(payload)),
+            )
+            row = await cursor.fetchone()
+        except psycopg.Error as exc:
+            if "B09_RESOURCE_NOT_FOUND" in str(exc):
+                raise self._not_found() from exc
+            raise
+        if row is None or row["revision"] is None:
+            raise ApiException.service_unavailable()
+        return cast(int, row["revision"])
+
+    async def _lock_shared_change_feed(
+        self,
+        connection: DatabaseConnection,
+        baby_id: UUID,
+    ) -> None:
+        """Serialize a feed-aware mutation before it changes business rows."""
+        cursor = await connection.execute(
+            """
+            select baby_id
+              from baby_data.shared_change_feed_state
+             where baby_id = %s
+             for update
+            """,
+            (baby_id,),
+        )
+        if await cursor.fetchone() is None:
+            raise self._not_found()
 
     @staticmethod
     def _event_values(event: CareEventValue) -> tuple[str, Any, Any, str, dict[str, Any]]:
@@ -1545,6 +1643,7 @@ class PostgresBabyCareService:
                 _, event_id, _ = replay
                 return await self._get_care_event(connection, event_id)
             await self._baby_access(connection, baby_id, principal.user_id)
+            await self._lock_shared_change_feed(connection, baby_id)
             event_type, occurred_at, ended_at, precision, payload = self._event_values(
                 request.event
             )
@@ -1597,13 +1696,21 @@ class PostgresBabyCareService:
             if row is None:
                 raise ApiException.service_unavailable()
             event_id = row["care_event_id"]
-            await self._increment_context(
+            baby_version = await self._increment_context(
                 connection,
                 baby_id=baby_id,
                 resource_type="CARE_EVENT",
                 resource_id=event_id,
                 resource_version=row["version"],
                 reason="CREATED",
+            )
+            await self._record_shared_changes(
+                connection,
+                baby_id=baby_id,
+                changes=[
+                    ("CARE_EVENT", event_id, row["version"], False),
+                    ("BABY", baby_id, baby_version, False),
+                ],
             )
             await self._complete_idempotency(
                 connection,
@@ -1687,6 +1794,7 @@ class PostgresBabyCareService:
                         }
                     ),
                 )
+            await self._lock_shared_change_feed(connection, current.baby_id)
             event_type, occurred_at, ended_at, precision, payload = self._event_values(
                 request.event
             )
@@ -1729,13 +1837,21 @@ class PostgresBabyCareService:
                         }
                     ),
                 )
-            await self._increment_context(
+            baby_version = await self._increment_context(
                 connection,
                 baby_id=current.baby_id,
                 resource_type="CARE_EVENT",
                 resource_id=event_id,
                 resource_version=request.version + 1,
                 reason="UPDATED",
+            )
+            await self._record_shared_changes(
+                connection,
+                baby_id=current.baby_id,
+                changes=[
+                    ("CARE_EVENT", event_id, request.version + 1, False),
+                    ("BABY", current.baby_id, baby_version, False),
+                ],
             )
             await self._complete_idempotency(
                 connection,
@@ -1818,6 +1934,7 @@ class PostgresBabyCareService:
                         }
                     ),
                 )
+            await self._lock_shared_change_feed(connection, current.baby_id)
             cursor = await connection.execute(
                 """
                 update baby_data.care_events
@@ -1855,13 +1972,21 @@ class PostgresBabyCareService:
                 scope="CARE_EVENT",
                 resource_id=event_id,
             )
-            await self._increment_context(
+            baby_version = await self._increment_context(
                 connection,
                 baby_id=current.baby_id,
                 resource_type="CARE_EVENT",
                 resource_id=event_id,
                 resource_version=version + 1,
                 reason="DELETION_REQUESTED",
+            )
+            await self._record_shared_changes(
+                connection,
+                baby_id=current.baby_id,
+                changes=[
+                    ("CARE_EVENT", event_id, version + 1, True),
+                    ("BABY", current.baby_id, baby_version, False),
+                ],
             )
             await self._complete_idempotency(
                 connection,
@@ -2233,6 +2358,8 @@ class PostgresBabyCareService:
                 raise self._not_found()
             baby_id = episode["baby_id"]
             await self._baby_access(connection, baby_id, principal.user_id)
+            if request.new_care_event is not None:
+                await self._lock_shared_change_feed(connection, baby_id)
             if request.care_event_id is not None:
                 care_event = await self._get_care_event(connection, request.care_event_id)
                 if care_event.baby_id != baby_id:
@@ -2289,13 +2416,26 @@ class PostgresBabyCareService:
                 care_event_id = created["care_event_id"]  # type: ignore[index]
                 performed_at = occurred_at
                 data_origin = "USER"
-                await self._increment_context(
+                baby_version = await self._increment_context(
                     connection,
                     baby_id=baby_id,
                     resource_type="CARE_EVENT",
                     resource_id=care_event_id,
                     resource_version=created["version"],  # type: ignore[index]
                     reason="CREATED",
+                )
+                await self._record_shared_changes(
+                    connection,
+                    baby_id=baby_id,
+                    changes=[
+                        (
+                            "CARE_EVENT",
+                            care_event_id,
+                            created["version"],  # type: ignore[index]
+                            False,
+                        ),
+                        ("BABY", baby_id, baby_version, False),
+                    ],
                 )
             if request.performed_by_user_id is not None:
                 cursor = await connection.execute(
@@ -2444,6 +2584,122 @@ class PostgresBabyCareService:
         if has_more and visible:
             next_cursor = self._cursor_token(visible[-1]["sort_time"], visible[-1]["care_event_id"])
         return TimelineItemPage(items=items, next_cursor=next_cursor)
+
+    async def get_changes(
+        self,
+        principal: AuthenticatedPrincipal,
+        baby_id: UUID,
+        *,
+        since_revision: int,
+    ) -> Changes:
+        async with self.transaction(principal) as connection:
+            # Lock the feed state before the authorization rows. Every feed-aware
+            # membership removal and whole-baby deletion advances this same state
+            # before making access inactive. This explicit lock order avoids a
+            # membership/state deadlock and gives the list one revision boundary.
+            cursor = await connection.execute(
+                """
+                select current_revision, retained_from_revision,
+                       clock_timestamp() as server_time
+                  from baby_data.shared_change_feed_state
+                 where baby_id = %s
+                 for share
+                """,
+                (baby_id,),
+            )
+            boundary = await cursor.fetchone()
+            if boundary is None:
+                raise self._not_found()
+
+            # Recheck the concrete rows after acquiring the feed boundary. Feed-
+            # aware removal/deletion must advance state before making access
+            # inactive, so it is already blocked by the state lock. These remain
+            # plain SELECTs because PostgreSQL row-locking SELECTs also apply each
+            # table's UPDATE RLS policy (a caregiver cannot update a Baby row).
+            cursor = await connection.execute(
+                """
+                select 1
+                  from baby_data.babies b
+                  join baby_data.baby_memberships m on m.baby_id = b.baby_id
+                 where b.baby_id = %s
+                   and b.status = 'ACTIVE'
+                   and m.user_id = %s
+                   and m.status = 'ACTIVE'
+                """,
+                (baby_id, principal.user_id),
+            )
+            if await cursor.fetchone() is None:
+                raise self._not_found()
+
+            current_revision = cast(int, boundary["current_revision"])
+            retained_from_revision = cast(int, boundary["retained_from_revision"])
+            requires_resync = (
+                since_revision == 0
+                or since_revision < retained_from_revision
+                or since_revision > current_revision
+            )
+            if requires_resync:
+                return Changes(
+                    baby_id=baby_id,
+                    current_revision=current_revision,
+                    changes=[],
+                    resync_required=True,
+                    server_time=boundary["server_time"],
+                )
+
+            cursor = await connection.execute(
+                """
+                with latest_per_resource as (
+                    select distinct on (resource_type, resource_id)
+                           resource_type::text as resource_type,
+                           resource_id,
+                           resource_version,
+                           deleted,
+                           change_revision
+                      from baby_data.shared_changes
+                     where baby_id = %s
+                       and change_revision > %s
+                       and change_revision <= %s
+                     order by resource_type, resource_id, change_revision desc
+                )
+                select resource_type, resource_id, resource_version, deleted,
+                       change_revision
+                  from latest_per_resource
+                 order by change_revision, resource_type, resource_id
+                 limit %s
+                """,
+                (
+                    baby_id,
+                    since_revision,
+                    current_revision,
+                    self.MAX_SHARED_CHANGES + 1,
+                ),
+            )
+            rows = await cursor.fetchall()
+            if len(rows) > self.MAX_SHARED_CHANGES:
+                return Changes(
+                    baby_id=baby_id,
+                    current_revision=current_revision,
+                    changes=[],
+                    resync_required=True,
+                    server_time=boundary["server_time"],
+                )
+
+            return Changes(
+                baby_id=baby_id,
+                current_revision=current_revision,
+                changes=[
+                    Change(
+                        resource_type=row["resource_type"],
+                        resource_id=row["resource_id"],
+                        version=row["resource_version"],
+                        deleted=row["deleted"],
+                    )
+                    for row in rows
+                ],
+                resync_required=False,
+                server_time=boundary["server_time"],
+            )
 
     async def create_reauthentication_challenge(
         self,
@@ -2913,6 +3169,11 @@ class PostgresBabyCareService:
                 baby_id=baby_id,
                 scope="ALL",
                 resource_id=None,
+            )
+            await self._record_shared_changes(
+                connection,
+                baby_id=baby_id,
+                changes=[("BABY", baby_id, version + 1, True)],
             )
             cursor = await connection.execute(
                 """
