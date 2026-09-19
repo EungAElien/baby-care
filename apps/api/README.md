@@ -53,6 +53,20 @@ uv pip compile pyproject.toml --python-version 3.12 --generate-hashes --output-f
 uv pip compile pyproject.toml --python-version 3.12 --extra dev --generate-hashes --output-file requirements-dev.lock
 ```
 
+## B-02 LLM 선검증
+
+합성 한국어 정규화·상담 자료, 분리 프롬프트, 오프라인 판정기와 명시적으로만
+실행되는 `gpt-5.6-terra` Responses API smoke는
+[`evals/llm_prevalidation`](evals/llm_prevalidation/README.md)에 있습니다. 이 도구는
+현재 FastAPI route에 연결되지 않으며 B-02·B-07·B-14의 완료나 실사용 외부 전송을
+의미하지 않습니다.
+
+```bash
+PYTHONPATH=src .venv/bin/python -m baby_care_api.llm_eval \
+  --mode offline \
+  --report evals/llm_prevalidation/reports/offline-baseline.json
+```
+
 ## 로컬 실행과 상태 확인
 
 ```bash
