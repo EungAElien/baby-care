@@ -6,7 +6,7 @@
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { isForBaby, mockCareEntry, mockErrorEnvelope, mockNormalizationRun } from "@/lib/mock/fixtures";
-import { useMockSession } from "@/lib/mock/session";
+import { useMockSessionOptional } from "@/lib/mock/session";
 import { ScreenSection, LoadingState, ErrorState } from "@/components/screen-state";
 
 const unresolvedLabel: Record<string, string> = {
@@ -56,11 +56,14 @@ export default function EntryConfirmPage() {
 }
 
 function ReviewReady({ babyId }: Readonly<{ babyId: string }>) {
-  const session = useMockSession();
+  // Optional: a real (non-mock) signed-in user can reach this still-mock-only
+  // screen when NEXT_PUBLIC_ENABLE_MOCK_NAV is off, and must see the same
+  // safe "not visible" fallback rather than a thrown exception.
+  const session = useMockSessionOptional();
   const entry = mockCareEntry();
 
   // OWNER를 포함해 타인의 비공개 초안은 존재 자체를 숨기는 404 목 상태로 대체한다 (개발계약 §2 / getCareEntry).
-  const isVisibleToCurrentUser = isForBaby(babyId, entry) && entry.author_user_id === session.userId;
+  const isVisibleToCurrentUser = isForBaby(babyId, entry) && entry.author_user_id === session?.userId;
   if (!isVisibleToCurrentUser) {
     const notFoundError = mockErrorEnvelope("draft_other_author");
     return <ErrorState label={notFoundError.message} />;
