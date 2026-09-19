@@ -27,6 +27,8 @@ pytestmark = pytest.mark.integration
 def _required_env(name: str) -> str:
     value = os.environ.get(name)
     if not value:
+        if os.environ.get("BABY_CARE_REQUIRE_INTEGRATION") == "1":
+            pytest.fail(f"{name} is required when integration tests are mandatory")
         pytest.skip(f"{name} is required for the B-04 local integration test")
     return value
 

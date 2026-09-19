@@ -24,6 +24,7 @@ __pycache__/
 .ruff_cache/
 .coverage
 coverage.xml
+.artifacts/
 
 # Local Supabase CLI state
 supabase/.branches/

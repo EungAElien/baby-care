@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import copy
 import json
 from pathlib import Path
@@ -467,11 +468,20 @@ FIXTURE_DOC={'contract_version':'1.1.1','notice':'All fixtures are synthetic con
     'role_assignments':[{'user_id':USERS['owner_a'],'baby_id':BABY_A,'role':'OWNER','status':'ACTIVE'}, {'user_id':USERS['caregiver_a'],'baby_id':BABY_A,'role':'CAREGIVER','status':'ACTIVE'}, {'user_id':USERS['owner_b'],'baby_id':BABY_B,'role':'OWNER','status':'ACTIVE'}, {'user_id':USERS['owner_a'],'baby_id':BABY_B,'role':'CAREGIVER','status':'ACTIVE'}, {'user_id':USERS['removed_a'],'baby_id':BABY_A,'role':'CAREGIVER','status':'REVOKED'}],
     'scenarios':fixtures}
 
-def build_contract():
-    (OUT/'openapi계약.json').write_text(json.dumps(DOC,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
-    (OUT/'목 응답과 시험 사용자 배치.json').write_text(json.dumps(FIXTURE_DOC,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+def build_contract(output_dir: Path = OUT):
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir/'openapi계약.json').write_text(json.dumps(DOC,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+    (output_dir/'목 응답과 시험 사용자 배치.json').write_text(json.dumps(FIXTURE_DOC,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     return {'operations':len(REGISTRY),'paths':len(PATHS),'schemas':len(SCHEMAS),'scenarios':len(fixtures)}
 
 
 if __name__ == '__main__':
-    print(json.dumps(build_contract(),ensure_ascii=False))
+    parser = argparse.ArgumentParser(description='Build the canonical OpenAPI and synthetic fixtures.')
+    parser.add_argument(
+        '--output-dir',
+        type=Path,
+        default=OUT,
+        help='Destination directory. Defaults to the canonical contracts directory.',
+    )
+    args = parser.parse_args()
+    print(json.dumps(build_contract(args.output_dir.resolve()),ensure_ascii=False))

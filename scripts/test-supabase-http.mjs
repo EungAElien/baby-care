@@ -6,11 +6,12 @@ import { fileURLToPath } from "node:url";
 
 const repoDir = fileURLToPath(new URL("..", import.meta.url)).replace(/\/$/, "");
 const dbContainer = process.env.SUPABASE_DB_CONTAINER ?? "supabase_db_baby-care-b03-local";
+const supabaseWorkdir = process.env.SUPABASE_WORKDIR ?? repoDir;
 
 function localStatus() {
   const output = execFileSync(
     "npx",
-    ["supabase", "status", "-o", "json"],
+    ["supabase", "--workdir", supabaseWorkdir, "status", "-o", "json"],
     { cwd: repoDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
   );
   return JSON.parse(output);
