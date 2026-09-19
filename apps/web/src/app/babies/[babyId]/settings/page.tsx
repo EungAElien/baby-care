@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useSearchParams, useParams } from "next/navigation";
-import { mockBabyLabel, mockDeletionJob, mockErrorEnvelope } from "@/lib/mock/fixtures";
+import { isForBaby, mockBabyLabel, mockDeletionJob, mockErrorEnvelope } from "@/lib/mock/fixtures";
 import { useMockSession } from "@/lib/mock/session";
 import { ScreenSection, ErrorState, PermissionState } from "@/components/screen-state";
 
@@ -30,7 +30,8 @@ export default function SettingsPage() {
   const session = useMockSession();
   const membership = session.membershipFor(babyId);
   const deletionState = (searchParams.get("deletion") ?? "accepted") as keyof typeof deletionScenarioByState;
-  const deletionJob = mockDeletionJob(deletionScenarioByState[deletionState] ?? "deletion_accepted");
+  const deletionJobFixture = mockDeletionJob(deletionScenarioByState[deletionState] ?? "deletion_accepted");
+  const deletionJob = isForBaby(babyId, deletionJobFixture) ? deletionJobFixture : null;
   const [profileAttempt, setProfileAttempt] = useState<ProfileAttempt>("IDLE");
   const ownerOnlyError = mockErrorEnvelope("owner_required");
 
@@ -66,14 +67,16 @@ export default function SettingsPage() {
       </ScreenSection>
 
       <ScreenSection title="데이터 삭제 진행 상태">
-        {deletionJob.status === "FAILED" ? (
+        {!deletionJob ? (
+          <p className="text-sm text-muted-foreground">이 아기의 삭제 작업이 없어요.</p>
+        ) : deletionJob.status === "FAILED" ? (
           <ErrorState label="일부 자료 정리 중이에요" retryable={deletionJob.failure?.retryable} />
         ) : (
           <p className="text-sm text-foreground">
             {deletionJob.status === "COMPLETE" ? "삭제를 완료했어요" : "삭제를 진행하고 있어요"}
           </p>
         )}
-        {deletionJob.pending_categories.length > 0 && (
+        {deletionJob && deletionJob.pending_categories.length > 0 && (
           <p className="text-xs text-muted-foreground">남은 항목: {deletionJob.pending_categories.join(", ")}</p>
         )}
         <div className="flex gap-2 text-xs">

@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.0.0",
+  "contract_version": "1.1.0",
   "notice": "All fixtures are synthetic contract examples. No model ran, no audio is supplied, and no real account or token is created. Never count these as measured model results.",
   "test_users": [
     {
@@ -128,6 +128,169 @@
         },
         "body": {
           "baby_id": null
+        }
+      }
+    },
+    {
+      "name": "reauthentication_challenge",
+      "operation_id": "createReauthenticationChallenge",
+      "synthetic": true,
+      "expected_ui": "10분 안에 새 이메일 OTP 인증 화면으로 이동, access token 갱신만으로 완료 처리하지 않음",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "challenge_id": "10000000-0000-4000-8000-000000000830",
+          "user_id": "10000000-0000-4000-8000-000000000001",
+          "requested_session_id": "10000000-0000-4000-8000-000000000831",
+          "operation": "CREATE_INVITE",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "auth_method": "SUPABASE_OTP",
+          "status": "PENDING",
+          "created_at": "2026-09-19T09:00:00Z",
+          "expires_at": "2026-09-19T09:10:00Z"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000832"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000832",
+          "operation": "CREATE_INVITE",
+          "baby_id": "10000000-0000-4000-8000-000000000101"
+        }
+      }
+    },
+    {
+      "name": "reauthentication_proof",
+      "operation_id": "createReauthenticationProof",
+      "synthetic": true,
+      "expected_ui": "현재 OTP 세션·작업·아기에 묶인 5분 일회용 증명을 메모리에만 유지",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "proof_id": "10000000-0000-4000-8000-000000000833",
+          "challenge_id": "10000000-0000-4000-8000-000000000830",
+          "user_id": "10000000-0000-4000-8000-000000000001",
+          "session_id": "10000000-0000-4000-8000-000000000834",
+          "operation": "CREATE_INVITE",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "proof_token": "synthetic-one-time-proof-not-a-live-secret",
+          "token_reissue_required": false,
+          "issued_at": "2026-09-19T09:01:00Z",
+          "expires_at": "2026-09-19T09:06:00Z"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000835"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000835",
+          "challenge_id": "10000000-0000-4000-8000-000000000830"
+        }
+      }
+    },
+    {
+      "name": "other_sessions_revoked",
+      "operation_id": "revokeSessions",
+      "synthetic": true,
+      "expected_ui": "다른 기기의 로컬 접근 차단과 제공자 refresh 세션 종료 완료를 함께 표시",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "revocation_id": "10000000-0000-4000-8000-000000000836",
+          "requester_user_id": "10000000-0000-4000-8000-000000000001",
+          "requester_session_id": "10000000-0000-4000-8000-000000000834",
+          "scope": "OTHERS",
+          "status": "COMPLETE",
+          "target_session_count": 1,
+          "provider_scope": "others",
+          "provider_http_status": 200,
+          "failure": null,
+          "access_blocked": true,
+          "requested_at": "2026-09-19T09:00:00Z",
+          "completed_at": "2026-09-19T09:00:01Z"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000837"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000837",
+          "scope": "OTHERS"
+        }
+      }
+    },
+    {
+      "name": "session_revocation_provider_failed",
+      "operation_id": "revokeSessions",
+      "synthetic": true,
+      "expected_ui": "로컬 접근 차단은 유지하고 로그아웃 완료가 아닌 재시도 가능한 실패로 표시",
+      "response": {
+        "status": 503,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "AUTH_PROVIDER_REVOCATION_FAILED",
+          "message": "제공자 세션 종료를 완료하지 못했어요.",
+          "retryable": true,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "session_revocation_id": "10000000-0000-4000-8000-000000000838",
+            "reauthentication_challenge_id": null,
+            "status_url": "/v1/auth/session-revocations/10000000-0000-4000-8000-000000000838",
+            "retry_after_seconds": null
+          }
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000839"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000839",
+          "scope": "CURRENT"
+        }
+      }
+    },
+    {
+      "name": "child_data_unverified",
+      "operation_id": "getChildDataVerification",
+      "synthetic": true,
+      "expected_ui": "OWNER·이메일 OTP만으로 법정대리인 확인 완료로 표시하지 않고 실사용 처리를 잠금",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "subject_user_id": "10000000-0000-4000-8000-000000000001",
+          "status": "UNVERIFIED",
+          "method": null,
+          "policy_version": null,
+          "verified_at": null,
+          "production_processing_allowed": false
         }
       }
     },
@@ -397,6 +560,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": "/v1/analyses/10000000-0000-4000-8000-000000000501",
             "retry_after_seconds": null
           }
@@ -495,6 +660,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -525,6 +692,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -555,6 +724,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -585,6 +756,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -637,6 +810,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -687,6 +862,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -717,6 +894,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -747,6 +926,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -777,6 +958,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -825,6 +1008,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -855,6 +1040,8 @@
             "existing_run_id": null,
             "existing_session_id": "10000000-0000-4000-8000-000000000701",
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -1008,6 +1195,83 @@
       }
     },
     {
+      "name": "draft_list_private",
+      "operation_id": "listMyCareEntries",
+      "synthetic": true,
+      "expected_ui": "현재 사용자와 아기에 묶인 서버 초안만 복구하며 공동 타임라인에는 넣지 않음",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "items": [
+            {
+              "entry_id": "10000000-0000-4000-8000-000000000750",
+              "baby_id": "10000000-0000-4000-8000-000000000101",
+              "author_user_id": "10000000-0000-4000-8000-000000000001",
+              "original_author_user_id": "10000000-0000-4000-8000-000000000001",
+              "episode_id": "10000000-0000-4000-8000-000000000301",
+              "input_mode": "TEXT",
+              "raw_text": "분유 80mL 먹였어요",
+              "choices": [],
+              "occurred_at": null,
+              "time_precision": "UNKNOWN",
+              "input_revision": 1,
+              "status": "REVIEW_READY",
+              "normalization_run_id": "10000000-0000-4000-8000-000000000751",
+              "normalized_content": {
+                "actions": [
+                  {
+                    "action_ref": "a1",
+                    "action_code": "FEEDING",
+                    "assertion": "PERFORMED",
+                    "performed_by_user_id": null,
+                    "occurred_at": null,
+                    "relative_time": null,
+                    "time_precision": "UNKNOWN",
+                    "sequence": 1,
+                    "amount": 80,
+                    "unit": "ML",
+                    "feeding_mode": "FORMULA",
+                    "evidence": [
+                      {
+                        "source": "TEXT",
+                        "choice_id": null,
+                        "span_start": 0,
+                        "span_end": 12,
+                        "quote": "분유 80mL 먹였어요"
+                      }
+                    ]
+                  }
+                ],
+                "states": [],
+                "outcomes": [],
+                "caregiver_interpretations": [],
+                "unresolved": [
+                  {
+                    "field": "actions.a1.occurred_at",
+                    "code": "UNKNOWN_TIME",
+                    "message": "수유한 시각을 확인하거나 모름으로 저장해 주세요."
+                  }
+                ]
+              },
+              "supersedes_entry_id": null,
+              "base_record_versions": [],
+              "confirmed_resources": null,
+              "confirmed_by_user_id": null,
+              "confirmed_at": null,
+              "data_origin": "DEMO",
+              "version": 1,
+              "recorded_at": "2026-09-19T09:00:00Z",
+              "updated_at": "2026-09-19T09:00:00Z"
+            }
+          ],
+          "next_cursor": null
+        }
+      }
+    },
+    {
       "name": "draft_other_author",
       "operation_id": "getCareEntry",
       "synthetic": true,
@@ -1031,6 +1295,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -1094,6 +1360,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -1261,6 +1529,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": "10000000-0000-4000-8000-000000000780",
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": "/v1/deletions/10000000-0000-4000-8000-000000000780",
             "retry_after_seconds": null
           }
@@ -1437,6 +1707,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": null
           }
@@ -1468,6 +1740,8 @@
             "existing_run_id": null,
             "existing_session_id": null,
             "deletion_job_id": null,
+            "session_revocation_id": null,
+            "reauthentication_challenge_id": null,
             "status_url": null,
             "retry_after_seconds": 5
           }
@@ -1478,7 +1752,7 @@
       "name": "invite_issued",
       "operation_id": "createInvite",
       "synthetic": true,
-      "expected_ui": "관리 보호자가 링크를 복사해 직접 전달",
+      "expected_ui": "관리 보호자가 최초 한 번 표시된 링크를 복사해 직접 전달",
       "response": {
         "status": 201,
         "headers": {
@@ -1498,6 +1772,16 @@
           },
           "invite_url": "https://example.invalid/invite#synthetic-not-a-working-token",
           "link_reissue_required": false
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000840",
+          "X-Reauthentication-Proof": "synthetic-one-time-proof-not-a-live-secret"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000840",
+          "email": "invited_a@example.invalid"
         }
       }
     },
@@ -1525,6 +1809,42 @@
           },
           "invite_url": null,
           "link_reissue_required": true
+        }
+      }
+    },
+    {
+      "name": "invite_reissued",
+      "operation_id": "reissueInvite",
+      "synthetic": true,
+      "expected_ui": "이전 링크를 폐기하고 새 링크를 최초 한 번 표시",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "invite": {
+            "invite_id": "10000000-0000-4000-8000-000000000261",
+            "baby_id": "10000000-0000-4000-8000-000000000101",
+            "inviter_user_id": "10000000-0000-4000-8000-000000000001",
+            "email": "invited_a@example.invalid",
+            "status": "PENDING",
+            "expires_at": "2026-09-20T09:00:00Z",
+            "version": 1,
+            "recorded_at": "2026-09-19T09:00:00Z",
+            "updated_at": "2026-09-19T09:00:00Z"
+          },
+          "invite_url": "https://example.invalid/invite#synthetic-reissued-token",
+          "link_reissue_required": false
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000841",
+          "X-Reauthentication-Proof": "synthetic-one-time-proof-not-a-live-secret"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000841"
         }
       }
     },
