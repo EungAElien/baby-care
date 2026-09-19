@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import logging
 from copy import deepcopy
+from pathlib import Path
 from uuid import UUID
 
 from fastapi.testclient import TestClient
@@ -156,11 +158,29 @@ def test_safe_log_formatter_does_not_render_arbitrary_messages() -> None:
 def test_openapi_is_honest_about_implemented_business_operations(client: TestClient) -> None:
     schema = client.get("/openapi.json").json()
 
-    assert schema["x-business-contract"] == {
-        "source": "contracts/openapi계약.json",
-        "version": "1.0.0",
-        "api_prefix": "/v1",
-        "implemented_operations": [],
+    business_contract = schema["x-business-contract"]
+    assert business_contract["source"] == "contracts/openapi계약.json"
+    assert business_contract["version"] == "1.1.0"
+    assert business_contract["api_prefix"] == "/v1"
+    assert "createBaby" in business_contract["implemented_operations"]
+    assert "revokeSessions" in business_contract["implemented_operations"]
+    assert "/v1/babies" in schema["paths"]
+    assert "/v1/auth/session-revocations" in schema["paths"]
+
+    contract_path = Path(__file__).resolve().parents[3] / "contracts" / "openapi계약.json"
+    canonical = json.loads(contract_path.read_text(encoding="utf-8"))
+    canonical_operations = {
+        operation["operationId"]: (method, f"/v1{path}")
+        for path, path_item in canonical["paths"].items()
+        for method, operation in path_item.items()
     }
-    assert not any(path.startswith("/v1") for path in schema["paths"])
-    assert set(schema["paths"]) == {"/health/live", "/health/ready"}
+    actual_operations = {
+        operation["operationId"]: (method, path)
+        for path, path_item in schema["paths"].items()
+        if path.startswith("/v1/")
+        for method, operation in path_item.items()
+    }
+
+    assert set(actual_operations) == set(business_contract["implemented_operations"])
+    for operation_id, location in actual_operations.items():
+        assert canonical_operations[operation_id] == location

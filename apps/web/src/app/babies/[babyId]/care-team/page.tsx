@@ -91,7 +91,11 @@ export default function CareTeamPage() {
 
       {membership.role === "OWNER" ? (
         <ScreenSection title="초대 발급">
-          <p className="text-sm text-foreground">{issuedInvite.invite.email}로 24시간 유효한 링크를 만들었어요.</p>
+          {issuedInvite ? (
+            <p className="text-sm text-foreground">{issuedInvite.invite.email}로 24시간 유효한 링크를 만들었어요.</p>
+          ) : (
+            <p className="text-sm text-muted-foreground">이 아기의 초대 내역이 없어요.</p>
+          )}
           <p className="text-xs text-muted-foreground">링크는 최초 한 번만 보여줘요. 잃어버리면 재발급해야 해요.</p>
           <button type="button" disabled className="min-h-11 rounded-md border border-border px-4 text-sm text-muted-foreground">
             새 초대 발급 (실제 API 연동 이후)

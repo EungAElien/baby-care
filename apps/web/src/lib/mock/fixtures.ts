@@ -192,6 +192,10 @@ export function mockStateObservation(): components["schemas"]["StateObservation"
   return mockScenarioBody("confirmed_state_visual");
 }
 
+export function mockIssuedInvite(): components["schemas"]["IssuedInvite"] {
+  return mockScenarioBody("invite_issued");
+}
+
 /**
  * Fixture records are only defined for `baby_a`. A screen must not reuse
  * another baby's synthetic data when the route's `baby_id` doesn't match —
