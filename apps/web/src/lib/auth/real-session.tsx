@@ -4,7 +4,7 @@
 // nav session, this is the production auth path and is not flag-gated. When
 // no real Supabase project is configured (plain local dev on the mock nav
 // only) it stays in "signed-out" without ever touching the network.
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { usePrivateScope } from "@/components/app-providers";
 import { getSupabaseClient } from "@/lib/auth/supabase-client";
@@ -31,6 +31,7 @@ export function RealSessionProvider({ children }: Readonly<{ children: React.Rea
   const configured = tryReadPublicConfig() !== null;
   const [session, setSession] = useState<Session | null>(null);
   const [status, setStatus] = useState<RealSessionStatus>(configured ? "loading" : "signed-out");
+  const realUserId = useRef<string | null>(null);
 
   useEffect(() => {
     if (!configured) return;
@@ -38,10 +39,15 @@ export function RealSessionProvider({ children }: Readonly<{ children: React.Rea
     const { data: subscription } = supabase.auth.onAuthStateChange((event, next) => {
       setSession(next);
       setStatus(next ? "signed-in" : "signed-out");
-      // Token refreshes must not reset PrivateScope — only a real sign-in/out changes who is active.
-      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && next?.user.id) {
-        scope.set(next.user.id, null);
+      // Supabase may emit SIGNED_IN again for the same recovered session.
+      // Only an identity change discards the selected baby's scope.
+      if (next?.user.id) {
+        if (realUserId.current !== next.user.id || scope.snapshot().userId !== next.user.id) {
+          scope.set(next.user.id, null);
+        }
+        realUserId.current = next.user.id;
       } else if (event === "SIGNED_OUT") {
+        realUserId.current = null;
         scope.reset();
       }
     });

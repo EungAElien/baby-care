@@ -1,7 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, useSyncExternalStore } from "react";
 import { PrivateScope } from "@/lib/private-scope";
 
 const PrivateScopeContext = createContext<PrivateScope | null>(null);
@@ -55,15 +55,16 @@ export function usePrivateScope(): PrivateScope {
   return scope;
 }
 
-/** Shared by the real and mock baby layouts to keep PrivateScope's (user_id, baby_id) snapshot current. */
-export function useSyncPrivateScopeForBaby(userId: string | null, babyId: string): void {
+/** A baby view must not start private queries until the previous scope has been cleared. */
+export function useSyncPrivateScopeForBaby(userId: string | null, babyId: string): boolean {
   const scope = usePrivateScope();
-  const lastKey = useRef<string | null>(null);
+  const subscribe = useCallback((listener: () => void) => scope.subscribe(listener), [scope]);
+  const getSnapshot = useCallback(() => scope.snapshot(), [scope]);
+  const snapshot = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   useEffect(() => {
-    const key = `${userId ?? ""}:${babyId}`;
-    if (lastKey.current === key) return;
-    lastKey.current = key;
     if (userId) scope.set(userId, babyId);
   }, [userId, babyId, scope]);
+
+  return userId !== null && snapshot.userId === userId && snapshot.babyId === babyId;
 }

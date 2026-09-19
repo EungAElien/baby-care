@@ -18,11 +18,17 @@ export class PrivateScope {
   private state: PrivateScopeSnapshot = { userId: null, babyId: null, generation: 0 };
   private readonly controllers = new Set<AbortController>();
   private readonly cleanups = new Set<() => void>();
+  private readonly listeners = new Set<() => void>();
 
   constructor(private readonly queryClient: QueryClient) {}
 
   snapshot(): PrivateScopeSnapshot {
     return this.state;
+  }
+
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
   }
 
   set(userId: string | null, babyId: string | null): void {
@@ -71,6 +77,7 @@ export class PrivateScope {
       }
     }
     this.queryClient.clear();
+    for (const listener of this.listeners) listener();
   }
 }
 

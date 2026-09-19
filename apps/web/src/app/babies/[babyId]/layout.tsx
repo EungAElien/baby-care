@@ -64,13 +64,14 @@ function RealBabyContent({ babyId, children }: Readonly<{ babyId: string; childr
 function RealOnlyBabyLayout({ babyId, children }: Readonly<{ babyId: string; children: React.ReactNode }>) {
   const router = useRouter();
   const real = useRealSession();
-  useSyncPrivateScopeForBaby(real.userId, babyId);
+  const scopeReady = useSyncPrivateScopeForBaby(real.userId, babyId);
 
   useEffect(() => {
     if (real.status === "signed-out") router.replace("/login");
   }, [real.status, router]);
 
   if (real.status !== "signed-in") return null;
+  if (!scopeReady) return <LoadingState label="아기 정보를 준비하고 있어요" />;
   return <RealBabyContent babyId={babyId}>{children}</RealBabyContent>;
 }
 
@@ -80,7 +81,7 @@ function HybridBabyLayout({ babyId, children }: Readonly<{ babyId: string; child
   const real = useRealSession();
   const mock = useMockSession();
   const activeUserId = real.status === "signed-in" ? real.userId : mock.userId;
-  useSyncPrivateScopeForBaby(activeUserId, babyId);
+  const scopeReady = useSyncPrivateScopeForBaby(activeUserId, babyId);
 
   useEffect(() => {
     if (real.status === "loading") return;
@@ -88,6 +89,7 @@ function HybridBabyLayout({ babyId, children }: Readonly<{ babyId: string; child
   }, [real.status, mock.alias, router]);
 
   if (real.status === "loading") return null;
+  if (activeUserId && !scopeReady) return <LoadingState label="아기 정보를 준비하고 있어요" />;
   if (real.status === "signed-in") return <RealBabyContent babyId={babyId}>{children}</RealBabyContent>;
 
   if (!mock.alias) return null;
