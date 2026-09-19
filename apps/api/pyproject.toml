@@ -8,6 +8,7 @@ dependencies = [
     "fastapi==0.141.1",
     "pydantic==2.13.5",
     "pydantic-settings==2.15.0",
+    "psycopg[binary,pool]==3.3.6",
     "uvicorn==0.53.0",
 ]
 
@@ -25,6 +26,7 @@ dev = [
 addopts = "-ra --strict-config --strict-markers --cov=baby_care_api --cov-report=term-missing --cov-fail-under=90"
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = ["integration: requires the dedicated local Supabase database"]
 
 [tool.coverage.run]
 branch = true

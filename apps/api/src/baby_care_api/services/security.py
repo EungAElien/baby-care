@@ -41,7 +41,7 @@ class AuthorizationPort(Protocol):
 
 
 class UnconfiguredAuthenticationPort:
-    """Fail closed until B-03 supplies verified JWT/session infrastructure."""
+    """Fail closed until verified JWT/JWKS and session infrastructure is connected."""
 
     async def authenticate(self, authorization_header: str | None) -> AuthenticatedPrincipal:
         del authorization_header
