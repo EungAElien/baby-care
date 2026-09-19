@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from copy import deepcopy
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -13,6 +14,13 @@ from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT202012
 
 from baby_care_api.core.errors import ERROR_STATUS
+from baby_care_api.models.b04 import (
+    CreateAction,
+    CreateBaby,
+    CreateCareEntry,
+    CreateInvite,
+    PatchBaby,
+)
 from baby_care_api.models.care_events import CareEvent, CreateCareEvent
 from baby_care_api.models.errors import ApiError, ErrorCode
 
@@ -153,3 +161,141 @@ def test_version_conflict_accepts_only_typed_care_event_resource() -> None:
 
 def test_contract_prefix_is_v1() -> None:
     assert CONTRACT["servers"][0]["url"] == "/v1"
+
+
+def test_baby_inputs_reject_future_birth_dates_invalid_timezones_and_empty_patches() -> None:
+    common = {
+        "client_request_id": "10000000-0000-4000-8000-000000000807",
+        "alias": "Synthetic baby",
+        "birth_date": date.today() + timedelta(days=1),
+        "feeding_mode": "MIXED",
+        "timezone": "Asia/Seoul",
+    }
+    with pytest.raises(ValidationError, match="birth_date cannot be in the future"):
+        CreateBaby.model_validate(common)
+    with pytest.raises(ValidationError, match="timezone must be an IANA time zone"):
+        CreateBaby.model_validate(
+            {**common, "birth_date": date.today(), "timezone": "Not/A-Timezone"}
+        )
+    with pytest.raises(ValidationError, match="at least one baby field"):
+        PatchBaby.model_validate({"client_request_id": common["client_request_id"], "version": 1})
+    with pytest.raises(ValidationError, match="birth_date cannot be in the future"):
+        PatchBaby.model_validate(
+            {
+                "client_request_id": common["client_request_id"],
+                "version": 1,
+                "birth_date": date.today() + timedelta(days=1),
+            }
+        )
+    with pytest.raises(ValidationError, match="timezone must be an IANA time zone"):
+        PatchBaby.model_validate(
+            {
+                "client_request_id": common["client_request_id"],
+                "version": 1,
+                "timezone": "Not/A-Timezone",
+            }
+        )
+
+
+def test_invite_email_is_normalized_and_invalid_shape_is_rejected() -> None:
+    request_id = "10000000-0000-4000-8000-000000000807"
+    assert (
+        CreateInvite.model_validate(
+            {"client_request_id": request_id, "email": " Caregiver@Example.Test "}
+        ).email
+        == "caregiver@example.test"
+    )
+
+    with pytest.raises(ValidationError, match="email must be valid"):
+        CreateInvite.model_validate({"client_request_id": request_id, "email": "invalid"})
+
+
+@pytest.mark.parametrize(
+    ("input_mode", "raw_text", "choices", "message"),
+    [
+        ("CHOICE", "unexpected text", [], "CHOICE requires choices"),
+        ("TEXT", " ", [], "TEXT requires raw_text"),
+        ("MIXED", "mixed text", [], "MIXED requires raw_text and choices"),
+    ],
+)
+def test_care_entry_input_modes_enforce_text_and_choice_shape(
+    input_mode: str,
+    raw_text: str | None,
+    choices: list[dict[str, str | None]],
+    message: str,
+) -> None:
+    with pytest.raises(ValidationError, match=message):
+        CreateCareEntry.model_validate(
+            {
+                "client_request_id": "10000000-0000-4000-8000-000000000807",
+                "episode_id": None,
+                "supersedes_entry_id": None,
+                "input_mode": input_mode,
+                "raw_text": raw_text,
+                "choices": choices,
+                "occurred_at": None,
+                "time_precision": "UNKNOWN",
+                "base_record_versions": [],
+            }
+        )
+
+
+def test_action_requires_exactly_one_event_source() -> None:
+    base = {
+        "client_request_id": "10000000-0000-4000-8000-000000000807",
+        "recommendation_id": None,
+        "performed_by_user_id": None,
+        "sequence": 1,
+    }
+    with pytest.raises(ValidationError, match="exactly one"):
+        CreateAction.model_validate({**base, "care_event_id": None, "new_care_event": None})
+    with pytest.raises(ValidationError, match="exactly one"):
+        CreateAction.model_validate(
+            {
+                **base,
+                "care_event_id": "10000000-0000-4000-8000-000000000101",
+                "new_care_event": {
+                    "type": "SOOTHE",
+                    "occurred_at": None,
+                    "ended_at": None,
+                    "time_precision": "UNKNOWN",
+                    "payload": {"action_kind": "HOLDING"},
+                },
+            }
+        )
+
+
+@pytest.mark.parametrize(
+    "event",
+    [
+        {
+            "type": "FEEDING",
+            "occurred_at": (datetime.now(UTC) + timedelta(minutes=6)).isoformat(),
+            "ended_at": None,
+            "time_precision": "EXACT",
+            "payload": {"mode": "FORMULA", "amount_ml": 10, "duration_minutes": None},
+        },
+        {
+            "type": "FEEDING",
+            "occurred_at": datetime.now(UTC).isoformat(),
+            "ended_at": (datetime.now(UTC) + timedelta(minutes=6)).isoformat(),
+            "time_precision": "EXACT",
+            "payload": {"mode": "FORMULA", "amount_ml": 10, "duration_minutes": None},
+        },
+        {
+            "type": "FEEDING",
+            "occurred_at": datetime.now(UTC).isoformat(),
+            "ended_at": (datetime.now(UTC) - timedelta(minutes=1)).isoformat(),
+            "time_precision": "EXACT",
+            "payload": {"mode": "FORMULA", "amount_ml": 10, "duration_minutes": None},
+        },
+    ],
+)
+def test_care_event_times_reject_future_and_reverse_ranges(event: dict[str, object]) -> None:
+    with pytest.raises(ValidationError):
+        CreateCareEvent.model_validate(
+            {
+                "client_request_id": "10000000-0000-4000-8000-000000000807",
+                "event": event,
+            }
+        )

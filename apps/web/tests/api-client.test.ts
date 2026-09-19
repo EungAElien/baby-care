@@ -9,7 +9,10 @@ import { PrivateScope, ScopeChangedError } from "../src/lib/private-scope";
 
 type FixtureScenario = {
   name: string;
-  request?: { headers: { "Idempotency-Key": string }; body: Record<string, unknown> };
+  request?: {
+    headers: { "Idempotency-Key": string; "X-Reauthentication-Proof"?: string };
+    body: Record<string, unknown>;
+  };
   response: { status: number; headers: Record<string, string>; body: unknown };
 };
 
@@ -105,11 +108,15 @@ describe("OpenAPI client with provided synthetic fixtures", () => {
       params: {
         path: { baby_id: "10000000-0000-4000-8000-000000000101" },
         query: { version: 1, confirm: "DELETE_BABY" },
-        header: { "Idempotency-Key": key, "X-Reauthentication-Proof": "test-reauth-proof" },
+        header: {
+          "Idempotency-Key": key,
+          "X-Reauthentication-Proof": "synthetic-one-time-proof-not-a-live-secret",
+        },
       },
     });
     expect(requireData(result)).toEqual(fixture("deletion_accepted").response.body);
     expect(requests[0]!.headers.get("Idempotency-Key")).toBe(key);
+    expect(requests[0]!.headers.get("X-Reauthentication-Proof")).toBe("synthetic-one-time-proof-not-a-live-secret");
     expect(new URL(requests[0]!.url).searchParams.get("version")).toBe("1");
     expect(requests[0]!.body).toBeNull();
   });
@@ -194,7 +201,10 @@ describe("OpenAPI client with provided synthetic fixtures", () => {
     });
     expect(() => requireData(result)).toThrow(ContractApiError);
     expect(classifyErrorCode("MODEL_NOT_READY")).toBe("service");
+    expect(classifyErrorCode("AUTH_PROVIDER_REVOCATION_FAILED")).toBe("service");
     expect(classifyErrorCode("OWNER_ONLY")).toBe("permission");
+    expect(classifyErrorCode("CHILD_DATA_VERIFICATION_REQUIRED")).toBe("permission");
+    expect(classifyErrorCode("REAUTH_REQUIRED")).toBe("authentication");
     expect(classifyErrorCode("RESOURCE_NOT_FOUND")).toBe("not-found");
     expect(classifyErrorCode("VERSION_CONFLICT")).toBe("version-conflict");
     expect(classifyErrorCode("IDEMPOTENCY_KEY_REUSED")).toBe("idempotency-conflict");

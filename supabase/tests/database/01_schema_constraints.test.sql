@@ -3,7 +3,7 @@ create extension if not exists pgtap with schema extensions;
 begin;
 set local search_path = extensions, public;
 
-select plan(32);
+select plan(41);
 
 select has_schema('baby_data', 'private business schema exists');
 select has_schema('baby_private', 'private helper schema exists');
@@ -23,6 +23,15 @@ select has_table('baby_data', 'normalization_runs', 'normalization run table exi
 select has_table('baby_data', 'state_observations', 'state observation table exists');
 select has_table('baby_data', 'reminder_settings', 'personal reminder settings table exists');
 select has_table('baby_data', 'deletion_jobs', 'deletion job table exists');
+select has_table('baby_data', 'idempotency_records', 'durable idempotency table exists');
+select has_table('baby_data', 'security_attempts', 'security rate-limit table exists');
+select has_table('baby_data', 'reauthentication_challenges', 'reauthentication challenge table exists');
+select has_table('baby_data', 'reauthentication_proofs', 'one-time reauthentication proof table exists');
+select has_table('baby_data', 'session_revocation_jobs', 'provider revocation status table exists');
+select has_table('baby_data', 'observed_auth_sessions', 'least-privilege session registry exists');
+select has_table('baby_data', 'session_revocation_rules', 'session cutoff rule table exists');
+select has_table('baby_data', 'guardian_verifications', 'child-data gate table exists');
+select has_table('baby_data', 'resource_invalidations', 'derived-resource invalidation table exists');
 
 select is(
     (
@@ -54,7 +63,7 @@ select is(
            and c.relrowsecurity
            and c.relforcerowsecurity
     ),
-    28,
+    37,
     'every business table has FORCE ROW LEVEL SECURITY'
 );
 

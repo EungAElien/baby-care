@@ -132,7 +132,7 @@ flowchart TD
 
 ### B-03 Supabase 스키마·RLS·Storage
 
-**현재:** 2026-09-19 로컬 Supabase에서 스키마·FORCE RLS·STANDARD Storage 정책과 합성 seed를 적용하고 DB 70개 단언, 트랜잭션 문맥, 실제 Auth JWT Storage HTTP 23개 허용·거부를 확인했다. 병합된 B-01의 AuthorizationPort에 현재 멤버십·아기 상태 조회와 실제 DB probe를 연결했으며 인증 미설정 readiness는 503을 유지한다. 운영 적용과 JWT AuthenticationPort, B-04 업무 API·실제 로그아웃·TUS·재생 URL은 미실행이다. 상세 증거는 [B-03 구현·검증 기록](../../../supabase/README.md)에 있다. **선행:** B-01 데이터·인증 계약.
+**현재:** 2026-09-19 로컬 Supabase 스키마·FORCE RLS·STANDARD Storage 정책과 합성 seed를 적용했고, 9월 20일 B-04에서 실제 Auth JWT/JWKS·업무 API·Supabase 로그아웃과 회수 뒤 API/Storage 차단까지 연결했다. 운영 적용, TUS·완료 검사·재생 URL·브라우저 시험은 미실행이다. 상세 증거는 [B-03/B-04 구현·검증 기록](../../../supabase/README.md)에 있다. **선행:** B-01 데이터·인증 계약.
 
 - Baby·Membership·Invitation·Consent·AudioAsset·Episode·Analysis·CareEvent·초안·행동·관찰·삭제 작업 및 변경 버전의 마이그레이션을 작성한다.
 - 같은 아기의 리소스만 연결되도록 DB 제약과 API 검사를 함께 적용한다. 아기당 활성 OWNER·진행 중 수면·활성 감지 세션의 유일성을 보장한다.
@@ -144,7 +144,7 @@ flowchart TD
 
 ### B-04 계정·공동양육·기록 API
 
-**현재:** 미구현으로 계획하되 별도 원격 구현은 미확인. **선행:** B-03.
+**현재:** 2026-09-20 계약 1.1.0과 로컬 Supabase에서 36개 operationId를 구현했다. 실제 JWT/JWKS·OTP·메일 수신함·DB·RLS·Auth logout·STANDARD Storage를 사용하는 통합 시험을 통과했다. 운영 적용, A 브라우저 연동, 삭제 실행기·파생물 정리와 후속 집계는 남아 있다. [A 인계](../../handoffs/b04-account-shared-care-records.md)와 [API README](../../../apps/api/README.md)를 기준으로 연결한다. **선행:** B-03.
 
 - 아기 생성·목록·선택, 이메일 지정 초대·수락·만료·재사용 방지, 구성원 제거·탈퇴를 구현한다.
 - 보관 동의, 아기 학습 설정, 개인 학습 동의, 탈퇴, 본인 기여자료 삭제, 전체 삭제를 각각 계약대로 처리한다.
@@ -152,7 +152,7 @@ flowchart TD
 - 동시 수정은 409와 최신 값으로 돌려주고, 삭제는 파생 조회에서 먼저 제외한다. 첫 단계부터 삭제 작업 상태와 차단을 구현하고 후속 음원·모델 자료 정리까지 확장한다.
 - 시험용 계정의 역할·아기 배치를 제공하고 A-03·A-04와 연결한다.
 
-**완료 증거:** 두 계정의 공동 기록·초대·충돌·탈퇴·삭제 시나리오. 관련 AC13~16, AC21~22, AC39~44.
+**로컬 완료 증거:** 복수 실제 로컬 Auth 계정의 공동 기록·초대 재발급/만료/경쟁·충돌·권한 회수·본인 기여/전체 삭제 요청 시나리오. 관련 AC13~16, AC21~22, AC39~44의 로컬 API 하위 조건이며 브라우저·운영·삭제 실행 완료 판정은 아니다.
 
 ### B-05 음원 수신·품질·보관 API
 

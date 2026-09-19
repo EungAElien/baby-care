@@ -8,8 +8,8 @@ from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 API_V1_PREFIX = "/v1"
-CONTRACT_VERSION = "1.0.0"
-SERVICE_VERSION = "0.1.0"
+CONTRACT_VERSION = "1.1.0"
+SERVICE_VERSION = "0.2.0"
 
 
 class RuntimeEnvironment(StrEnum):
@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     supabase_jwt_issuer: str | None = None
     supabase_jwt_audience: str | None = None
     supabase_jwks_url: str | None = None
+    supabase_jwt_algorithms: str = "ES256,RS256"
+    supabase_url: str | None = None
+    supabase_publishable_key: SecretStr | None = None
+    reauthentication_proof_secret: SecretStr | None = None
+    invite_base_url: str = "http://127.0.0.1:3000/invite"
+    child_data_production_enabled: bool = False
     external_normalization_enabled: bool = False
 
 

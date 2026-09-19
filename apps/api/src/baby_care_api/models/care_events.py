@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import AwareDatetime, Field, NonNegativeFloat, PositiveInt
+from pydantic import AwareDatetime, Field, NonNegativeFloat, PositiveInt, model_validator
 
 from baby_care_api.models.base import ContractModel
 
@@ -80,6 +81,11 @@ class FeedingEventValue(ContractModel):
     time_precision: TimePrecision
     payload: FeedingPayload
 
+    @model_validator(mode="after")
+    def validate_times(self) -> FeedingEventValue:
+        _validate_event_times(self.occurred_at, self.ended_at)
+        return self
+
 
 class SleepEventValue(ContractModel):
     type: Literal["SLEEP"]
@@ -87,6 +93,11 @@ class SleepEventValue(ContractModel):
     ended_at: AwareDatetime | None
     time_precision: Literal["EXACT"]
     payload: SleepPayload
+
+    @model_validator(mode="after")
+    def validate_times(self) -> SleepEventValue:
+        _validate_event_times(self.occurred_at, self.ended_at)
+        return self
 
 
 class DiaperEventValue(ContractModel):
@@ -96,6 +107,11 @@ class DiaperEventValue(ContractModel):
     time_precision: TimePrecision
     payload: DiaperPayload
 
+    @model_validator(mode="after")
+    def validate_times(self) -> DiaperEventValue:
+        _validate_event_times(self.occurred_at, self.ended_at)
+        return self
+
 
 class SootheEventValue(ContractModel):
     type: Literal["SOOTHE"]
@@ -104,11 +120,29 @@ class SootheEventValue(ContractModel):
     time_precision: TimePrecision
     payload: SoothePayload
 
+    @model_validator(mode="after")
+    def validate_times(self) -> SootheEventValue:
+        _validate_event_times(self.occurred_at, self.ended_at)
+        return self
+
 
 type CareEventValue = Annotated[
     FeedingEventValue | SleepEventValue | DiaperEventValue | SootheEventValue,
     Field(discriminator="type"),
 ]
+
+
+def _validate_event_times(
+    occurred_at: AwareDatetime | None,
+    ended_at: AwareDatetime | None,
+) -> None:
+    latest_allowed = datetime.now(UTC) + timedelta(minutes=5)
+    if occurred_at is not None and occurred_at > latest_allowed:
+        raise ValueError("occurred_at cannot be more than 5 minutes in the future")
+    if ended_at is not None and ended_at > latest_allowed:
+        raise ValueError("ended_at cannot be more than 5 minutes in the future")
+    if occurred_at is not None and ended_at is not None and ended_at < occurred_at:
+        raise ValueError("ended_at cannot be before occurred_at")
 
 
 class CreateCareEvent(ContractModel):

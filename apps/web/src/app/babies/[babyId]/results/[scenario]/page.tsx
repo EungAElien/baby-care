@@ -3,9 +3,9 @@
 // 안에서만 쓰는 미리보기 키다(실제 연동은 A-06).
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { mockAnalysis, type MockAnalysisScenarioName } from "@/lib/mock/fixtures";
+import { isForBaby, mockAnalysis, type MockAnalysisScenarioName } from "@/lib/mock/fixtures";
 import { SourceBadge } from "@/components/source-badge";
-import { ScreenSection, LoadingState, ErrorState } from "@/components/screen-state";
+import { EmptyState, ScreenSection, LoadingState, ErrorState } from "@/components/screen-state";
 
 const abstainReasonLabel: Record<string, string> = {
   NO_CRY: "울음이 확인되지 않았어요",
@@ -34,17 +34,20 @@ export default async function ResultPage({
   if (!isMockAnalysisScenario(scenario)) notFound();
 
   const analysis = mockAnalysis(scenario);
+  const isCurrentBaby = isForBaby(babyId, analysis);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-foreground">분석 결과</h1>
-        <SourceBadge inferenceMode={analysis.inference_mode} dataOrigin={analysis.data_origin} />
+        {isCurrentBaby && <SourceBadge inferenceMode={analysis.inference_mode} dataOrigin={analysis.data_origin} />}
       </div>
 
-      {analysis.status === "RUNNING" && <LoadingState label={`분석 중이에요 (${analysis.stage})`} />}
+      {!isCurrentBaby && <EmptyState label="이 아기의 분석 자료가 없어요" />}
 
-      {analysis.status === "COMPLETE" && (
+      {isCurrentBaby && analysis.status === "RUNNING" && <LoadingState label={`분석 중이에요 (${analysis.stage})`} />}
+
+      {isCurrentBaby && analysis.status === "COMPLETE" && (
         <ScreenSection title="가능성 있는 원인">
           <ul className="flex flex-col gap-2">
             {analysis.audio_candidates.slice(0, 3).map((candidate) => (
@@ -72,7 +75,7 @@ export default async function ResultPage({
         </ScreenSection>
       )}
 
-      {analysis.status === "ABSTAIN" && (
+      {isCurrentBaby && analysis.status === "ABSTAIN" && (
         <ScreenSection title="판단을 유보했어요">
           <p className="text-sm text-foreground">
             {analysis.abstain_reason ? abstainReasonLabel[analysis.abstain_reason] : "사유 없음"}
@@ -94,7 +97,7 @@ export default async function ResultPage({
         </ScreenSection>
       )}
 
-      {analysis.status === "FAILED" && (
+      {isCurrentBaby && analysis.status === "FAILED" && (
         <ScreenSection title="분석을 완료하지 못했어요">
           <ErrorState label={analysis.failure?.message ?? "알 수 없는 오류"} retryable={analysis.failure?.retryable} />
           {analysis.failure?.retryable && (
