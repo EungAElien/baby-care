@@ -21,9 +21,8 @@
 | [진행 현황 원본 기록](planning/b-implementation-plan-2026-09-19/progress-snapshot.json), [당시 계획 문서 검사](planning/b-implementation-plan-2026-09-19/plan-validation.json) | 시각·범위·미검증 항목을 유지한 과거 기록. 원본 JSON의 절대 경로는 당시 환경 기록 |
 | [B-03 Supabase 구현·검증](../supabase/README.md) | 현재 로컬 migration, RLS, Storage 정책, 재현 명령과 부분/미실행 인수 범위 |
 | [B-04 → A-03·A-04 연동 인계](handoffs/b04-account-shared-care-records.md) | 구현 operationId, 실행 주소, 합성 계정 배치, 초대·재인증·기록·오류·삭제 UI 연결 순서 |
-| [B-02 LLM 선검증 → B-07·B-14 인계](handoffs/b02-llm-prevalidation.md) | 합성 평가, 분리 프롬프트·판정, 제한된 Terra smoke, 재사용/미구현 경계 |
-| [B-09 → A-08 공동 변경 조회](handoffs/b09-shared-change-feed.md) | 폴링 계약, 범위별 revision, tombstone·재동기화·권한 회수 처리 순서 |
 | [아기 상태·완료 조치·기록 그래프 범주 v2](product/baby-state-care-action-categories-v2.md) | 사용자 선택을 반영한 기획. 계약에 반영할 차이는 8절에 명시. API enum이나 구현을 이미 바꾼 것으로 취급하지 않음 |
+| [B-02 LLM 선검증 → B-07·B-14 인계](handoffs/b02-llm-prevalidation.md) | 합성 평가, 분리 프롬프트·판정, 제한된 Terra smoke, 재사용/미구현 경계 |
 
 ## 보안 설계와 시험 항목
 
