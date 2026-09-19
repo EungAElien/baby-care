@@ -10,17 +10,18 @@
 
 ```text
 baby-care/
-├─ apps/web/             A: Next.js 웹·브라우저 화면
-├─ apps/api/             B: FastAPI·서비스용 모델 추론
+├─ apps/web/             A: Next.js 웹·브라우저 화면·캐릭터 재생
+├─ apps/api/             B: FastAPI·서비스용 모델 추론·LLM 연동
 ├─ contracts/            OpenAPI·합성 목 응답·계약 생성/검증
 ├─ supabase/             B: 설정·DB 마이그레이션·RLS·Storage 정책
 ├─ docs/                 PRD·기능명세·A/B 작업표·보안 문서·팀 규칙
 └─ .github/workflows/    웹·API·계약 자동 검사
 ```
 
-- A는 웹 화면, 브라우저 오디오, 클라이언트 상태와 웹 통합 시험을 맡습니다. B는 API, DB·권한, 모델·정규화와 서버 운영을 맡습니다. `contracts/`는 공동 연동 경계이며 B가 스키마·샘플을 수정하고 A가 웹 영향을 확인합니다.
+- A는 웹 화면, 브라우저 오디오, 캐릭터 자산·재생, 클라이언트 상태와 웹 통합 시험을 맡습니다. B는 API, DB·권한, 모델·정규화·개인화 상담 LLM과 서버 운영을 맡습니다. `contracts/`는 공동 연동 경계이며 B가 스키마·샘플을 수정하고 A가 웹 영향을 확인합니다.
 - 현재 `apps/web/`에는 초기 기반과 테스트가 있고 `contracts/`에는 계약·합성 자료·검증 스크립트가 있습니다. `apps/api/`, `supabase/`, `.github/workflows/`는 현재 자리 표시자입니다. 이 트리의 설명은 **담당과 목표 구조**이며, 해당 기능이나 CI가 이미 동작한다는 뜻이 아닙니다. 작업을 시작할 때 실제 파일과 설정을 다시 확인합니다.
-- 작업 항목은 [A 작업표](../baby-care-implementation-tasks-A-v2.md), [B 작업표](../baby-care-implementation-tasks-B-v2.md)에서 찾습니다. 보안 설계와 시험 항목은 `docs/security/`에 있습니다. 보안 문서의 새 API 제안이나 미실행 시험은 확정 계약·통과 결과로 취급하지 않습니다.
+- 작업 항목은 [A 업무 분담 v2.1 기준본](../baby-care-implementation-tasks-A-v2.md), [B 업무 분담 v2.1 기준본](../baby-care-implementation-tasks-B-v2.md)에서 찾습니다. 이름으로 된 [A 전달본](../윤정이가%20맡은%20일.md)과 [B 전달본](../예준이가%20맡을%20일.md)은 기준본과 같은 내용을 유지합니다. 보안 설계와 시험 항목은 [보안 설계](../security/보안%20설계서.md), [A·B 연결표](../security/AB%20보안%20작업%20연결표.md), [62개 시험표](../security/62개%20보안%20시험표.md)에 있습니다. 보안 문서의 새 API 제안이나 미실행 시험은 확정 계약·통과 결과로 취급하지 않습니다.
+- A-13·B-14의 상담 API와 신규 보안 상태·오류는 앞으로 계약을 보완할 업무입니다. 현재 `contracts/openapi계약.json`에 없는 경로·필드·상태를 구현에서 먼저 확정하지 않습니다.
 
 ## 1. 작업과 브랜치
 
