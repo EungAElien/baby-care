@@ -57,7 +57,9 @@ jobs:
 
       - name: Test
         working-directory: apps/api
-        run: python -m pytest
+        # The Supabase workflow runs the complete suite with the 90% coverage gate.
+        # This job keeps the dependency-free unit boundary fast and deterministic.
+        run: python -m pytest --ignore=tests/integration --no-cov
 
   container:
     needs: test
