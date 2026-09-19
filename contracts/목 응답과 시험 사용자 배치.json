@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.1.0",
+  "contract_version": "1.1.1",
   "notice": "All fixtures are synthetic contract examples. No model ran, no audio is supplied, and no real account or token is created. Never count these as measured model results.",
   "test_users": [
     {
@@ -1680,6 +1680,133 @@
               "duration_minutes": null
             }
           }
+        }
+      }
+    },
+    {
+      "name": "changes_initial_resync",
+      "operation_id": "getChanges",
+      "synthetic": true,
+      "expected_ui": "since_revision=0이므로 권한 있는 현재 자료를 전체 재조회하고 8은 성공 후에만 저장",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "current_revision": 8,
+          "changes": [],
+          "resync_required": true,
+          "server_time": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "changes_incremental",
+      "operation_id": "getChanges",
+      "synthetic": true,
+      "expected_ui": "since_revision=8 이후 10까지 CareEvent와 갱신된 Baby context를 재조회한 뒤 10을 저장",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "current_revision": 10,
+          "changes": [
+            {
+              "resource_type": "CARE_EVENT",
+              "resource_id": "10000000-0000-4000-8000-000000000601",
+              "version": 3,
+              "deleted": false
+            },
+            {
+              "resource_type": "BABY",
+              "resource_id": "10000000-0000-4000-8000-000000000101",
+              "version": 8,
+              "deleted": false
+            },
+            {
+              "resource_type": "MEMBERSHIP",
+              "resource_id": "10000000-0000-4000-8000-000000000204",
+              "version": 1,
+              "deleted": false
+            }
+          ],
+          "resync_required": false,
+          "server_time": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "changes_empty",
+      "operation_id": "getChanges",
+      "synthetic": true,
+      "expected_ui": "추가 변경 없음; 기존 캐시와 revision 10을 유지",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "current_revision": 10,
+          "changes": [],
+          "resync_required": false,
+          "server_time": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "changes_deleted",
+      "operation_id": "getChanges",
+      "synthetic": true,
+      "expected_ui": "CareEvent version 4 tombstone을 제거하고 공개 Baby context는 다시 조회",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "current_revision": 11,
+          "changes": [
+            {
+              "resource_type": "CARE_EVENT",
+              "resource_id": "10000000-0000-4000-8000-000000000601",
+              "version": 4,
+              "deleted": true
+            },
+            {
+              "resource_type": "BABY",
+              "resource_id": "10000000-0000-4000-8000-000000000101",
+              "version": 9,
+              "deleted": false
+            }
+          ],
+          "resync_required": false,
+          "server_time": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "changes_history_or_limit_resync",
+      "operation_id": "getChanges",
+      "synthetic": true,
+      "expected_ui": "보관 경계 이전이거나 500개 초과이므로 일부 응답을 적용하지 않고 전체 재동기화",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "current_revision": 740,
+          "changes": [],
+          "resync_required": true,
+          "server_time": "2026-09-19T09:00:00Z"
         }
       }
     },
