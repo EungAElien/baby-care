@@ -1,0 +1,62 @@
+[project]
+name = "baby-care-api"
+version = "0.1.0"
+description = "FastAPI foundation for the Baby Care service"
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = [
+    "fastapi==0.141.1",
+    "pydantic==2.13.5",
+    "pydantic-settings==2.15.0",
+    "uvicorn==0.53.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx2==2.13.0",
+    "jsonschema==4.26.0",
+    "mypy==2.3.1",
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "ruff==0.16.8",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers --cov=baby_care_api --cov-report=term-missing --cov-fail-under=90"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["baby_care_api"]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    '\.\.\.',
+]
+show_missing = true
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "SIM", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["baby_care_api"]
+
+[tool.ruff.format]
+line-ending = "lf"
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]
+pretty = true
+show_error_codes = true
+warn_unreachable = true

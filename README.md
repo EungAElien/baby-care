@@ -1,6 +1,6 @@
 # Baby Care
 
-아기 돌봄 기록·분석 서비스를 위한 A/B 공동 개발 저장소입니다. 현재는 v2 기획 문서, 확정 API 계약, 웹 앱의 초기 기반이 있으며 실제 백엔드와 Supabase 설정은 아직 구현 중입니다.
+아기 돌봄 기록·분석 서비스를 위한 A/B 공동 개발 저장소입니다. 현재는 v2 기획 문서, 확정 API 계약, 웹 앱의 초기 기반과 B-01 FastAPI 실행 기반이 있습니다. 업무 API·DB·권한·모델과 Supabase 설정은 아직 구현 중입니다.
 
 ## 작업 기준
 
@@ -13,11 +13,11 @@
 ## 폴더
 
 - `apps/web/`: Next.js 웹 앱(A 담당)
-- `apps/api/`: 백엔드 구현 위치(B 담당, 현재 자리 표시자)
+- `apps/api/`: FastAPI 실행·계약 모델·공통 오류·상태 확인 기반(B 담당, 업무 API는 미구현)
 - `contracts/`: OpenAPI, 합성 목 응답, 계약 생성·검증 코드
 - `docs/`: PRD, 기능명세, A/B 작업표, 보안 문서
 - `supabase/`: Supabase 설정·마이그레이션 위치(현재 자리 표시자)
-- `.github/workflows/`: 향후 CI 워크플로 위치
+- `.github/workflows/`: 웹/API/계약 자동 검사 위치(API 검사는 구성됨)
 
 ## 로컬 시작
 
@@ -45,3 +45,5 @@ python -m venv .venv
 계약을 변경할 때는 A/B 간 합의 후 OpenAPI와 목 응답을 재생성·검증하고 웹 타입도 다시 생성하세요. 목 응답과 시험 사용자는 합성 데이터이며 실제 서비스·모델의 검증 결과가 아닙니다.
 
 환경 변수는 `apps/web/.env.example`을 참고해 로컬에만 설정합니다. 실제 토큰, `service_role`/secret 키, 데이터베이스 비밀번호와 사용자 데이터는 커밋하지 마세요.
+
+API 기반은 `apps/api/`에서 Python 3.12.12로 실행합니다. 자세한 설치·상태 확인·검사·컨테이너 명령은 [API README](apps/api/README.md)를 따릅니다. 현재 `/health/live`는 프로세스 생존만 확인하며 `/health/ready`는 인증·DB를 실제 연결하기 전 503을 반환합니다.

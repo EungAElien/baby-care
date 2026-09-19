@@ -1,0 +1,51 @@
+from __future__ import annotations
+
+from enum import StrEnum
+from functools import lru_cache
+from typing import ClassVar, Literal
+
+from pydantic import Field, SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+API_V1_PREFIX = "/v1"
+CONTRACT_VERSION = "1.0.0"
+SERVICE_VERSION = "0.1.0"
+
+
+class RuntimeEnvironment(StrEnum):
+    LOCAL = "local"
+    TEST = "test"
+    DEVELOPMENT = "development"
+    STAGING = "staging"
+    PRODUCTION = "production"
+
+
+class Settings(BaseSettings):
+    """Process configuration.
+
+    Secret values use ``SecretStr`` so accidental repr/serialization does not reveal them.
+    A configured value does not make a dependency ready; readiness needs a live probe.
+    """
+
+    model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="BABY_CARE_",
+        extra="forbid",
+        case_sensitive=False,
+    )
+
+    environment: RuntimeEnvironment = RuntimeEnvironment.LOCAL
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    host: str = "127.0.0.1"
+    port: int = Field(default=8080, ge=1, le=65535)
+
+    database_url: SecretStr | None = None
+    supabase_jwt_issuer: str | None = None
+    supabase_jwt_audience: str | None = None
+    supabase_jwks_url: str | None = None
+    external_normalization_enabled: bool = False
+
+
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    return Settings()
