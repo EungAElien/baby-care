@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMockSessionOptional } from "@/lib/mock/session";
-import { getMockScenario, mockTestBabies, mockTestUsers, type MockScenario } from "@/lib/mock/fixtures";
+import { getMockScenario, mockAcceptedInvite, mockTestUsers, type MockScenario } from "@/lib/mock/fixtures";
 import { ScreenSection, ErrorState, PermissionState } from "@/components/screen-state";
 
 // 실제 토큰은 서버가 발급한 난수다. 여기서는 목 시나리오를 고르기 위한
@@ -107,18 +107,27 @@ export default function AcceptInvitePage() {
   }
 
   const scenario = getMockScenario(demoTokenScenarios[token]) as MockScenario;
+  const acceptedFixture = mockAcceptedInvite();
+  // 계약: 지정 이메일이 다른 사용자는 수락할 수 없다(invite_wrong_email). 초대의
+  // 실제 수신자는 fixture의 membership.user_id(invited_a)이며, 로그인한 시험
+  // 계정이 다르면 정상 토큰이라도 수락을 막아야 한다 — PR #11 리뷰 필수 수정.
+  const recipientMismatch = token === "demo-accept" && session.userId !== acceptedFixture.membership.user_id;
 
   return (
     <main className="mx-auto flex min-h-svh max-w-xl flex-col justify-center gap-4 px-6">
       <h1 className="text-lg font-semibold text-foreground">초대 수락</h1>
 
-      {token === "demo-accept" && !accepted && (
+      {recipientMismatch && (
+        <PermissionState label={getMockScenario("invite_wrong_email").expected_ui} />
+      )}
+
+      {token === "demo-accept" && !recipientMismatch && !accepted && (
         <ScreenSection title="공유 범위를 수락할까요?">
           <p className="text-sm text-muted-foreground">{scenario.expected_ui}</p>
           <button
             type="button"
             onClick={() => {
-              session.acceptInvite(mockTestBabies.baby_a, "CAREGIVER");
+              session.acceptInvite(acceptedFixture.baby.baby_id, "CAREGIVER");
               setAccepted(true);
             }}
             className="flex min-h-11 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
@@ -128,12 +137,12 @@ export default function AcceptInvitePage() {
         </ScreenSection>
       )}
 
-      {token === "demo-accept" && accepted && (
+      {token === "demo-accept" && !recipientMismatch && accepted && (
         <ScreenSection title="참여했어요">
           <p className="text-sm text-foreground">공유 범위를 수락했어요. 아기 홈으로 이동할 수 있어요.</p>
           <button
             type="button"
-            onClick={() => router.push(`/babies/${mockTestBabies.baby_a}`)}
+            onClick={() => router.push(`/babies/${acceptedFixture.baby.baby_id}`)}
             className="flex min-h-11 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
           >
             아기 홈으로 이동

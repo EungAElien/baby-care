@@ -6,6 +6,7 @@ import {
   getMockScenario,
   isForBaby,
   membershipFor,
+  mockAcceptedInvite,
   mockAnalysis,
   mockBabyLabel,
   mockIssuedInvite,
@@ -61,6 +62,16 @@ describe("mock fixtures", () => {
     const invite = mockIssuedInvite();
     expect(isForBaby(mockTestBabies.baby_a, invite.invite)).toBe(true);
     expect(isForBaby(mockTestBabies.baby_b, invite.invite)).toBe(false);
+  });
+
+  it("names invited_a as the only valid recipient of the invite_accepted fixture (regression: PR #11 review)", () => {
+    // Any test user could previously accept the invite and gain CAREGIVER access to baby_a.
+    // Only the fixture's own membership.user_id (invited_a) may accept it.
+    const accepted = mockAcceptedInvite();
+    expect(accepted.membership.user_id).toBe(testUserByAlias("invited_a").user_id);
+    expect(accepted.membership.user_id).not.toBe(testUserByAlias("owner_b").user_id);
+    expect(accepted.membership.role).toBe("CAREGIVER");
+    expect(accepted.baby.baby_id).toBe(mockTestBabies.baby_a);
   });
 
   it("preserves inference_mode=STUB and data_origin=DEMO on analysis fixtures", () => {

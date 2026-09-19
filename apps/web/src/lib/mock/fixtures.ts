@@ -196,6 +196,11 @@ export function mockIssuedInvite(): components["schemas"]["IssuedInvite"] {
   return mockScenarioBody("invite_issued");
 }
 
+/** The invite_accepted fixture's own {baby, membership} — its membership.user_id is the invite's actual recipient (invited_a). */
+export function mockAcceptedInvite(): components["schemas"]["BabyAccess"] {
+  return mockScenarioBody("invite_accepted");
+}
+
 /**
  * Fixture records are only defined for `baby_a`. A screen must not reuse
  * another baby's synthetic data when the route's `baby_id` doesn't match —
