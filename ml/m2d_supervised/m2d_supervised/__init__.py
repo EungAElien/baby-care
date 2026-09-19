@@ -1,3 +1,3 @@
-"""Reproducible M2D supervised-learning preparation for the Baby Care model."""
+"""Reproducible M2D supervised experiments for the Baby Care model."""
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
