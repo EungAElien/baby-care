@@ -1,39 +1,96 @@
-// SC06 타임라인 — 생활 기록·행동·반응 수정 이력. 실제 조회·수정·삭제는
-// A-04에서 연결하고, 여기서는 저장 성공/충돌 두 목 상태만 나열한다.
-import { isForBaby, mockCareEvent, getMockScenario } from "@/lib/mock/fixtures";
-import type { components } from "@/lib/api/generated";
-import { SourceBadge } from "@/components/source-badge";
-import { EmptyState, ScreenSection } from "@/components/screen-state";
+"use client";
 
-const typeLabel: Record<string, string> = { FEEDING: "수유", SLEEP: "수면", DIAPER: "기저귀", SOOTHE: "달래기" };
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { CareEventCard } from "@/components/care-event-card";
+import { EmptyState, ErrorState, LoadingState, PermissionState, ScreenSection } from "@/components/screen-state";
+import { useTimelineQuery } from "@/lib/api/care-events";
+import type { TimelineItem } from "@/lib/api/care-events";
+import { ContractApiError } from "@/lib/api/errors";
+import { useMembersQuery } from "@/lib/api/members";
+import { useRealSession } from "@/lib/auth/real-session";
+import { isForBaby, mockCareEvent } from "@/lib/mock/fixtures";
 
-export default async function TimelinePage({ params }: Readonly<{ params: Promise<{ babyId: string }> }>) {
-  const { babyId } = await params;
-  const savedEvent = mockCareEvent();
-  const conflictEvent = getMockScenario("edit_conflict").response.body as {
-    details: { current_resource: components["schemas"]["CareEvent"] };
-  };
-  const events = [savedEvent, conflictEvent.details.current_resource].filter((event) => isForBaby(babyId, event));
+function TimelineRecord({
+  item,
+  babyId,
+  names,
+}: Readonly<{ item: TimelineItem; babyId: string; names: ReadonlyMap<string, string> }>) {
+  if (item.kind === "CARE_EVENT" && "care_event_id" in item.resource) {
+    return <CareEventCard event={item.resource} babyId={babyId} memberNames={names} linkToDetail />;
+  }
+  const label = item.kind === "EPISODE" ? "울음 사건" : "상태 관찰";
+  return (
+    <ScreenSection title={label}>
+      <p className="text-sm text-muted-foreground">
+        {item.occurred_at === null ? "실제 시각 모름" : new Date(item.occurred_at).toLocaleString("ko-KR")}
+      </p>
+      <p className="text-xs text-muted-foreground">상세 화면은 해당 기능에서 연결해요.</p>
+    </ScreenSection>
+  );
+}
 
+function RealTimeline({ babyId }: Readonly<{ babyId: string }>) {
+  const timeline = useTimelineQuery(babyId, true);
+  const members = useMembersQuery(babyId, true);
+  const names = new Map(members.data?.items.map((member) => [member.user_id, member.display_name]) ?? []);
+
+  if (timeline.isLoading) return <LoadingState label="기록을 불러오고 있어요" />;
+  if (timeline.isError) {
+    if (timeline.error instanceof ContractApiError && timeline.error.status === 404) {
+      return <ErrorState label="찾을 수 없거나 접근할 수 없어요." />;
+    }
+    if (timeline.error instanceof ContractApiError && timeline.error.status === 403) {
+      return <PermissionState label="이 아기의 기록을 볼 권한이 없어요." />;
+    }
+    return (
+      <div className="flex flex-col gap-3">
+        <ErrorState label="기록을 불러오지 못했어요." retryable />
+        <button type="button" onClick={() => void timeline.refetch()} className="min-h-11 rounded-md border border-border px-4 text-sm">다시 조회</button>
+      </div>
+    );
+  }
+
+  const items = timeline.data?.pages.flatMap((page) => page.items) ?? [];
   return (
     <div className="flex flex-col gap-3">
       <h1 className="text-lg font-semibold text-foreground">타임라인</h1>
-      {events.length === 0 ? (
-        <EmptyState label="이 아기의 기록이 아직 없어요" />
-      ) : (
-        events.map((event) => (
-          <ScreenSection key={event.care_event_id} title={typeLabel[event.event.type] ?? event.event.type}>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
-                {new Date(event.event.occurred_at ?? event.recorded_at).toLocaleString("ko-KR")}
-                {event.event.ended_at === null && event.event.type === "SLEEP" && " · 진행 중"}
-              </p>
-              <SourceBadge dataOrigin={event.data_origin} />
-            </div>
-            <p className="text-xs text-muted-foreground">version {event.version} · 수정 시 서버 버전과 비교해요.</p>
-          </ScreenSection>
-        ))
+      {items.length === 0 ? (
+        <EmptyState label="이 아기의 확정 기록이 아직 없어요" action={<Link href={`/babies/${babyId}/quick-record`} className="text-sm text-primary">기록하러 가기</Link>} />
+      ) : items.map((item) => (
+        <TimelineRecord key={`${item.kind}:${item.resource_id}`} item={item} babyId={babyId} names={names} />
+      ))}
+      {timeline.hasNextPage && (
+        <button
+          type="button"
+          onClick={() => void timeline.fetchNextPage()}
+          disabled={timeline.isFetchingNextPage}
+          className="min-h-11 rounded-md border border-border px-4 text-sm disabled:opacity-50"
+        >
+          {timeline.isFetchingNextPage ? "더 불러오는 중" : "더 보기"}
+        </button>
       )}
     </div>
   );
+}
+
+function MockTimeline({ babyId }: Readonly<{ babyId: string }>) {
+  const example = mockCareEvent();
+  return (
+    <div className="flex flex-col gap-3">
+      <h1 className="text-lg font-semibold text-foreground">타임라인</h1>
+      <p className="text-xs text-muted-foreground">계약의 합성 예시입니다. 서버에서 조회한 타임라인이 아니에요.</p>
+      {isForBaby(babyId, example) ? (
+        <CareEventCard event={example} babyId={babyId} linkToDetail />
+      ) : (
+        <EmptyState label="이 아기의 예시 기록이 없어요" />
+      )}
+    </div>
+  );
+}
+
+export default function TimelinePage() {
+  const { babyId } = useParams<{ babyId: string }>();
+  const real = useRealSession();
+  return real.status === "signed-in" ? <RealTimeline babyId={babyId} /> : <MockTimeline babyId={babyId} />;
 }
