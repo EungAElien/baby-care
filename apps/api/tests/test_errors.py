@@ -160,11 +160,13 @@ def test_openapi_is_honest_about_implemented_business_operations(client: TestCli
 
     business_contract = schema["x-business-contract"]
     assert business_contract["source"] == "contracts/openapi계약.json"
-    assert business_contract["version"] == "1.1.0"
+    assert business_contract["version"] == "1.1.1"
     assert business_contract["api_prefix"] == "/v1"
     assert "createBaby" in business_contract["implemented_operations"]
+    assert "getChanges" in business_contract["implemented_operations"]
     assert "revokeSessions" in business_contract["implemented_operations"]
     assert "/v1/babies" in schema["paths"]
+    assert "/v1/babies/{baby_id}/changes" in schema["paths"]
     assert "/v1/auth/session-revocations" in schema["paths"]
 
     contract_path = Path(__file__).resolve().parents[3] / "contracts" / "openapi계약.json"

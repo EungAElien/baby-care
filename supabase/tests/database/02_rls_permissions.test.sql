@@ -7,7 +7,7 @@ set local search_path = extensions, public;
 grant baby_app to postgres with set true;
 grant usage on schema extensions to baby_app;
 
-select plan(38);
+select plan(51);
 
 select is(has_schema_privilege('anon', 'baby_data', 'USAGE'), false,
     'anon has no business schema access');
@@ -19,6 +19,21 @@ select is(has_table_privilege('authenticated', 'baby_data.babies', 'SELECT'), fa
     'authenticated has no direct business table read');
 select is(has_table_privilege('service_role', 'baby_data.babies', 'SELECT'), false,
     'service_role is not the application database role');
+select is(has_table_privilege('anon', 'baby_data.shared_change_feed_state', 'SELECT'), false,
+    'anon cannot inspect feed revisions');
+select is(has_table_privilege('authenticated', 'baby_data.shared_changes', 'SELECT'), false,
+    'browser authenticated role cannot inspect change identifiers');
+select is(has_table_privilege('service_role', 'baby_data.shared_changes', 'SELECT'), false,
+    'service role is not a shared-change data path');
+select is(has_function_privilege(
+    'baby_app', 'baby_private.record_shared_changes(uuid,jsonb)', 'EXECUTE'
+), true, 'application role can invoke only the checked feed writer');
+select is(has_function_privilege(
+    'baby_app', 'baby_private.record_shared_changes_unchecked(uuid,jsonb)', 'EXECUTE'
+), false, 'application role cannot bypass active membership in the feed writer');
+select is(has_function_privilege(
+    'baby_app', 'baby_private.prune_shared_change_history(timestamp with time zone)', 'EXECUTE'
+), false, 'application requests cannot move the retained-history floor');
 select is(has_function_privilege(
     'authenticated', 'baby_private.current_request_user_id()', 'EXECUTE'
 ), false, 'authenticated cannot invoke server request-context helpers');
@@ -57,6 +72,24 @@ select is((select count(*)::integer from baby_data.reminder_settings), 1,
     'owner sees only personal reminder settings');
 select is((select count(*)::integer from baby_data.normalization_runs), 0,
     'owner cannot see another caregiver normalization draft');
+select is((select count(*)::integer from baby_data.shared_change_feed_state), 2,
+    'owner sees feed state only for the two active baby memberships');
+select is((select count(*)::integer from baby_data.shared_changes), 0,
+    'an empty retained history reveals no synthetic resource identifiers');
+select throws_ok(
+    $$
+    update baby_data.shared_change_feed_state
+       set current_revision = current_revision + 100
+    $$,
+    '42501',
+    null,
+    'lock-only UPDATE policy rejects a direct feed counter mutation'
+);
+select is(
+    (select max(current_revision)::integer from baby_data.shared_change_feed_state),
+    1,
+    'row-lock privilege cannot mutate the feed counter directly'
+);
 
 reset role;
 set local role baby_app;
@@ -77,6 +110,8 @@ select is((select count(*)::integer from baby_data.reminder_settings), 1,
     'caregiver sees only personal reminder settings');
 select is((select count(*)::integer from baby_data.normalization_runs), 1,
     'caregiver sees normalization tied to own entry');
+select is((select count(*)::integer from baby_data.shared_change_feed_state), 1,
+    'caregiver sees only the authorized baby feed boundary');
 select lives_ok(
     $$
     insert into baby_data.raw_care_entries (
@@ -189,6 +224,10 @@ select is((select count(*)::integer from baby_data.consents
     'removed member retains access to own consent history');
 select is((select count(*)::integer from baby_data.deletion_jobs), 1,
     'removed member retains access to own deletion progress');
+select is((select count(*)::integer from baby_data.shared_change_feed_state), 0,
+    'removed member cannot inspect shared feed revisions');
+select is((select count(*)::integer from baby_data.shared_changes), 0,
+    'removed member cannot inspect shared resource identifiers');
 
 reset role;
 set local role baby_app;
