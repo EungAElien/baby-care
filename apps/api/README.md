@@ -74,23 +74,18 @@ curl -i http://127.0.0.1:8080/health/ready
 
 ## 검사
 
-```bash
-python -m ruff format --check src tests
-python -m ruff check src tests
-python -m mypy src
-python -m pytest --ignore=tests/integration --no-cov
-```
-
-단위 검사는 합성 fixture만 사용합니다. 90% coverage 기준은 실제 인증·DB 경계를 포함한 전체 suite에 적용하므로, 저장소 루트에서 전용 로컬 Supabase를 시작·초기화하는 다음 명령이 최종 게이트입니다.
+빠른 로컬 검사와 실제 DB 통합 검사의 공통 진입점은 저장소 루트에 있습니다.
 
 ```bash
 cd ../..
-npm ci
-npm run test:supabase
-npm run supabase:stop
+API_PYTHON="$PWD/apps/api/.venv/bin/python" npm run verify:quick
+npm run verify:container
+API_PYTHON="$PWD/apps/api/.venv/bin/python" npm run verify:integration
 ```
 
-로컬 통합 시험은 실행 때마다 `example.test` 합성 계정과 OTP를 Mailpit에 만들며 실제 사람에게 메일을 보내지 않습니다. 토큰·비밀번호는 출력하거나 파일에 저장하지 않습니다. 이 명령은 project id `baby-care-b03-local` 전용 DB만 초기화해야 하며 linked·공유·운영 프로젝트에는 사용하지 않습니다.
+`verify:quick`은 Ruff format·lint, mypy와 DB 없는 단위 테스트를 포함합니다. `verify:integration`은 매번 고유 project id와 빈 포트로 전용 Supabase를 만든 뒤 실제 로컬 Auth JWT/JWKS·DB·Storage 시험과 90% coverage 기준을 실행합니다. 필수 통합 그룹이 수집되지 않거나 환경 누락으로 skip되면 실패합니다. 현재 테스트 개수를 성공 조건으로 고정하지 않습니다.
+
+로컬 통합 시험은 실행 때마다 `example.test` 합성 계정과 OTP를 격리된 Mailpit에 만들며 실제 사람에게 메일을 보내지 않습니다. 토큰·비밀번호와 Supabase 상태 원문은 보고서에 저장하지 않습니다. 성공·실패 모두 고유 컨테이너·network·volume·시험 이미지를 정리하고, 정리 실패도 검사 실패로 기록합니다.
 
 컨테이너는 API 폴더를 build context로 사용합니다.
 
@@ -100,6 +95,8 @@ docker run --rm -p 8080:8080 baby-care-api:b01
 ```
 
 기반 이미지는 Python `3.12.12-slim-bookworm`의 확인한 multi-architecture digest로 고정했습니다. Docker healthcheck는 liveness만 사용하며, readiness 503을 프로세스 장애로 오인하지 않습니다.
+
+`verify:container`는 비루트 사용자와 digest 고정을 검사하고 미설정 상태의 liveness 200·readiness 503을 실제 HTTP로 확인합니다. `verify:integration`은 잘못된 JWKS의 readiness/API 503과 정상 로컬 Auth·DB 연결의 readiness 200·인증 목록/생성 요청을 별도로 검사합니다.
 
 ## B-03 연결과 B-04 처리 순서
 
