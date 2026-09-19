@@ -11,7 +11,6 @@
 | API 접점 | [개발계약](../contracts/개발계약.md), [OpenAPI](../contracts/openapi계약.json), [목 응답](../contracts/목%20응답과%20시험%20사용자%20배치.json) | 현재 요청·응답·상태·권한·오류 |
 | 계약 구조 검증 기록 | [validation.json](../contracts/validation.json) | 저장된 구조 검증 결과. 실제 API·권한·모델 검증과 구분 |
 | 기본 업무 분담 v2 | [A 작업표](baby-care-implementation-tasks-A-v2.md), [B 작업표](baby-care-implementation-tasks-B-v2.md) | 기본 작업 번호와 인수 조건 |
-| 추가 업무 분담 v2.1 | [윤정님 전달본](윤정이가%20맡은%20일.md), [예준님 전달본](예준이가%20맡을%20일.md) | 각 전달본에 연결된 고정 커밋의 업무 분담. 기본 v2 작업표와 버전을 구분 |
 
 ## 구현·제출 계획과 제품 기획
 
