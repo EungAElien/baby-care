@@ -8,6 +8,7 @@
 - 계약의 첫 공동 기록 경계인 `CreateCareEvent`, `PatchCareEvent`, `CareEvent`와 관련 enum·payload 모델
 - 계약의 `ApiError` 형식과 입력 검증 오류 변환
 - 인증·현재 멤버십/아기 상태·멱등성 저장소가 연결되기 전에는 성공하지 않는 fail-closed 포트
+- B-03 `baby_app` 역할과 트랜잭션 문맥을 사용하는 현재 멤버십·아기 상태 AuthorizationPort 및 실제 DB probe
 - 민감정보를 입력으로 받지 않는 허용 목록 기반 JSON 로그
 - liveness/readiness 분리, pytest·Ruff·mypy·컨테이너·GitHub Actions 기반
 
@@ -80,21 +81,22 @@ docker run --rm -p 8080:8080 baby-care-api:b01
 
 기반 이미지는 Python `3.12.12-slim-bookworm`의 확인한 multi-architecture digest로 고정했습니다. Docker healthcheck는 liveness만 사용하며, readiness 503을 프로세스 장애로 오인하지 않습니다.
 
-## B-03 이후 연결 지점
+## B-03 연결과 이후 지점
 
 연결 순서는 `JWT 검증 → 회수 세션 확인 → 현재 DB 멤버십·아기 상태·객체 권한 → 멱등성 예약 → 업무 처리 → 저장·응답 전 권한/삭제 상태 재검사`입니다.
 
-- `services/security.py`: Supabase JWT 서명·issuer·audience·만료·subject·고정 JWKS, 회수 세션, 현재 멤버십과 아기 상태 검사를 구현합니다. 기본 구현은 항상 503으로 닫혀 있습니다.
+- `services/security.py`: JWT AuthenticationPort는 아직 항상 503으로 닫혀 있습니다. `services/postgres.py`의 AuthorizationPort만 검증된 `user_id`·`session_id`를 트랜잭션 `SET LOCAL`로 전달해 현재 ACTIVE 멤버십과 ACTIVE 아기를 조회합니다.
 - `services/idempotency.py`: `(user_id, HTTP method, path, UUID key)` 범위의 원자 예약, 정규화 본문 해시, 최소 7일 재전송 결과를 DB에 구현합니다. 기본 구현은 항상 503으로 닫혀 있습니다.
-- `services/readiness.py`: 인증·DB의 실제 probe를 등록합니다. 모델과 외부 서비스는 해당 기능을 붙일 때 각자의 probe를 추가합니다.
+- `services/readiness.py`: DB URL이 설정되면 `baby_app` 역할 전환까지 실제 probe하지만, 인증 probe가 없으므로 전체 readiness는 계속 503입니다. 모델과 외부 서비스는 해당 기능을 붙일 때 각자의 probe를 추가합니다.
 - `models/care_events.py`: 첫 공동 기록 요청/응답 경계입니다. `created_by_user_id`, `updated_by_user_id`, `data_origin`, 상태, 내부 실행 토큰은 생성 요청에 없고 추가 필드는 거부됩니다.
 
 `Idempotency-Key`와 `client_request_id`는 같은 UUID인지 먼저 확인하지만, 이것만으로 중복 방지가 완료되지는 않습니다. 기록 `version`, 원문 `input_revision`, 서버 내부 execution token은 서로 다른 책임으로 유지하며 실제 충돌·재전송 처리는 DB 연결 단위에서 구현합니다.
 
 ## 아직 구현·검증하지 않은 것
 
-- JWT·JWKS·세션 회수 및 현재 DB 멤버십/객체 권한
-- Supabase 마이그레이션·RLS·Storage와 실제 시험 계정
+- JWT·JWKS AuthenticationPort와 실제 로그아웃·재인증 API
+- 운영 Supabase migration 적용과 배포별 runtime/관리 로그인 발급
+- 객체별 권한과 B-04 업무 트랜잭션
 - `/v1` 업무 라우트, DB 멱등성·version 충돌 처리
 - 실제 M2D·LLM·외부 서비스, Cloud Run 배포
 - 실제 권한·기기·모델·외부 서비스 시험

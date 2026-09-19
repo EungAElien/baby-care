@@ -132,7 +132,7 @@ flowchart TD
 
 ### B-03 Supabase 스키마·RLS·Storage
 
-**현재:** 엔터티와 권한 계약 준비. 실제 정책 미확인. **선행:** B-01 데이터·인증 계약.
+**현재:** 2026-09-19 로컬 Supabase에서 스키마·FORCE RLS·STANDARD Storage 정책과 합성 seed를 적용하고 DB 70개 단언, 트랜잭션 문맥, 실제 Auth JWT Storage HTTP 23개 허용·거부를 확인했다. 병합된 B-01의 AuthorizationPort에 현재 멤버십·아기 상태 조회와 실제 DB probe를 연결했으며 인증 미설정 readiness는 503을 유지한다. 운영 적용과 JWT AuthenticationPort, B-04 업무 API·실제 로그아웃·TUS·재생 URL은 미실행이다. 상세 증거는 [B-03 구현·검증 기록](../../../supabase/README.md)에 있다. **선행:** B-01 데이터·인증 계약.
 
 - Baby·Membership·Invitation·Consent·AudioAsset·Episode·Analysis·CareEvent·초안·행동·관찰·삭제 작업 및 변경 버전의 마이그레이션을 작성한다.
 - 같은 아기의 리소스만 연결되도록 DB 제약과 API 검사를 함께 적용한다. 아기당 활성 OWNER·진행 중 수면·활성 감지 세션의 유일성을 보장한다.

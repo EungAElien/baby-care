@@ -87,10 +87,16 @@ B·운영 책임자는 내부 시험, 공개 시연, 외부 전송, 학습 이�
 선행: B-01의 계약.
 
 - [ ] **[Codex]** Baby, BabyMembership, Invitation, Consent, AudioAsset, Episode, Analysis, CareEvent, 초안·관찰 등 엔터티를 마이그레이션으로 만들고 연결 객체의 동일 `baby_id`를 DB 제약과 API에서 검사한다.
-- [ ] **[Codex → 직접 확인]** 업무 테이블·뷰·RPC의 직접 접근 GRANT를 제한하고 RLS를 별도로 적용한다. Storage 정책용 최소 권한 함수는 자료를 반환하는 우회 API로 만들지 않는다.
+  - [x] 2026-09-19: 28개 업무 테이블, 복합 FK, 활성 OWNER·멤버십·관측·수면 제약을 빈 로컬 DB migration/seed/pgTAP으로 확인했다.
+  - [ ] B-04 업무 API의 동일 아기 검사와 오류 매핑은 아직 연결하지 않았다.
+- [x] **[Codex → 직접 확인]** 업무 테이블·뷰·RPC의 직접 접근 GRANT를 제한하고 RLS를 별도로 적용한다. Storage 정책용 최소 권한 함수는 자료를 반환하는 우회 API로 만들지 않는다. (로컬 anon/authenticated HTTP와 ACL·뷰·함수 시험 완료, 운영 적용 미실행)
 - [ ] **[Codex → 직접 확인]** API 업무 연결의 최소 권한 역할(`baby_app` 설계안)과 관리자 경로를 분리하고 트랜잭션 범위의 사용자·세션 문맥을 사용한다. 커넥션 풀의 다음 요청으로 권한이 남지 않게 한다. 서버 비밀 키로 우회하는 경로도 현재 권한을 검사한다.
+  - [x] NOLOGIN `baby_app`/`baby_policy_owner`, FORCE RLS와 B-01 `AuthorizationPort`·실제 풀·DB probe를 연결했다. 한 연결의 사용자 교차 처리와 commit·rollback 뒤 `SET LOCAL` 문맥 소거, 인증 미설정 시 readiness 503을 로컬 DB에서 확인했다.
+  - [ ] 운영 배포별 runtime/관리 로그인 발급과 실제 JWT AuthenticationPort·로그아웃 체인은 남았다.
 - [ ] **[Codex → 직접 확인]** OWNER 전용 관리, CAREGIVER, 작성자 전용 초안, 개인 알림, 제거·탈퇴·삭제 후 차단을 API와 DB·Storage에서 직접 시험한다. 나중에 추가할 상담·기억은 B-14의 본인 전용 범위를 적용한다.
-- [ ] **[Codex → 직접 확인]** private Storage의 업로더·정확한 object_key·미만료 업로드 세션·활성 멤버십·세션 회수를 검사한다. 임의 경로·덮어쓰기·클라이언트 삭제·임의 장기 서명을 차단한다.
+  - [x] DB RLS와 실제 로컬 Auth JWT Storage에서 역할·타 아기·타인 초안·개인 알림·회수 뒤 차단 하위 시험을 완료했다.
+  - [ ] B-04 업무 API, 실제 로그아웃, 브라우저 캐시/화면까지 포함한 전체 시험은 남았다.
+- [x] **[Codex → 직접 확인]** private Storage의 업로더·정확한 object_key·미만료 업로드 세션·활성 멤버십·세션 회수를 검사한다. 임의 경로·덮어쓰기·클라이언트 삭제·임의 장기 서명을 차단한다. (STANDARD 로컬 HTTP 완료; TUS·완료 API·서버 재생 URL은 B-05)
 
 완료 기준: 다른 아기·비구성원·탈퇴 계정·타인 초안·삭제 자료 접근이 실제 일반 사용자 권한으로 거부된다. AC01~AC03, AC41~AC44; SEC03~SEC12, SEC18~SEC24, SEC27.
 
