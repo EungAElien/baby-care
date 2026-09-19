@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "generate:api": "openapi-typescript ../../contracts/openapi계약.json -o src/lib/api/generated.d.ts"
+    "generate:api": "openapi-typescript ../../contracts/openapi계약.json -o src/lib/api/generated.d.ts",
+    "generate:fixtures": "node scripts/generate-fixtures.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "5.9.1",
