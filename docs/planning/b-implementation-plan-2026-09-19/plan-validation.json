@@ -1,0 +1,23 @@
+{
+  "checked_at_kst": "2026-09-19T19:36:39.488233+09:00",
+  "task_sections": [
+    "B-01",
+    "B-02",
+    "B-03",
+    "B-04",
+    "B-05",
+    "B-06",
+    "B-07",
+    "B-08",
+    "B-09",
+    "B-10",
+    "B-11",
+    "B-12",
+    "B-13"
+  ],
+  "acceptance_criteria_covered": 44,
+  "local_links_checked": true,
+  "code_fences_balanced": true,
+  "issues": [],
+  "checks_are_document_checks_only": true
+}

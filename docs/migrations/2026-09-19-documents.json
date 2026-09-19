@@ -1,0 +1,406 @@
+{
+  "schema_version": 1,
+  "captured_at_utc": "2026-09-19T12:31:35.962385+00:00",
+  "source": "기존 ChatGPT 프로젝트 로컬 미러 g-p-6aa8fad322348191ab1b5e55051d7cbe",
+  "target_repository": "EungAElien/baby-care",
+  "baseline_commit": "fa8058709b165df26f0d6462853815d53a10b542",
+  "originals_preserved": true,
+  "candidate_document_count": 32,
+  "copied_count": 22,
+  "entries": [
+    {
+      "source": "deliverables/b-implementation-plan-2026-09-19/README.md",
+      "destination": "docs/planning/b-implementation-plan-2026-09-19/README.md",
+      "action": "copied",
+      "source_bytes": 37916,
+      "source_sha256": "bab02d445f4c103ee2b279ccece0603ca4951b776cec06f047437c130be7c283",
+      "destination_sha256": "ea16f36772313c58f412a667848b3574a40503a14cfef3310011528f34905893",
+      "byte_identical": false,
+      "adjustments": [
+        "문서 참조 경로 갱신",
+        "당시 외부 담당 문서 링크가 없어 저장소 B v2 작업표로 안내하고 원본 동일성 미확인을 명시",
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "deliverables/b-implementation-plan-2026-09-19/SUBMISSION-PLAN.md",
+      "destination": "docs/planning/b-implementation-plan-2026-09-19/SUBMISSION-PLAN.md",
+      "action": "copied",
+      "source_bytes": 11061,
+      "source_sha256": "c2293b80e54b0994cf0d80f178209fb70bad052f58ed9b5406df7df74b1b2c65",
+      "destination_sha256": "e55a6f84fb3f8ec61234de9bce1f2d422a6095d398a5e724dc638c21999dabf7",
+      "byte_identical": false,
+      "adjustments": [
+        "문서 참조 경로 갱신",
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "deliverables/b-implementation-plan-2026-09-19/progress-snapshot.json",
+      "destination": "docs/planning/b-implementation-plan-2026-09-19/progress-snapshot.json",
+      "action": "copied",
+      "source_bytes": 14478,
+      "source_sha256": "7f792b81017f6492dd1ee5770b894af72746782f3e6fca21a03c44d05ed5950c",
+      "destination_sha256": "7f792b81017f6492dd1ee5770b894af72746782f3e6fca21a03c44d05ed5950c",
+      "byte_identical": true,
+      "adjustments": []
+    },
+    {
+      "source": "deliverables/b-implementation-plan-2026-09-19/plan-validation.json",
+      "destination": "docs/planning/b-implementation-plan-2026-09-19/plan-validation.json",
+      "action": "copied",
+      "source_bytes": 399,
+      "source_sha256": "8fcbb80ded251fa2e09de7c8346786d1aa624996202ee8494743252e4d2b40e9",
+      "destination_sha256": "8fcbb80ded251fa2e09de7c8346786d1aa624996202ee8494743252e4d2b40e9",
+      "byte_identical": true,
+      "adjustments": []
+    },
+    {
+      "source": "docs/baby-state-care-action-categories-v2.md",
+      "destination": "docs/product/baby-state-care-action-categories-v2.md",
+      "action": "copied",
+      "source_bytes": 22783,
+      "source_sha256": "1bdd53c23d8733cdefe031ec4f0692a2aec65d41503b7b720e12dd79457734af",
+      "destination_sha256": "638e9924009200c72c70b22779f46fb279ca2f73f38bc534bc04daa455405c73",
+      "byte_identical": false,
+      "adjustments": [
+        "문서 참조 경로 갱신",
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "docs/baby-state-care-action-categories-v1.md",
+      "destination": "docs/archive/2026-09-product/baby-state-care-action-categories-v1.md",
+      "action": "copied",
+      "source_bytes": 13602,
+      "source_sha256": "9bc630f7eedbf23fe55e7bc1e87749be702141c2ef0a0a2d99dc1409195b00d0",
+      "destination_sha256": "f53485434dbb8089908649c8e7ce144002cb3dc951df85620eda829e37fc515c",
+      "byte_identical": false,
+      "adjustments": [
+        "문서 참조 경로 갱신",
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "docs/baby-care-prd-v1.md",
+      "destination": "docs/archive/2026-09-product/baby-care-prd-v1.md",
+      "action": "copied",
+      "source_bytes": 35508,
+      "source_sha256": "170b80c982a2e1183096b73d0400ddeb8e1863059a21f6d5a5d382f6c86ce096",
+      "destination_sha256": "e902e5aa2d2b1d11c5e9f80c2a744a7d70eb67eb49b93f46c62c646d0f4dbeeb",
+      "byte_identical": false,
+      "adjustments": [
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "docs/baby-care-functional-spec-v1.md",
+      "destination": "docs/archive/2026-09-product/baby-care-functional-spec-v1.md",
+      "action": "copied",
+      "source_bytes": 88621,
+      "source_sha256": "59dddd849ef979dc3f6190023daa2a7e125e33dd4b7fc70839682596da8baa80",
+      "destination_sha256": "af119bec57973bd57705477d009ae38efaa8ce56200dd69f125e3fccf7460d5b",
+      "byte_identical": false,
+      "adjustments": [
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "docs/baby-care-mvp-spec-2026-09-15.md",
+      "destination": "docs/archive/2026-09-product/baby-care-mvp-spec-2026-09-15.md",
+      "action": "copied",
+      "source_bytes": 35973,
+      "source_sha256": "5954a3432828090ef3d5beb93e1cd744af9c01f071ef3e272d6fdf00c720d71b",
+      "destination_sha256": "53b328b6ec6d2df905d6f282934c8d2c4e98f0faa11b2f64a14cdcc67b740c16",
+      "byte_identical": false,
+      "adjustments": [
+        "문서 참조 경로 갱신",
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "deliverables/baby-care-prd-v1.docx",
+      "destination": "docs/archive/2026-09-product/baby-care-prd-v1.docx",
+      "action": "copied",
+      "source_bytes": 580139,
+      "source_sha256": "aa75d4e8e562de2aa28bbf97b4c71fff500f0c2de0bb22189ade4fb4081235ed",
+      "destination_sha256": "aa75d4e8e562de2aa28bbf97b4c71fff500f0c2de0bb22189ade4fb4081235ed",
+      "byte_identical": true,
+      "adjustments": []
+    },
+    {
+      "source": "deliverables/baby-care-functional-spec-v1.docx",
+      "destination": "docs/archive/2026-09-product/baby-care-functional-spec-v1.docx",
+      "action": "copied",
+      "source_bytes": 612855,
+      "source_sha256": "28ad4ec6b362d9826cc494eddb21d6a8d99e076140111a94e20fdad5c8d3be78",
+      "destination_sha256": "28ad4ec6b362d9826cc494eddb21d6a8d99e076140111a94e20fdad5c8d3be78",
+      "byte_identical": true,
+      "adjustments": []
+    },
+    {
+      "source": "docs/m2d-local-training-plan-2026-09-15.md",
+      "destination": "docs/research/m2d/m2d-local-training-plan-2026-09-15.md",
+      "action": "copied",
+      "source_bytes": 30784,
+      "source_sha256": "c1ba6dea444ec656fc2f69618e38d1ad10033e67a80813f1f1af0ab64814bf38",
+      "destination_sha256": "3c3e91a60075ed9ead8ef426663586846bfc08c175bd96ea2d319e33de684ae3",
+      "byte_identical": false,
+      "adjustments": [
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "work/m2d-stage3/STAGE3.md",
+      "destination": "docs/research/m2d/STAGE3.md",
+      "action": "copied",
+      "source_bytes": 4921,
+      "source_sha256": "2eb14323a9e7fcc7f5b71a255f773f6d1f69cc8ccfe2326514efb1caf263a592",
+      "destination_sha256": "51d34df17896c17ab6983214c177bd1c48f0e049bd4de571b8d3ba09fc15d558",
+      "byte_identical": false,
+      "adjustments": [
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "work/m2d-stage4/STAGE4.md",
+      "destination": "docs/research/m2d/STAGE4.md",
+      "action": "copied",
+      "source_bytes": 7313,
+      "source_sha256": "519f2259e115ba410215a92b89efcdbd0dd5d4ddc0623dcb5b33bb06d35ca829",
+      "destination_sha256": "4ba55f9c9263507cd6e993ce56cd7b8bac37d2450f2e81fa0cfb66e93990400b",
+      "byte_identical": false,
+      "adjustments": [
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "work/m2d-stage4/STAGE4_FULL.md",
+      "destination": "docs/research/m2d/STAGE4_FULL.md",
+      "action": "copied",
+      "source_bytes": 3400,
+      "source_sha256": "54b3e67b56e3cb49516232801dbf90c6c1d3b48d40ec3e51fc758cdf2e71bff7",
+      "destination_sha256": "ccd89fd125a3b3a233f7664488bf68b48e80f721b7f5bfe4802f795bbb362f23",
+      "byte_identical": false,
+      "adjustments": [
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "work/m2d-stage2/random_model_check.json",
+      "destination": "docs/research/m2d/snapshots/mps-stage2/random_model_check.json",
+      "action": "copied",
+      "source_bytes": 528,
+      "source_sha256": "9b9cc32e23ce948c83cd681b4dafe7ed2e8bc20b1db981bbcb1d55d432147724",
+      "destination_sha256": "9b9cc32e23ce948c83cd681b4dafe7ed2e8bc20b1db981bbcb1d55d432147724",
+      "byte_identical": true,
+      "adjustments": []
+    },
+    {
+      "source": "work/m2d-stage2/pretrained_model_check.json",
+      "destination": "docs/research/m2d/snapshots/mps-stage2/pretrained_model_check.json",
+      "action": "copied",
+      "source_bytes": 1104,
+      "source_sha256": "342e982a853ef63ef02f1ad3f1c752da5b21d30692f9214d34c656c27981a650",
+      "destination_sha256": "342e982a853ef63ef02f1ad3f1c752da5b21d30692f9214d34c656c27981a650",
+      "byte_identical": true,
+      "adjustments": []
+    },
+    {
+      "source": "work/cluster-cpu-tuning/extraction_before.json",
+      "destination": "docs/research/m2d/snapshots/cluster-cpu-tuning/extraction_before.json",
+      "action": "copied",
+      "source_bytes": 245,
+      "source_sha256": "9a672e13c74e42ff9e908c2ff6b0c3171f2b5f0f8319d440a31906d2341698fa",
+      "destination_sha256": "9a672e13c74e42ff9e908c2ff6b0c3171f2b5f0f8319d440a31906d2341698fa",
+      "byte_identical": true,
+      "adjustments": []
+    },
+    {
+      "source": "work/cluster-cpu-tuning/pipeline_before.json",
+      "destination": "docs/research/m2d/snapshots/cluster-cpu-tuning/pipeline_before.json",
+      "action": "copied",
+      "source_bytes": 153,
+      "source_sha256": "18ad86bfea60f630c9824a8d496036729a176b269897c95b81b62c3351b4e602",
+      "destination_sha256": "18ad86bfea60f630c9824a8d496036729a176b269897c95b81b62c3351b4e602",
+      "byte_identical": true,
+      "adjustments": []
+    },
+    {
+      "source": "work/cluster-cpu-tuning/threads-1.json",
+      "destination": "docs/research/m2d/snapshots/cluster-cpu-tuning/threads-1.json",
+      "action": "copied",
+      "source_bytes": 2077,
+      "source_sha256": "2e896ca19050ba73fc88aaa66a8976444881599fd14149ebb9b94af658a53b0e",
+      "destination_sha256": "2e896ca19050ba73fc88aaa66a8976444881599fd14149ebb9b94af658a53b0e",
+      "byte_identical": true,
+      "adjustments": []
+    },
+    {
+      "source": "exa-results/infant-cry-research-2026-09-15/report.ko.md",
+      "destination": "docs/research/infant-cry-research-2026-09-15/report.ko.md",
+      "action": "copied",
+      "source_bytes": 14429,
+      "source_sha256": "37559f407acce45cf0551b1141ef45f9b8a9d97b43ae28e7e9e16c3bd7fe3d03",
+      "destination_sha256": "96b6b2d8e758cbd7dd481d5da342a5f200029f92dc9a5c4b4abfca9824024236",
+      "byte_identical": false,
+      "adjustments": [
+        "문서의 적용 범위와 관측 시점 안내 추가",
+        "Markdown 공백 정리와 명시적 줄바꿈으로 표시 의미 보존"
+      ]
+    },
+    {
+      "source": "exa-results/infant-cry-research-2026-09-15/search-log.json",
+      "destination": "docs/research/infant-cry-research-2026-09-15/search-log.json",
+      "action": "copied",
+      "source_bytes": 31412,
+      "source_sha256": "5832de4ffea9df370608a63e5415e490072283f96f911ed1c05256ca0e484b2e",
+      "destination_sha256": "5832de4ffea9df370608a63e5415e490072283f96f911ed1c05256ca0e484b2e",
+      "byte_identical": true,
+      "adjustments": []
+    },
+    {
+      "source": "deliverables/security-design-v1/SECURITY-DESIGN.md",
+      "destination": "docs/security/보안 설계서.md",
+      "action": "existing_relinked",
+      "source_bytes": 60131,
+      "source_sha256": "7d3e5b8e7167424b87a6af72793bc5604bbbf89df3e415d1db33e72be2453ee3",
+      "destination_sha256": "ae58783938fc8ac1a31ceed038feddf6e62ebae3fd1f5f7d45cd6ea5bbe8b99a",
+      "byte_identical": false,
+      "reason": "기존 문서 내용은 원본과 동일했으며, 저장소 파일명에 맞춰 상호 참조 링크만 수정"
+    },
+    {
+      "source": "deliverables/security-design-v1/SECURITY-ACCEPTANCE.md",
+      "destination": "docs/security/62개 보안 시험표.md",
+      "action": "existing_relinked",
+      "source_bytes": 17254,
+      "source_sha256": "f390ce1475e3f9737ef207e08f70d450774f253be3a80cfede3fbf30b51fdf36",
+      "destination_sha256": "541205230eb1b877794bab7d520ea8b7c5f3db1761b364dcd5f6f5afa4c61a5d",
+      "byte_identical": false,
+      "reason": "기존 문서 내용은 원본과 동일했으며, 저장소 파일명에 맞춰 상호 참조 링크만 수정"
+    },
+    {
+      "source": "deliverables/security-design-v1/IMPLEMENTATION-HANDOFF.md",
+      "destination": "docs/security/AB 보안 작업 연결표.md",
+      "action": "existing_relinked",
+      "source_bytes": 10890,
+      "source_sha256": "b7668dd3a1ea3e515428f3673f680239e78588a142d62d0867e2a2c33e98d4d8",
+      "destination_sha256": "d541139e84b1e55721c96812b194277120198e38d56c360dc70ae4296e89cb17",
+      "byte_identical": false,
+      "reason": "기존 문서 내용은 원본과 동일했으며, 저장소 파일명에 맞춰 상호 참조 링크만 수정"
+    },
+    {
+      "source": "deliverables/team-contract-v1/openapi.json",
+      "destination": "contracts/openapi계약.json",
+      "action": "existing_identical",
+      "source_bytes": 295327,
+      "source_sha256": "e6f8ae19bc23031edc24834a48024316726d3522b004b1ece3fa905b829ca348",
+      "destination_sha256": "e6f8ae19bc23031edc24834a48024316726d3522b004b1ece3fa905b829ca348",
+      "byte_identical": true,
+      "reason": "동일 파일이 있어 중복 복사하지 않음"
+    },
+    {
+      "source": "deliverables/team-contract-v1/fixtures.json",
+      "destination": "contracts/목 응답과 시험 사용자 배치.json",
+      "action": "existing_identical",
+      "source_bytes": 62107,
+      "source_sha256": "3159c28867fddc37fe2a60c41603a8ad796a6bab63fe9c6cd3c4338881f45ad3",
+      "destination_sha256": "3159c28867fddc37fe2a60c41603a8ad796a6bab63fe9c6cd3c4338881f45ad3",
+      "byte_identical": true,
+      "reason": "동일 파일이 있어 중복 복사하지 않음"
+    },
+    {
+      "source": "deliverables/team-contract-v1/validation.json",
+      "destination": "contracts/validation.json",
+      "action": "existing_identical",
+      "source_bytes": 888,
+      "source_sha256": "f23d52b518b88f9e988d9a130ac145d0a79ef886c8065db02ea0543eba9b1402",
+      "destination_sha256": "f23d52b518b88f9e988d9a130ac145d0a79ef886c8065db02ea0543eba9b1402",
+      "byte_identical": true,
+      "reason": "동일 파일이 있어 중복 복사하지 않음"
+    },
+    {
+      "source": "DEVELOPMENT_PRINCIPLES.md",
+      "destination": "DEVELOPMENT_PRINCIPLES.md",
+      "action": "existing_adapted",
+      "source_bytes": 9651,
+      "source_sha256": "c2720659af6b3ffd15f4bc2f3907701d7e78fde32ece48f4a0b5cfc4092e8f93",
+      "destination_sha256": "016e801785c58dfe8338d807646f8845e0cf567ae66d44f32d873c218679f71f",
+      "byte_identical": false,
+      "reason": "저장소 기준본 유지. 기존 개발 원칙은 컨벤션·현재 경로를 반영했으며 계약 설명은 표 서식·채택 안내·근거 파일 표기 차이를 제외하면 동일."
+    },
+    {
+      "source": "deliverables/team-contract-v1/README.md",
+      "destination": "contracts/개발계약.md",
+      "action": "existing_adapted",
+      "source_bytes": 38068,
+      "source_sha256": "515244b624d2d03e3ad080e8a3d3d992ed68851f34e2b1ec46ecb69fd1e1209a",
+      "destination_sha256": "ec59d106bc2c9a121f501639f3834e75f5bb0ca3e8b99c639d356129af133982",
+      "byte_identical": false,
+      "reason": "기존 계약 의미를 유지하며 원본의 채택 안내를 복원하고 실제 OpenAPI 파일명을 반영. 표 서식과 근거 담당 문서 표기는 기존 저장소본 유지"
+    },
+    {
+      "source": "AGENTS.md",
+      "destination": "AGENTS.md",
+      "action": "local_context_only",
+      "source_bytes": 420,
+      "source_sha256": "86af13212f07e4b39115dde1e943d7c3162d16e619e0b9f3a49c9c3427a6dec5",
+      "reason": "ChatGPT 미러 보호·로컬 경로 지침. 저장소 AGENTS.md의 제품·협업 지침을 유지하고 미러용 지침으로 덮어쓰지 않음"
+    },
+    {
+      "source": "AGENTS.override.md",
+      "destination": "AGENTS.md",
+      "action": "local_context_only",
+      "source_bytes": 4709,
+      "source_sha256": "b558b8a31a8f1f848bd3017e45ecd26bf1038ee1eb0fb9d49d5d5eec0ca5094d",
+      "reason": "ChatGPT 미러 보호·로컬 경로 지침. 저장소 AGENTS.md의 제품·협업 지침을 유지하고 미러용 지침으로 덮어쓰지 않음"
+    }
+  ],
+  "excluded_groups": [
+    {
+      "path": "tmp/",
+      "reason": "렌더링·텍스트 추출·계약 검토용 중간 파일과 스크립트. 정식 산출물 및 현재 계약에 포함되거나 이전 사본임"
+    },
+    {
+      "path": "sources/",
+      "reason": "조회 시 비어 있음. 동기화 자료는 읽기 전용으로 보호"
+    },
+    {
+      "path": "work/**/*.py, work/**/*.npy, work/**/*.log, work/**/__pycache__/",
+      "reason": "실행 코드·입력 배열·임시 로그. 문서와 기존 JSON 관측 기록만 이관"
+    },
+    {
+      "path": ".DS_Store 및 확장자 없는 잠금·로컬 상태 파일",
+      "reason": "문서가 아닌 OS·실행 상태"
+    }
+  ],
+  "not_verified": [
+    "실제 API·RLS·Storage·기기·모델 실행",
+    "과거 실행 기록의 현재 유효성",
+    "외부 논문·정책·공식 접수 조건의 최신성",
+    "원본을 찾을 수 없는 과거 담당 문서의 버전 동일성"
+  ],
+  "verification": {
+    "source_files_verified": 32,
+    "copied_files": 22,
+    "markdown_files_checked": 29,
+    "local_links_checked": 169,
+    "copied_json_parsed": 8,
+    "copied_docx_integrity_checked": 2,
+    "historical_conversation_links": 10,
+    "credential_signature_findings": 0,
+    "api_schema_fixture_or_runtime_changed": false,
+    "errors": []
+  }
+}
