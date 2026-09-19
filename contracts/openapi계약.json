@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Baby care team integration contract",
-    "version": "1.0.0",
-    "description": "P0 frontend integration agreement dated 2026-09-19, covering A-01 to A-11. Contract only, not a running API. Internal training curator/export APIs retain the v2 scope and are not browser endpoints."
+    "version": "1.1.0",
+    "description": "P0 frontend integration agreement dated 2026-09-20, covering A-01 to A-11. B-04 adds authentication recovery, reauthentication, invite reissue, child-data gate status, and private draft listing. Internal training curator/export APIs retain the v2 scope and are not browser endpoints."
   },
   "servers": [
     {
@@ -62,6 +62,260 @@
           },
           "429": {
             "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/auth/reauthentication/challenges": {
+      "post": {
+        "operationId": "createReauthenticationChallenge",
+        "summary": "createReauthenticationChallenge",
+        "description": "Creates a 10-minute challenge; the client then performs a fresh Supabase email OTP sign-in. Access-token refresh is insufficient.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success. Creates a 10-minute challenge; the client then performs a fresh Supabase email OTP sign-in. Access-token refresh is insufficient.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReauthenticationChallenge"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReauthenticationChallenge"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/reauthentication/proofs": {
+      "post": {
+        "operationId": "createReauthenticationProof",
+        "summary": "createReauthenticationProof",
+        "description": "Requires a JWT whose amr contains a fresh otp or magiclink authentication after challenge creation. The proof is returned once and lasts 5 minutes.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success. Requires a JWT whose amr contains a fresh otp or magiclink authentication after challenge creation. The proof is returned once and lasts 5 minutes.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReauthenticationProof"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReauthenticationProof"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/session-revocations": {
+      "post": {
+        "operationId": "revokeSessions",
+        "summary": "revokeSessions",
+        "description": "Durably blocks selected sessions locally, then invokes the matching Supabase local/others/global sign-out scope. Provider failure returns 503 with the durable revocation id.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Durably blocks selected sessions locally, then invokes the matching Supabase local/others/global sign-out scope. Provider failure returns 503 with the durable revocation id.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRevocation"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeSessions"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/session-revocations/{revocation_id}": {
+      "get": {
+        "operationId": "getSessionRevocation",
+        "summary": "getSessionRevocation",
+        "description": "Requester only. Use another live session or a new login when the current session was revoked.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "name": "revocation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Requester only. Use another live session or a new login when the current session was revoked.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRevocation"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
           },
           "500": {
             "$ref": "#/components/responses/Error500"
@@ -686,7 +940,7 @@
       "post": {
         "operationId": "createInvite",
         "summary": "createInvite",
-        "description": "OWNER only. 24-hour single-use token; old pending invite for the same target is revoked.",
+        "description": "OWNER only. Requires a CREATE_INVITE reauthentication proof. 24-hour single-use token; old pending invite for the same target is revoked.",
         "tags": [
           "Invite"
         ],
@@ -702,11 +956,14 @@
           },
           {
             "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/ReauthenticationProof"
           }
         ],
         "responses": {
           "201": {
-            "description": "Success. OWNER only. 24-hour single-use token; old pending invite for the same target is revoked.",
+            "description": "Success. OWNER only. Requires a CREATE_INVITE reauthentication proof. 24-hour single-use token; old pending invite for the same target is revoked.",
             "headers": {
               "X-Request-ID": {
                 "schema": {
@@ -826,6 +1083,87 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/AcceptInvite"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/invites/{invite_id}/reissue": {
+      "post": {
+        "operationId": "reissueInvite",
+        "summary": "reissueInvite",
+        "description": "OWNER only. Requires a CREATE_INVITE reauthentication proof, revokes the selected pending link, and returns a new invite id and one-time plaintext link. The old link remains unusable.",
+        "tags": [
+          "Invite"
+        ],
+        "parameters": [
+          {
+            "name": "invite_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/ReauthenticationProof"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success. OWNER only. Requires a CREATE_INVITE reauthentication proof, revokes the selected pending link, and returns a new invite id and one-time plaintext link. The old link remains unusable.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssuedInvite"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReissueInvite"
               }
             }
           }
@@ -977,6 +1315,15 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "name": "X-Reauthentication-Proof",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required only when granting BABY_TRAINING; must be bound to ENABLE_BABY_TRAINING and the target baby."
           }
         ],
         "responses": {
@@ -1031,6 +1378,71 @@
                 "$ref": "#/components/schemas/SetBabyConsent"
               }
             }
+          }
+        }
+      }
+    },
+    "/babies/{baby_id}/child-data-verification": {
+      "get": {
+        "operationId": "getChildDataVerification",
+        "summary": "getChildDataVerification",
+        "description": "Current members may inspect the gate. UNVERIFIED and SYNTHETIC_TEST_ONLY never enable production child-data processing.",
+        "tags": [
+          "Consent"
+        ],
+        "parameters": [
+          {
+            "name": "baby_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Current members may inspect the gate. UNVERIFIED and SYNTHETIC_TEST_ONLY never enable production child-data processing.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChildDataVerification"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
           }
         }
       }
@@ -2921,6 +3333,102 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "listMyCareEntries",
+        "summary": "listMyCareEntries",
+        "description": "Returns only the authenticated author own unconfirmed server drafts. Never place drafts on the shared timeline.",
+        "tags": [
+          "Normalization"
+        ],
+        "parameters": [
+          {
+            "name": "baby_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "NORMALIZING",
+                "REVIEW_READY",
+                "NEEDS_MANUAL_REVIEW"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Returns only the authenticated author own unconfirmed server drafts. Never place drafts on the shared timeline.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CareEntryPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
       }
     },
     "/care-entries/{entry_id}": {
@@ -4372,7 +4880,7 @@
       "delete": {
         "operationId": "deleteBabyData",
         "summary": "deleteBabyData",
-        "description": "OWNER only; sets Baby=DELETING and enqueues durable cleanup atomically. Ordinary reads and writes are blocked immediately.",
+        "description": "OWNER only; requires a DELETE_BABY reauthentication proof, then sets Baby=DELETING and enqueues durable cleanup atomically. Ordinary reads and writes are blocked immediately.",
         "tags": [
           "Deletion"
         ],
@@ -4393,6 +4901,9 @@
             "$ref": "#/components/parameters/Version"
           },
           {
+            "$ref": "#/components/parameters/ReauthenticationProof"
+          },
+          {
             "name": "confirm",
             "in": "query",
             "required": true,
@@ -4404,7 +4915,7 @@
         ],
         "responses": {
           "202": {
-            "description": "Success. OWNER only; sets Baby=DELETING and enqueues durable cleanup atomically. Ordinary reads and writes are blocked immediately.",
+            "description": "Success. OWNER only; requires a DELETE_BABY reauthentication proof, then sets Baby=DELETING and enqueues durable cleanup atomically. Ordinary reads and writes are blocked immediately.",
             "headers": {
               "X-Request-ID": {
                 "schema": {
@@ -4594,7 +5105,7 @@
       "post": {
         "operationId": "retryDeletion",
         "summary": "retryDeletion",
-        "description": "Requester only; same failed job and matching expected_attempt. Returns to PENDING while access remains blocked.",
+        "description": "Requester only; same failed job and matching expected_attempt. Returns to RUNNING while access remains blocked.",
         "tags": [
           "Deletion"
         ],
@@ -4614,7 +5125,7 @@
         ],
         "responses": {
           "202": {
-            "description": "Success. Requester only; same failed job and matching expected_attempt. Returns to PENDING while access remains blocked.",
+            "description": "Success. Requester only; same failed job and matching expected_attempt. Returns to RUNNING while access remains blocked.",
             "headers": {
               "X-Request-ID": {
                 "schema": {
@@ -4698,6 +5209,15 @@
           "minimum": 1
         },
         "description": "Current resource version for destructive changes."
+      },
+      "ReauthenticationProof": {
+        "name": "X-Reauthentication-Proof",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Single-use 5-minute proof bound to this user, OTP-authenticated session, operation, and baby."
       }
     },
     "schemas": {
@@ -4829,7 +5349,7 @@
         "type": "object",
         "properties": {
           "contract_version": {
-            "const": "1.0.0",
+            "const": "1.1.0",
             "type": "string"
           },
           "audio_model": {
@@ -5439,6 +5959,19 @@
         ],
         "additionalProperties": false
       },
+      "ReissueInvite": {
+        "type": "object",
+        "properties": {
+          "client_request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "client_request_id"
+        ],
+        "additionalProperties": false
+      },
       "AcceptInvite": {
         "type": "object",
         "properties": {
@@ -5502,6 +6035,394 @@
           "next_cursor"
         ],
         "additionalProperties": false
+      },
+      "ReauthenticationChallenge": {
+        "type": "object",
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requested_session_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "CREATE_INVITE",
+              "DELETE_BABY",
+              "ENABLE_BABY_TRAINING"
+            ]
+          },
+          "baby_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "auth_method": {
+            "const": "SUPABASE_OTP",
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PROVED",
+              "EXPIRED"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "challenge_id",
+          "user_id",
+          "requested_session_id",
+          "operation",
+          "baby_id",
+          "auth_method",
+          "status",
+          "created_at",
+          "expires_at"
+        ],
+        "additionalProperties": false,
+        "description": "A challenge is valid for 10 minutes. Complete a fresh Supabase email OTP sign-in; token_refresh alone is never proof."
+      },
+      "CreateReauthenticationChallenge": {
+        "type": "object",
+        "properties": {
+          "client_request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "CREATE_INVITE",
+              "DELETE_BABY",
+              "ENABLE_BABY_TRAINING"
+            ]
+          },
+          "baby_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "client_request_id",
+          "operation",
+          "baby_id"
+        ],
+        "additionalProperties": false
+      },
+      "ReauthenticationProof": {
+        "type": "object",
+        "properties": {
+          "proof_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "session_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "CREATE_INVITE",
+              "DELETE_BABY",
+              "ENABLE_BABY_TRAINING"
+            ]
+          },
+          "baby_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "proof_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "token_reissue_required": {
+            "type": "boolean"
+          },
+          "issued_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "proof_id",
+          "challenge_id",
+          "user_id",
+          "session_id",
+          "operation",
+          "baby_id",
+          "proof_token",
+          "token_reissue_required",
+          "issued_at",
+          "expires_at"
+        ],
+        "additionalProperties": false,
+        "description": "The 5-minute proof is bound to user, OTP-authenticated session, operation, and baby. It is consumed atomically with the protected mutation. Idempotent replay recovers the prior mutation result without consuming it again."
+      },
+      "CreateReauthenticationProof": {
+        "type": "object",
+        "properties": {
+          "client_request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "client_request_id",
+          "challenge_id"
+        ],
+        "additionalProperties": false
+      },
+      "SessionRevocationFailure": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "PROVIDER_REJECTED_REVOCATION",
+              "PROVIDER_UNREACHABLE"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "retryable"
+        ],
+        "additionalProperties": false
+      },
+      "SessionRevocation": {
+        "type": "object",
+        "properties": {
+          "revocation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requester_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requester_session_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "CURRENT",
+              "OTHERS",
+              "ALL"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "COMPLETE",
+              "FAILED"
+            ]
+          },
+          "target_session_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "provider_scope": {
+            "type": "string",
+            "enum": [
+              "local",
+              "others",
+              "global"
+            ]
+          },
+          "provider_http_status": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "failure": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SessionRevocationFailure"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "access_blocked": {
+            "const": true,
+            "type": "boolean"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "revocation_id",
+          "requester_user_id",
+          "requester_session_id",
+          "scope",
+          "status",
+          "target_session_count",
+          "provider_scope",
+          "provider_http_status",
+          "failure",
+          "access_blocked",
+          "requested_at",
+          "completed_at"
+        ],
+        "additionalProperties": false,
+        "description": "Local API and Storage access is blocked durably before provider refresh-session revocation. FAILED is not reported as logout success."
+      },
+      "RevokeSessions": {
+        "type": "object",
+        "properties": {
+          "client_request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "CURRENT",
+              "OTHERS",
+              "ALL"
+            ]
+          }
+        },
+        "required": [
+          "client_request_id",
+          "scope"
+        ],
+        "additionalProperties": false
+      },
+      "ChildDataVerification": {
+        "type": "object",
+        "properties": {
+          "baby_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subject_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "UNVERIFIED",
+              "SYNTHETIC_TEST_ONLY",
+              "VERIFIED"
+            ]
+          },
+          "method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "policy_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verified_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "production_processing_allowed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "baby_id",
+          "subject_user_id",
+          "status",
+          "method",
+          "policy_version",
+          "verified_at",
+          "production_processing_allowed"
+        ],
+        "additionalProperties": false,
+        "description": "OWNER role and email OTP do not establish legal-guardian status. Production child-data processing remains disabled until an approved verification method and policy are configured."
       },
       "Consent": {
         "type": "object",
@@ -9242,6 +10163,32 @@
         ],
         "additionalProperties": false
       },
+      "CareEntryPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CareEntry"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
       "CreateCareEntry": {
         "type": "object",
         "properties": {
@@ -11196,10 +12143,14 @@
           "AUTH_REQUIRED",
           "TOKEN_EXPIRED",
           "INVALID_TOKEN",
+          "SESSION_REVOKED",
+          "REAUTH_REQUIRED",
+          "REAUTH_PROOF_INVALID",
           "OWNER_ONLY",
           "AUTHOR_ONLY",
           "INVITE_EMAIL_MISMATCH",
           "CONSENT_REQUIRED",
+          "CHILD_DATA_VERIFICATION_REQUIRED",
           "RESOURCE_NOT_FOUND",
           "VERSION_CONFLICT",
           "SOURCE_REVISION_CHANGED",
@@ -11226,7 +12177,8 @@
           "RATE_LIMITED",
           "INTERNAL_ERROR",
           "MODEL_NOT_READY",
-          "SERVICE_UNAVAILABLE"
+          "SERVICE_UNAVAILABLE",
+          "AUTH_PROVIDER_REVOCATION_FAILED"
         ]
       },
       "ErrorDetails": {
@@ -11350,6 +12302,28 @@
               }
             ]
           },
+          "session_revocation_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reauthentication_challenge_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "status_url": {
             "anyOf": [
               {
@@ -11381,6 +12355,8 @@
           "existing_run_id",
           "existing_session_id",
           "deletion_job_id",
+          "session_revocation_id",
+          "reauthentication_challenge_id",
           "status_url",
           "retry_after_seconds"
         ],
@@ -11640,10 +12616,14 @@
     "AUTH_REQUIRED": 401,
     "TOKEN_EXPIRED": 401,
     "INVALID_TOKEN": 401,
+    "SESSION_REVOKED": 401,
+    "REAUTH_REQUIRED": 401,
+    "REAUTH_PROOF_INVALID": 401,
     "OWNER_ONLY": 403,
     "AUTHOR_ONLY": 403,
     "INVITE_EMAIL_MISMATCH": 403,
     "CONSENT_REQUIRED": 403,
+    "CHILD_DATA_VERIFICATION_REQUIRED": 403,
     "RESOURCE_NOT_FOUND": 404,
     "VERSION_CONFLICT": 409,
     "SOURCE_REVISION_CHANGED": 409,
@@ -11670,7 +12650,8 @@
     "RATE_LIMITED": 429,
     "INTERNAL_ERROR": 500,
     "MODEL_NOT_READY": 503,
-    "SERVICE_UNAVAILABLE": 503
+    "SERVICE_UNAVAILABLE": 503,
+    "AUTH_PROVIDER_REVOCATION_FAILED": 503
   },
   "x-contract-rules": {
     "browser_data_api_allowlist": [],
@@ -11688,6 +12669,13 @@
     "normalization_lease_seconds": 30,
     "normalization_client_timeout_seconds": 35,
     "invite_ttl_seconds": 86400,
+    "reauthentication_challenge_ttl_seconds": 600,
+    "reauthentication_proof_ttl_seconds": 300,
+    "reauthentication_accepted_amr": [
+      "otp",
+      "magiclink"
+    ],
+    "child_data_production_gate": "APPROVED_GUARDIAN_VERIFICATION_REQUIRED",
     "playback_ttl_seconds": 60,
     "upload_session_ttl_seconds": 900,
     "foreground_refresh_seconds": 5,

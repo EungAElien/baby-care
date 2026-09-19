@@ -25,9 +25,11 @@ export type ApiErrorKind =
   | "service"
   | "unknown";
 
-const authenticationCodes = new Set<ContractErrorCode>(["AUTH_REQUIRED", "TOKEN_EXPIRED", "INVALID_TOKEN"]);
+const authenticationCodes = new Set<ContractErrorCode>([
+  "AUTH_REQUIRED", "TOKEN_EXPIRED", "INVALID_TOKEN", "SESSION_REVOKED", "REAUTH_REQUIRED", "REAUTH_PROOF_INVALID",
+]);
 const permissionCodes = new Set<ContractErrorCode>([
-  "OWNER_ONLY", "AUTHOR_ONLY", "INVITE_EMAIL_MISMATCH", "CONSENT_REQUIRED",
+  "OWNER_ONLY", "AUTHOR_ONLY", "INVITE_EMAIL_MISMATCH", "CONSENT_REQUIRED", "CHILD_DATA_VERIFICATION_REQUIRED",
 ]);
 const inProgressCodes = new Set<ContractErrorCode>([
   "ANALYSIS_IN_PROGRESS", "NORMALIZATION_IN_PROGRESS", "OPERATION_IN_PROGRESS",
@@ -36,7 +38,9 @@ const goneCodes = new Set<ContractErrorCode>(["INVITE_EXPIRED", "INVITE_REVOKED"
 const validationCodes = new Set<ContractErrorCode>([
   "FILE_TOO_LARGE", "UNSUPPORTED_MEDIA_TYPE", "VALIDATION_ERROR", "INVALID_AUDIO",
 ]);
-const serviceCodes = new Set<ContractErrorCode>(["INTERNAL_ERROR", "MODEL_NOT_READY", "SERVICE_UNAVAILABLE"]);
+const serviceCodes = new Set<ContractErrorCode>([
+  "INTERNAL_ERROR", "MODEL_NOT_READY", "SERVICE_UNAVAILABLE", "AUTH_PROVIDER_REVOCATION_FAILED",
+]);
 
 export function classifyErrorCode(code: string): ApiErrorKind {
   if (authenticationCodes.has(code as ContractErrorCode)) return "authentication";
