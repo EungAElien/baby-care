@@ -13,9 +13,9 @@ type FixtureScenario = {
   response: { status: number; headers: Record<string, string>; body: unknown };
 };
 
-const fixtureFile = resolve(process.cwd(), "../목 응답과 시험 사용자 배치.json");
+const fixtureFile = resolve(process.cwd(), "../../contracts/목 응답과 시험 사용자 배치.json");
 const fixtures = JSON.parse(readFileSync(fixtureFile, "utf8")) as { scenarios: FixtureScenario[] };
-const openApiFile = resolve(process.cwd(), "../openapi계약.json");
+const openApiFile = resolve(process.cwd(), "../../contracts/openapi계약.json");
 const contract = JSON.parse(readFileSync(openApiFile, "utf8")) as {
   components: { schemas: { ErrorCode: { enum: string[] } } };
 };

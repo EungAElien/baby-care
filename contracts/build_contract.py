@@ -4,7 +4,7 @@ import copy
 import json
 from pathlib import Path
 
-OUT = Path('deliverables/team-contract-v1')
+OUT = Path(__file__).resolve().parent
 SCHEMAS = {}
 PATHS = {}
 REGISTRY = {}
@@ -418,8 +418,11 @@ FIXTURE_DOC={'contract_version':'1.0.0','notice':'All fixtures are synthetic con
     'role_assignments':[{'user_id':USERS['owner_a'],'baby_id':BABY_A,'role':'OWNER','status':'ACTIVE'}, {'user_id':USERS['caregiver_a'],'baby_id':BABY_A,'role':'CAREGIVER','status':'ACTIVE'}, {'user_id':USERS['owner_b'],'baby_id':BABY_B,'role':'OWNER','status':'ACTIVE'}, {'user_id':USERS['owner_a'],'baby_id':BABY_B,'role':'CAREGIVER','status':'ACTIVE'}, {'user_id':USERS['removed_a'],'baby_id':BABY_A,'role':'CAREGIVER','status':'REVOKED'}],
     'scenarios':fixtures}
 
-OUT.mkdir(parents=True, exist_ok=True)
-(OUT/'openapi.json').write_text(json.dumps(DOC,ensure_ascii=False,indent=2)+'\n')
-(OUT/'fixtures.json').write_text(json.dumps(FIXTURE_DOC,ensure_ascii=False,indent=2)+'\n')
-Path('tmp/contract-review/operation-registry.json').write_text(json.dumps(REGISTRY,indent=2))
-print(json.dumps({'operations':len(REGISTRY),'paths':len(PATHS),'schemas':len(SCHEMAS),'scenarios':len(fixtures)},ensure_ascii=False))
+def build_contract():
+    (OUT/'openapi계약.json').write_text(json.dumps(DOC,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+    (OUT/'목 응답과 시험 사용자 배치.json').write_text(json.dumps(FIXTURE_DOC,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+    return {'operations':len(REGISTRY),'paths':len(PATHS),'schemas':len(SCHEMAS),'scenarios':len(fixtures)}
+
+
+if __name__ == '__main__':
+    print(json.dumps(build_contract(),ensure_ascii=False))

@@ -1,24 +1,28 @@
 import copy
 import json
-import runpy
-import sys
 from pathlib import Path
 
-runpy.run_path('tmp/contract-review/build_contract.py')
-sys.path.insert(0, str(Path('tmp/contract-review/validation-deps').resolve()))
+from build_contract import DOC, FIXTURE_DOC, REGISTRY
 from openapi_spec_validator import validate
-from jsonschema import Draft202012Validator, FormatChecker, RefResolver
+from jsonschema import Draft202012Validator, FormatChecker
+from referencing import Registry, Resource
+from referencing.jsonschema import DRAFT202012
 
-folder=Path('deliverables/team-contract-v1')
-doc=json.loads((folder/'openapi.json').read_text())
-fixtures=json.loads((folder/'fixtures.json').read_text())
-registry=json.loads(Path('tmp/contract-review/operation-registry.json').read_text())
+folder=Path(__file__).resolve().parent
+doc=json.loads((folder/'openapi계약.json').read_text(encoding='utf-8'))
+fixtures=json.loads((folder/'목 응답과 시험 사용자 배치.json').read_text(encoding='utf-8'))
+registry=REGISTRY
+assert doc==DOC, 'OpenAPI file is out of sync; run build_contract.py'
+assert fixtures==FIXTURE_DOC, 'Fixture file is out of sync; run build_contract.py'
 validate(doc)
-resolver=RefResolver.from_schema(doc)
+schema_registry=Registry().with_resource('urn:baby-care:openapi',Resource(contents=doc,specification=DRAFT202012))
 checker=FormatChecker()
 
+def validator(name):
+    return Draft202012Validator({'$ref':f'urn:baby-care:openapi#/components/schemas/{name}'},registry=schema_registry,format_checker=checker)
+
 def check(name,value):
-    Draft202012Validator(doc['components']['schemas'][name],resolver=resolver,format_checker=checker).validate(value)
+    validator(name).validate(value)
 
 requests=0
 for item in fixtures['scenarios']:
@@ -37,7 +41,7 @@ for item in fixtures['scenarios']:
 by_name={f['name']:f for f in fixtures['scenarios']}
 negative=[]
 def rejected(label,schema,value):
-    errors=list(Draft202012Validator(doc['components']['schemas'][schema],resolver=resolver,format_checker=checker).iter_errors(value))
+    errors=list(validator(schema).iter_errors(value))
     assert errors, f'Invalid example was accepted: {label}'
     negative.append(label)
 
@@ -76,5 +80,5 @@ verify_refs(doc)
 assert len(registry)==len({v['operationId'] for p in doc['paths'].values() for v in p.values()})
 
 summary={'openapi_validation':'passed','reference_validation':'passed','operations':len(registry),'paths':len(doc['paths']),'schemas':len(doc['components']['schemas']),'response_examples_validated':len(fixtures['scenarios']),'request_examples_validated':requests,'invalid_contract_examples_rejected':negative,'not_verified':['Live FastAPI implementation','Supabase RLS and Storage runtime behavior','Actual accounts or OTP','Real audio or LLM model execution','Browser end-to-end behavior']}
-(folder/'validation.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n')
+(folder/'validation.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
 print(json.dumps(summary,ensure_ascii=False,indent=2))

@@ -13,7 +13,7 @@ npm.cmd run lint
 npm.cmd run build
 ```
 
-`src/lib/api/generated.d.ts`는 상위 폴더의 확정 OpenAPI에서 생성합니다. 계약이 바뀌면 B와 합의 후 다시 생성·검증하세요. 테스트는 상위 폴더의 `목 응답과 시험 사용자 배치.json`을 동일 클라이언트의 주입 가능한 `fetch`에 연결합니다. 합성 fixture는 운영 코드나 오류 대체 경로에 포함되지 않습니다.
+`src/lib/api/generated.d.ts`는 저장소의 `contracts/openapi계약.json`에서 생성합니다. 계약이 바뀌면 B와 합의 후 다시 생성·검증하세요. 테스트는 `contracts/목 응답과 시험 사용자 배치.json`을 동일 클라이언트의 주입 가능한 `fetch`에 연결합니다. 합성 fixture는 운영 코드나 오류 대체 경로에 포함되지 않습니다.
 
 실제 환경을 사용할 때만 `.env.example`을 참고해 공개 설정을 입력하세요. `.env.local`은 버전 관리 대상이 아니며, `service_role`/secret·DB·LLM 자격 증명을 `NEXT_PUBLIC_`에 두면 안 됩니다. 아직 실제 Supabase 클라이언트·계정·FastAPI 주소는 연결하지 않았습니다.
 
