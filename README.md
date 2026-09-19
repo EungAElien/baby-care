@@ -8,6 +8,8 @@
 
 최신 업무 분담은 [A 기준본](docs/baby-care-implementation-tasks-A-v2.md)과 [B 기준본](docs/baby-care-implementation-tasks-B-v2.md)의 v2.1입니다. [윤정님 전달본](docs/윤정이가%20맡은%20일.md)과 [예준님 전달본](docs/예준이가%20맡을%20일.md)은 같은 내용을 전달용으로 유지합니다. 보안 자료는 [보안 설계](docs/security/보안%20설계서.md), [A·B 연결표](docs/security/AB%20보안%20작업%20연결표.md), [62개 시험표](docs/security/62개%20보안%20시험표.md)에 있습니다. v2.1의 상담 API와 신규 보안 상태·오류는 향후 계약 보완 항목이며 현재 OpenAPI 1.0.0의 구현 완료 항목이 아닙니다.
 
+기획·구현 계획·보안·모델 연구·이전 버전은 [문서 안내](docs/README.md)에서 찾습니다. [문서 이관 기록](docs/migrations/2026-09-19-documents.md)에 가져온 자료, 기존 기준본과의 대응, 검증 범위를 남겼습니다.
+
 ## 폴더
 
 - `apps/web/`: Next.js 웹 앱(A 담당)
