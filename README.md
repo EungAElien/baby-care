@@ -16,8 +16,8 @@
 - `apps/api/`: FastAPI 실행·계약 모델·공통 오류·상태 확인 기반(B 담당, 업무 API는 미구현)
 - `contracts/`: OpenAPI, 합성 목 응답, 계약 생성·검증 코드
 - `docs/`: PRD, 기능명세, A/B 작업표, 보안 문서
-- `supabase/`: Supabase 설정·마이그레이션 위치(현재 자리 표시자)
-- `.github/workflows/`: 웹/API/계약 자동 검사 위치(API 검사는 구성됨)
+- `supabase/`: B-03 로컬 설정, migration, 합성 seed, DB·RLS 시험. [재현 안내](supabase/README.md)
+- `.github/workflows/`: 웹/API/계약과 Supabase 하위 계층 검증 워크플로
 
 ## 로컬 시작
 
@@ -47,3 +47,10 @@ python -m venv .venv
 환경 변수는 `apps/web/.env.example`을 참고해 로컬에만 설정합니다. 실제 토큰, `service_role`/secret 키, 데이터베이스 비밀번호와 사용자 데이터는 커밋하지 마세요.
 
 API 기반은 `apps/api/`에서 Python 3.12.12로 실행합니다. 자세한 설치·상태 확인·검사·컨테이너 명령은 [API README](apps/api/README.md)를 따릅니다. 현재 `/health/live`는 프로세스 생존만 확인하며 `/health/ready`는 인증·DB를 실제 연결하기 전 503을 반환합니다.
+
+Supabase B-03 하위 계층은 저장소 루트에서 Docker를 실행한 뒤 재현합니다. 아래 명령은 `baby-care-b03-local` 전용 로컬 DB를 초기화하므로 linked/공유/운영 프로젝트에는 사용하지 않습니다.
+
+```bash
+npm ci
+npm run test:supabase
+```
