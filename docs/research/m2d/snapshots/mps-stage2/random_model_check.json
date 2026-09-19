@@ -1,0 +1,21 @@
+{
+  "mps_available": true,
+  "synthetic_only": true,
+  "pretrained_loaded": false,
+  "input_shape": [
+    1,
+    1,
+    80,
+    608
+  ],
+  "mask_ratio": 0.7,
+  "loss": 2.037752389907837,
+  "gradient_norm_before_clipping": 4.591395378112793,
+  "online_weights_updated": true,
+  "target_gradients_disabled": true,
+  "ema_update_completed": true,
+  "single_cold_step_seconds_not_a_training_benchmark": 5.96029075000115,
+  "mps_tensor_GiB": 2.009161949157715,
+  "mps_driver_GiB": 2.1678466796875,
+  "trained_weights_saved": false
+}
