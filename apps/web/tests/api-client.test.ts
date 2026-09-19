@@ -204,7 +204,11 @@ describe("OpenAPI client with provided synthetic fixtures", () => {
     expect(classifyErrorCode("AUTH_PROVIDER_REVOCATION_FAILED")).toBe("service");
     expect(classifyErrorCode("OWNER_ONLY")).toBe("permission");
     expect(classifyErrorCode("CHILD_DATA_VERIFICATION_REQUIRED")).toBe("permission");
-    expect(classifyErrorCode("REAUTH_REQUIRED")).toBe("authentication");
+    // REAUTH_REQUIRED/REAUTH_PROOF_INVALID mean only this operation needs a fresh proof, not a
+    // full re-login like SESSION_REVOKED — kept as its own kind so screens don't sign the user out.
+    expect(classifyErrorCode("REAUTH_REQUIRED")).toBe("reauth-required");
+    expect(classifyErrorCode("REAUTH_PROOF_INVALID")).toBe("reauth-required");
+    expect(classifyErrorCode("SESSION_REVOKED")).toBe("authentication");
     expect(classifyErrorCode("RESOURCE_NOT_FOUND")).toBe("not-found");
     expect(classifyErrorCode("VERSION_CONFLICT")).toBe("version-conflict");
     expect(classifyErrorCode("IDEMPOTENCY_KEY_REUSED")).toBe("idempotency-conflict");
