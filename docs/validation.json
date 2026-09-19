@@ -1,0 +1,27 @@
+{
+  "openapi_validation": "passed",
+  "reference_validation": "passed",
+  "operations": 63,
+  "paths": 54,
+  "schemas": 117,
+  "response_examples_validated": 46,
+  "request_examples_validated": 7,
+  "invalid_contract_examples_rejected": [
+    "ABSTAIN cannot return cause candidates",
+    "FAILED requires failure details",
+    "COMPLETE requires a saved recommendation",
+    "STUB cannot claim a real model call",
+    "Deletion COMPLETE cannot have pending cleanup",
+    "LLM confirmation needs run_id",
+    "Unresolved conflicting statements cannot be confirmed",
+    "Action cannot create and link an event simultaneously",
+    "Client cannot inject owner user id"
+  ],
+  "not_verified": [
+    "Live FastAPI implementation",
+    "Supabase RLS and Storage runtime behavior",
+    "Actual accounts or OTP",
+    "Real audio or LLM model execution",
+    "Browser end-to-end behavior"
+  ]
+}
