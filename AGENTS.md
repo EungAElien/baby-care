@@ -12,6 +12,7 @@
 - [팀 개발 계약 1.0.0](contracts/개발계약.md)
 - [OpenAPI](contracts/openapi계약.json)와 [목 응답·시험 사용자 배치](contracts/목%20응답과%20시험%20사용자%20배치.json)
 - 관련 [A 담당 태스크](docs/baby-care-implementation-tasks-A-v2.md) 또는 [B 담당 태스크](docs/baby-care-implementation-tasks-B-v2.md)
+- 관련 추가 기획·계획·연구의 위치와 적용 범위는 [문서 안내](docs/README.md)에서 확인한다. 과거 관측 기록과 이전 버전 문서를 현재 구현·성능·계약의 증거로 사용하지 않는다.
 
 위 저장소 문서가 이후 변경의 기준본이다. 기존 ChatGPT 프로젝트 폴더의 이전 계약·산출물은 참고 자료이며 독립적으로 갱신하지 않는다. `sources/`와 동기화된 프로젝트 자료는 수정·이름 변경·이동·삭제하지 않는다. 문서 연결은 저장소 기준 상대 경로를 사용한다.
 
