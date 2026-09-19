@@ -4,9 +4,11 @@ import { describe, expect, it } from "vitest";
 import {
   activeMembershipsFor,
   getMockScenario,
+  isForBaby,
   membershipFor,
   mockAnalysis,
   mockBabyLabel,
+  mockIssuedInvite,
   mockRoleAssignments,
   mockTestBabies,
   mockTestUsers,
@@ -51,6 +53,14 @@ describe("mock fixtures", () => {
   it("labels the two fixture babies without inventing new ones", () => {
     expect(mockBabyLabel(mockTestBabies.baby_a)).toBe("아기 A");
     expect(mockBabyLabel(mockTestBabies.baby_b)).toBe("아기 B");
+  });
+
+  it("scopes the issued-invite fixture to its own baby (regression: PR #11 review)", () => {
+    // owner_b viewing baby_b's care-team must not see baby_a's invited_a@example.invalid —
+    // isForBaby is what SC10 uses to null the invite out for the wrong baby.
+    const invite = mockIssuedInvite();
+    expect(isForBaby(mockTestBabies.baby_a, invite.invite)).toBe(true);
+    expect(isForBaby(mockTestBabies.baby_b, invite.invite)).toBe(false);
   });
 
   it("preserves inference_mode=STUB and data_origin=DEMO on analysis fixtures", () => {

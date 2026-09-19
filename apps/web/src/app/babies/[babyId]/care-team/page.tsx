@@ -5,7 +5,7 @@
 // 보인다: CAREGIVER 나가기(LEFT), OWNER 나가기 차단(409 OWNER_REQUIRED).
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { mockRoleAssignments, getMockScenario } from "@/lib/mock/fixtures";
+import { isForBaby, mockIssuedInvite, mockRoleAssignments, getMockScenario } from "@/lib/mock/fixtures";
 import { useMockSession } from "@/lib/mock/session";
 import { ScreenSection, ErrorState } from "@/components/screen-state";
 
@@ -25,9 +25,8 @@ export default function CareTeamPage() {
   const session = useMockSession();
   const membership = session.membershipFor(babyId);
   const members = mockRoleAssignments.filter((entry) => entry.baby_id === babyId);
-  const issuedInvite = getMockScenario("invite_issued").response.body as {
-    invite: { email: string; status: string; expires_at: string };
-  };
+  const issuedInviteFixture = mockIssuedInvite();
+  const issuedInvite = isForBaby(babyId, issuedInviteFixture.invite) ? issuedInviteFixture : null;
   const [ownerLeaveBlocked, setOwnerLeaveBlocked] = useState(false);
   const [confirmingLeave, setConfirmingLeave] = useState(false);
 
