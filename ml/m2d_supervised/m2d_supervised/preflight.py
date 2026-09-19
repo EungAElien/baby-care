@@ -261,6 +261,9 @@ def _cross_dataset_duplicates(
 
 def _validate_checkpoints(paths: RuntimePaths, config: dict[str, Any]) -> dict[str, Any]:
     registry = config["model"]["registry"]
+    for key in ("checkpoint", "sha256", "initialization_id", "norm_stats_origin"):
+        if registry["B"][key] != registry["C"][key]:
+            raise RuntimeError(f"B/C initialization differs: {key}")
     expected_norm_stats = (
         float(config["preprocessing"]["normalization_mean"]),
         float(config["preprocessing"]["normalization_std"]),
@@ -356,6 +359,7 @@ def run_preflight(
     paths: RuntimePaths,
     *,
     full_feature_check: bool = True,
+    locks_held: bool = False,
 ) -> dict[str, Any]:
     started = time.monotonic()
     paths.output_root.mkdir(parents=True, exist_ok=True)
@@ -365,10 +369,10 @@ def run_preflight(
         "schema_version": 1,
         "checked_utc": utc_now(),
         "experiment_version": config["experiment_version"],
-        "scope": "PREPARATION_ONLY",
+        "scope": "PRETRAINING_VALIDATION",
         "status": "checking",
         "ready_for_training": False,
-        "trainer_implemented": False,
+        "trainer_implemented": True,
         "optimizer_step_executed": False,
         "training_or_evaluation_executed": False,
         "test_used_for_model_fitting_or_selection": False,
@@ -397,7 +401,9 @@ def run_preflight(
             "minimum_free_gib": config["training"]["minimum_free_gib"],
             "atomic_write_reserve_bytes": required_temporary,
         }
-        report["locks_available"] = _lock_availability(paths)
+        report["locks_available"] = (
+            "HELD_BY_CURRENT_RUNNER" if locks_held else _lock_availability(paths)
+        )
         report["planned_development_runs"] = _planned_development_runs(config)
         report["m2d_source"] = verify_m2d_source(
             paths.m2d_source_root, config["model"]["source_commit"]

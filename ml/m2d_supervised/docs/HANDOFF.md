@@ -2,9 +2,9 @@
 
 ## 현재 경계
 
-현재 산출물은 학습 준비까지다. 실제 학습기, 옵티마이저 스텝, 중간 체크포인트 및 재개,
-27회 개발 학습, 모델 선택, 개발 전체 재학습, 테스트 평가, 보정, 내보내기는 구현하거나
-실행하지 않았다. 사전검증 통과는 모델 성능이나 제품 출시 가능성을 뜻하지 않는다.
+학습기·부분 체크포인트·재개·MPS 예비 실행·27회 순차 실행 기능을 구현했다. 실행 현황은
+외부 출력 폴더의 `matrix_progress.json`으로 확인한다. 이 문서는 학습 완료 증거가 아니다.
+27회 이후의 비교기·최종 재학습·테스트 평가·내보내기는 후속 구현 범위다.
 
 ## 고정된 실험 계약
 
@@ -24,22 +24,27 @@
 세부 수치와 파일 해시는 `config/experiment_v1.json`이 단일 기준이다. 하이퍼파라미터를
 임의로 탐색하거나 테스트 성능을 보고 바꾸지 않는다.
 
-## 다음 구현의 완료 조건
+## 완료 후 태스크
 
-1. 학습 상태와 모델 상태를 분리한 원자적 부분 체크포인트 및 정확 재개를 구현한다.
-2. 동일한 시드·폴드의 B/C가 데이터 순서와 Donate 헤드 초기화를 공유함을 테스트한다.
-3. warm-up 3 epoch와 마지막 두 블록·최종 norm 미세조정 경계를 자동 테스트한다.
-4. 유효 배치와 누적 손실 정규화가 가변 길이 microbatch에서도 계약과 일치함을 검증한다.
-5. fold별 조기 종료 뒤 out-of-fold 예측만으로 비교·선택 보고서를 만든다.
-6. 선택이 끝난 후에만 고정 규칙으로 개발 전체 재학습과 테스트 1회 평가를 실행한다.
-7. calibration은 실제 검증 전까지 `NOT_VALIDATED`, 내보내기는 `release_ready=false`로 둔다.
-8. 제품 API 연결은 REAL/STUB 및 USER/DEMO 축을 유지하고 의료적 진단으로 표현하지 않는다.
+1. 27개 `completion.json`과 보존 산출물의 해시, 실제 epoch·노출량·시간을 확인한다.
+2. 같은 seed의 세 fold 검증 예측을 합쳐 A/B/C의 Donate Macro-F1을 비교한다.
+   라벨별 지표·다수 클래스 기준·예측 소실 클래스와 짝지은 그룹 bootstrap도 보고한다.
+3. 단독 A/B 중 높은 평균을 선택(동률 B), C는 평균 +0.02, 3개 seed 중 2개 이상 개선,
+   비-hungry 라벨별 평균 recall 감소 ≤0.05를 모두 만족할 때만 채택한다.
+4. 선택 레시피와 기준 레시피 각각의 9개 선택 epoch 중앙값, seed 42를 고정한다.
+   새 초기 인코더에서 Donate 개발 전체로 재학습한다. C는 Enes 개발 19명만 함께 쓴다.
+5. 선택 기록을 확정한 후 Donate 테스트 90개를 두 모델에 한 번 평가한다.
+   C가 선택된 경우에만 해당 Enes head를 Enes 테스트 5명에 평가한다.
+6. 초기 인코더와 부분 가중치를 합친 독립 전체 모델, 라벨·전처리·해시·결과를 내보내고
+   새 프로세스에서 다시 읽어 같은 실제 입력의 출력이 일치하는지 확인한다.
+7. `calibration_status=NOT_VALIDATED`, `release_ready=false`를 유지하고 제품 연결은
+   REAL/STUB·USER/DEMO 계약과 별도 기기·음질·비울음·판단 유보 검증을 거친다.
 
-## 구현 시작 전 게이트
+## 학습 시작 전 게이트
 
-전체 `preflight`가 `status=passed`, `ready_for_training=true`여야 한다. 보고서에
-`trainer_implemented=false`, `optimizer_step_executed=false`,
-`training_or_evaluation_executed=false`가 기록된 상태가 이 인계의 기준점이다.
+전체 `preflight`와 정확히 같은 코드의 MPS `pilot`이 모두 통과해야 한다. preflight의
+`optimizer_step_executed=false`는 사전검증 명령 자체가 학습하지 않는다는 뜻이다.
+실제 학습 시작·완료는 `matrix_progress.json`과 개별 `completion.json`으로 판단한다.
 
 데이터 출처의 원래 라이선스 메타데이터와 프로젝트 사용 결정은 분리해 기록했다. 프로젝트
 소유자는 M2D·BABYCRY·Donate·Enes를 이 비상업 해커톤의 학습 및 비공개 호스팅 서비스에

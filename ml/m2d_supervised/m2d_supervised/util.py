@@ -102,8 +102,11 @@ def git_commit(path: Path) -> str | None:
 
 
 def code_hash(package_root: Path, config_path: Path) -> tuple[str, dict[str, str]]:
-    files = [*sorted(package_root.glob("*.py")), config_path]
-    hashes = {str(path.relative_to(package_root.parent)): sha256_file(path) for path in files}
+    hashes = {
+        f"m2d_supervised/{path.name}": sha256_file(path)
+        for path in sorted(package_root.glob("*.py"))
+    }
+    hashes["config/experiment_v1.json"] = sha256_file(config_path)
     return object_sha256(hashes), hashes
 
 

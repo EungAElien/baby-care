@@ -1,4 +1,4 @@
-"""Run the preparation-only command-line interface."""
+"""Run the M2D supervised experiment command-line interface."""
 
 from .cli import main
 
