@@ -1,12 +1,13 @@
-# Baby Care API — B-04 계정·공동양육·기록
+# Baby Care API — B-04 계정·공동양육·기록 + B-09 변경 조회
 
-이 폴더는 계약 1.1.0 가운데 B-04 계정·공동양육·기록 경로를 실행하는 FastAPI 서비스입니다. 로컬 Supabase의 실제 Auth JWT/JWKS, 최소 권한 `baby_app` 트랜잭션, DB 멱등성·RLS·Storage 회수 경계를 함께 검증합니다.
+이 폴더는 계약 1.1.1 가운데 B-04 계정·공동양육·기록 경로와 B-09 공동 변경 조회를 실행하는 FastAPI 서비스입니다. 로컬 Supabase의 실제 Auth JWT/JWKS, 최소 권한 `baby_app` 트랜잭션, DB 멱등성·RLS·Storage 회수 경계를 함께 검증합니다.
 
 ## 현재 포함된 범위
 
 - FastAPI 실행 진입점, 환경 설정, 라우터, 공통 오류 처리, 요청별 `request_id`
 - 아기 생성·목록·선택·프로필, 구성원·초대·동의 API
 - CareEvent CRUD·타임라인, 사건 행동 연결, 작성자 전용 서버 초안
+- 아기·멤버십·CareEvent의 내구성 있는 변경 이력과 `getChanges` 폴링 복구
 - 삭제 요청·진행 조회·재시도와 본인 기여자료 삭제 요청
 - 실제 Supabase JWT/JWKS 검증과 이메일 확인, OTP 재인증 proof, 세션 범위별 회수
 - 계약의 `ApiError` 형식과 입력 검증 오류 변환
@@ -15,7 +16,7 @@
 - 민감정보를 입력으로 받지 않는 허용 목록 기반 JSON 로그
 - liveness/readiness 분리, pytest·Ruff·mypy·컨테이너·GitHub Actions 기반
 
-`/v1`의 기준은 저장소 루트의 `contracts/openapi계약.json`입니다. FastAPI의 `/openapi.json`은 실제 라우트만 만들고 `x-business-contract.implemented_operations`에 구현된 B-04 operationId를 표시합니다. 분석·업로드·정규화 확인 등 후속 계약 경로를 구현됐다고 노출하지 않습니다.
+`/v1`의 기준은 저장소 루트의 `contracts/openapi계약.json`입니다. FastAPI의 `/openapi.json`은 실제 라우트만 만들고 `x-business-contract.implemented_operations`에 구현된 B-04 operationId와 `getChanges`를 표시합니다. 분석·업로드·정규화 확인 등 후속 계약 경로를 구현됐다고 노출하지 않습니다.
 
 ## 버전과 재현 설치
 
@@ -112,11 +113,24 @@ docker run --rm -p 8080:8080 baby-care-api:b01
 
 `Idempotency-Key`와 `client_request_id`는 같은 UUID인지 먼저 확인하지만, 이것만으로 중복 방지가 완료되지는 않습니다. 기록 `version`, 원문 `input_revision`, 서버 내부 execution token은 서로 다른 책임으로 유지하며 실제 충돌·재전송 처리는 DB 연결 단위에서 구현합니다.
 
+## B-09 변경 조회
+
+`GET /v1/babies/{baby_id}/changes?since_revision=R`은 현재 세션·ACTIVE 멤버십·ACTIVE 아기를 검사한 뒤 `(R,current_revision]`에서 리소스별 마지막 상태를 최대 500개 반환합니다. 응답에는 리소스 type·ID·version·삭제 여부만 있고 본문·원문·URL·토큰·개인 작업 ID는 없습니다.
+
+- 최초 `R=0`, 90일 보관 경계 이전, 서버보다 큰 revision, 500개 초과는 빈 changes와 `resync_required=true`입니다.
+- 정상 빈 범위는 `changes=[]`, `resync_required=false`입니다.
+- CareEvent 쓰기는 실제 CareEvent와 함께 공개 `Baby.context_revision`·`Baby.version`을 바꾸므로 같은 feed revision에 `CARE_EVENT`와 `BABY`를 기록합니다.
+- 피드 상태와 목록은 한 DB 트랜잭션의 같은 잠금 경계에서 읽습니다. 업무 쓰기·피드 revision·변경 행도 같은 트랜잭션입니다.
+- resource version, Baby `context_revision`, feed revision은 서로 다른 책임입니다.
+- 응답은 `private, no-store`이며 Realtime은 비활성입니다.
+
+A의 안전한 전체/증분 복구 순서, 쓰기별 재조회 매핑, 예시와 측정값은 [B-09 → A-08 인계](../../docs/handoffs/b09-shared-change-feed.md)에 있습니다.
+
 ## 후속 또는 아직 검증하지 않은 범위
 
 - 운영 Supabase migration 적용, 배포별 runtime/관리 로그인 발급과 운영 Auth 설정 검증
 - 승인된 법정대리인 확인 수단·증빙·정책. 현재 운영 아동 정보 처리는 fail-closed입니다.
 - 삭제 Job 실행기와 Storage·학습 사본·백업 실제 정리(B-12·B-13). B-04는 차단·요청·조회·재시도만 저장하며 COMPLETE를 만들지 않습니다.
-- B-07 LLM 정규화·확인 저장 전체, B-09 `/changes`·Realtime, B-11 집계, B-14 상담
+- B-07 LLM 정규화·확인 저장 전체, B-09 Realtime, B-11 집계, B-14 상담
 - B-05 TUS·업로드 완료·서버 재생 URL, 실제 M2D 모델, Cloud Run 배포
 - A의 실제 브라우저·캐시·두 계정 화면 시험과 운영 계정/기기/외부 서비스 시험

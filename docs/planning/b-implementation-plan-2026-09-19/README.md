@@ -144,7 +144,7 @@ flowchart TD
 
 ### B-04 계정·공동양육·기록 API
 
-**현재:** 2026-09-20 계약 1.1.0과 로컬 Supabase에서 36개 operationId를 구현했다. 실제 JWT/JWKS·OTP·메일 수신함·DB·RLS·Auth logout·STANDARD Storage를 사용하는 통합 시험을 통과했다. 운영 적용, A 브라우저 연동, 삭제 실행기·파생물 정리와 후속 집계는 남아 있다. [A 인계](../../handoffs/b04-account-shared-care-records.md)와 [API README](../../../apps/api/README.md)를 기준으로 연결한다. **선행:** B-03.
+**현재:** 2026-09-20 계약 1.1.1과 로컬 Supabase에서 B-04의 36개 operationId 및 B-09 `getChanges`를 구현했다. 실제 JWT/JWKS·OTP·메일 수신함·DB·RLS·Auth logout·STANDARD Storage와 변경 폴링을 사용하는 통합 시험을 통과했다. 운영 적용, A 브라우저 연동, Realtime, 삭제 실행기·파생물 정리와 후속 집계는 남아 있다. [B-04 인계](../../handoffs/b04-account-shared-care-records.md), [B-09 인계](../../handoffs/b09-shared-change-feed.md), [API README](../../../apps/api/README.md)를 기준으로 연결한다. **선행:** B-03.
 
 - 아기 생성·목록·선택, 이메일 지정 초대·수락·만료·재사용 방지, 구성원 제거·탈퇴를 구현한다.
 - 보관 동의, 아기 학습 설정, 개인 학습 동의, 탈퇴, 본인 기여자료 삭제, 전체 삭제를 각각 계약대로 처리한다.
@@ -204,12 +204,12 @@ flowchart TD
 
 ### B-09 공동 기록 변경 신호
 
-**현재:** 계약 준비, 실제 구독·회수 검증 미확인. **선행:** B-03·B-04. 모델 완료와 무관하게 시작 가능.
+**현재:** 계약 1.1.1의 `/changes` 폴링, 내구성 있는 변경 이력, 실제 Auth JWT → FastAPI → 최소 권한 DB의 누락 복구·회수 검증을 완료했다. Realtime과 A 브라우저 인수는 미실행이다. **선행:** B-03·B-04.
 
-- 먼저 baby별 변경 revision과 `/changes` 재조회 경로를 만든다. 기록 저장과 변경 정보가 함께 확정되게 한다.
+- baby별 변경 revision과 `/changes` 재조회 경로를 구현했다. 기록 저장과 변경 정보는 같은 트랜잭션에서 확정되고 롤백·멱등 재전송·서버 재시작 뒤에도 누락되지 않는다.
 - Realtime은 최소 변경 ID·version 신호만 전달하고 실제 내용은 FastAPI에서 권한 재확인 후 조회한다.
 - 발행 시점의 현재 구성원만 수신하게 구현·시험한다. 단순 공용 아기 채널 가입과 클라이언트 구독 해제만으로 회수 완료를 판단하지 않는다.
-- 신호 누락·재연결·창 복귀에 대비해 계약의 전경 5초 changes 조회를 유지한다. Realtime 권한 검증 전에는 이 복구 경로로 공동 연동을 진행한다.
+- 신호 누락·재연결·창 복귀에 대비해 계약의 전경 5초 changes 조회를 유지한다. Realtime 권한 검증 전에는 이 복구 경로로 공동 연동을 진행한다. 상세 클라이언트 순서는 [B-09 인계](../../handoffs/b09-shared-change-feed.md)를 따른다.
 
 **완료 증거:** 두 계정 반영, 타인 초안 미전파, 권한 회수 후 신규 신호/조회 차단, 누락 뒤 최신 버전 복구. 관련 AC40~44. 제공자는 연결 동안 채널 접근 정책을 캐시하므로 실제 회수 시험이 필요하다. [Supabase Realtime 권한 문서](https://supabase.com/docs/guides/realtime/authorization)
 
