@@ -1,8 +1,8 @@
 // SC02 홈 — 아기 감지 상태, 최근 확인 상태, 분석/기록 진입점.
 import Link from "next/link";
-import { mockCareEvent, mockStateObservation } from "@/lib/mock/fixtures";
+import { isForBaby, mockCareEvent, mockStateObservation } from "@/lib/mock/fixtures";
 import { SourceBadge } from "@/components/source-badge";
-import { ScreenSection } from "@/components/screen-state";
+import { EmptyState, ScreenSection } from "@/components/screen-state";
 
 const stateLabel: Record<string, string> = {
   CRYING: "울고 있어요",
@@ -17,35 +17,49 @@ const stateLabel: Record<string, string> = {
 
 export default async function BabyHomePage({ params }: Readonly<{ params: Promise<{ babyId: string }> }>) {
   const { babyId } = await params;
-  const observation = mockStateObservation();
-  const recentEvent = mockCareEvent();
+  const observationFixture = mockStateObservation();
+  const observation = isForBaby(babyId, observationFixture) ? observationFixture : null;
+  const recentEventFixture = mockCareEvent();
+  const recentEvent = isForBaby(babyId, recentEventFixture) ? recentEventFixture : null;
 
   return (
     <div className="flex flex-col gap-4">
       <ScreenSection title="지금 상태">
-        <div className="flex items-center justify-between">
-          <p className="text-base font-medium text-foreground">{stateLabel[observation.visual_state_code]}</p>
-          <SourceBadge dataOrigin={observation.data_origin} />
-        </div>
-        <p className="text-xs text-muted-foreground">
-          {new Date(observation.observed_at ?? observation.recorded_at).toLocaleString("ko-KR")}에 보호자가 확인한
-          상태예요. 자동으로 추정한 기분이 아니에요.
-        </p>
+        {observation ? (
+          <>
+            <div className="flex items-center justify-between">
+              <p className="text-base font-medium text-foreground">{stateLabel[observation.visual_state_code]}</p>
+              <SourceBadge dataOrigin={observation.data_origin} />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {new Date(observation.observed_at ?? observation.recorded_at).toLocaleString("ko-KR")}에 보호자가
+              확인한 상태예요. 자동으로 추정한 기분이 아니에요.
+            </p>
+          </>
+        ) : (
+          <EmptyState label="이 아기의 확인된 상태가 아직 없어요" />
+        )}
       </ScreenSection>
 
       <ScreenSection title="최근 기록">
-        <p className="text-sm text-foreground">
-          {recentEvent.event.type === "FEEDING" && "수유"}
-          {recentEvent.event.type === "SLEEP" && "수면"}
-          {recentEvent.event.type === "DIAPER" && "기저귀"}
-          {recentEvent.event.type === "SOOTHE" && "달래기"} 기록
-        </p>
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            {new Date(recentEvent.event.occurred_at ?? recentEvent.recorded_at).toLocaleString("ko-KR")}
-          </p>
-          <SourceBadge dataOrigin={recentEvent.data_origin} />
-        </div>
+        {recentEvent ? (
+          <>
+            <p className="text-sm text-foreground">
+              {recentEvent.event.type === "FEEDING" && "수유"}
+              {recentEvent.event.type === "SLEEP" && "수면"}
+              {recentEvent.event.type === "DIAPER" && "기저귀"}
+              {recentEvent.event.type === "SOOTHE" && "달래기"} 기록
+            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
+                {new Date(recentEvent.event.occurred_at ?? recentEvent.recorded_at).toLocaleString("ko-KR")}
+              </p>
+              <SourceBadge dataOrigin={recentEvent.data_origin} />
+            </div>
+          </>
+        ) : (
+          <EmptyState label="이 아기의 최근 기록이 아직 없어요" />
+        )}
         <Link href={`/babies/${babyId}/timeline`} className="text-sm font-medium text-primary">
           타임라인에서 모두 보기
         </Link>

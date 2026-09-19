@@ -191,3 +191,12 @@ export function mockErrorEnvelope(name: MockScenarioName): ApiErrorEnvelope {
 export function mockStateObservation(): components["schemas"]["StateObservation"] {
   return mockScenarioBody("confirmed_state_visual");
 }
+
+/**
+ * Fixture records are only defined for `baby_a`. A screen must not reuse
+ * another baby's synthetic data when the route's `baby_id` doesn't match —
+ * it must fall back to an empty state instead.
+ */
+export function isForBaby(babyId: string, record: Readonly<{ baby_id: string }>): boolean {
+  return record.baby_id === babyId;
+}
