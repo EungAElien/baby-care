@@ -22,8 +22,12 @@ const demoTokenScenarios = {
 
 type DemoToken = keyof typeof demoTokenScenarios;
 
-function isDemoToken(value: string): value is DemoToken {
-  return value in demoTokenScenarios;
+// Exported only so the prototype-pollution regression can be unit-tested without a DOM renderer.
+export function isDemoToken(value: string): value is DemoToken {
+  // `in` also matches inherited keys (constructor, toString, __proto__), so
+  // #token=constructor would pass and crash getMockScenario downstream.
+  // hasOwn only accepts the four demo tokens defined above.
+  return Object.hasOwn(demoTokenScenarios, value);
 }
 
 export default function AcceptInvitePage() {
