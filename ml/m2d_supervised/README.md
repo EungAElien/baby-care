@@ -43,6 +43,7 @@ cd "$REPOSITORY_ROOT/ml/m2d_supervised"
 동시 실행·코드/데이터/초기값이 바뀐 재개는 거부한다.
 
 출력 위치, 중단·재개 방법과 학습 후 할 일은 [운영 안내](docs/TRAINING_RUNBOOK.md)에 있다.
+2026-09-20 실제 시작 증거와 예상 시간은 [학습 시작 기록](docs/TRAINING_START.md)에 있다.
 
 ## 검증
 
