@@ -1,5 +1,9 @@
 # A-01·A-03 웹 기반
 
+## A-02 ① 개발용 오디오 측정
+
+개발 서버에서 아기 화면의 `/babies/{baby_id}/detect` → **개발용 오디오 측정 화면 열기**로 진입한다. `npm run build`로 만든 운영 화면에는 이 경로가 열리지 않는다. 시작 버튼을 누르기 전에는 권한을 요청하지 않는다. AudioWorklet은 PCM 없이 샘플 수·샘플레이트·오디오 시계만 보내고, MediaRecorder는 시작 뒤 약 3초 동안 만든 단일 메모리 클립의 크기·보고된 MIME·읽을 수 있는 경우의 길이를 별도로 표시한다. 원음·Blob을 업로드하거나 저장하지 않는다. 기기별 직접 재현 절차와 미실행 표는 [A-02 기기 시험표](../../docs/a02-audio-device-check.md)를 따른다.
+
 이 폴더는 A-01(①·②)과 A-03 범위를 구현합니다. A-01 ①은 Next.js App Router/TypeScript/Tailwind/shadcn 설정, React Hook Form·Zod·TanStack Query 의존성, `openapi계약.json`에서 생성한 타입과 브라우저 사용자 Bearer용 API 클라이언트입니다. A-01 ②는 SC01~SC10 라우트 껍데기·공통 모바일 레이아웃과, 계약의 합성 fixture로 화면 사이를 이동해 보는 목 네비게이션입니다. A-03은 B-04 인계를 받아 **실제** Supabase 이메일 OTP 로그인과 아기 목록/생성/전환을 연결했고, 초대·탈퇴·동의·아기 전환 시 미저장 초안 처리는 아직 목 세션입니다. 배포는 포함하지 않습니다.
 
 ## 로컬 검증
