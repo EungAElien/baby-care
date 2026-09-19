@@ -120,6 +120,8 @@ def load_feature(
 ) -> torch.Tensor:
     root = paths.dataset_root(config, dataset)
     path = ensure_within(root, root / row["file_name"])
+    if row.get("spec_sha256") and sha256_file(path) != row["spec_sha256"]:
+        raise RuntimeError(f"Feature changed after preflight: {dataset}/{row['sample_id']}")
     array = np.load(path, allow_pickle=False)
     frames = int(row["valid_frames"])
     if array.dtype != np.float32 or array.shape != (1, 80, frames):
