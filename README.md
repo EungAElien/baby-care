@@ -48,7 +48,7 @@ python -m venv .venv
 
 API 기반은 `apps/api/`에서 Python 3.12.12로 실행합니다. 자세한 설치·상태 확인·검사·컨테이너 명령은 [API README](apps/api/README.md)를 따릅니다. 현재 `/health/live`는 프로세스 생존만 확인하며 `/health/ready`는 인증·DB를 실제 연결하기 전 503을 반환합니다.
 
-Supabase B-03 하위 계층은 저장소 루트에서 Docker를 실행한 뒤 재현합니다. 아래 명령은 `baby-care-b03-local` 전용 로컬 DB를 초기화하므로 linked/공유/운영 프로젝트에는 사용하지 않습니다.
+Supabase B-03 하위 계층은 [API README](apps/api/README.md)의 Python 개발 의존성을 설치한 뒤 저장소 루트에서 Docker로 재현합니다. 아래 명령은 `baby-care-b03-local` 전용 로컬 DB를 초기화하므로 linked/공유/운영 프로젝트에는 사용하지 않습니다.
 
 ```bash
 npm ci

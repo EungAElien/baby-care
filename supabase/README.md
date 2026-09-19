@@ -2,7 +2,7 @@
 
 이 디렉터리는 B-03의 로컬 재현 가능한 기반이다. 업무 데이터는 `baby_data`, 정책 보조 함수는 `baby_private`에 두고 Data API가 노출하는 스키마는 `public`만 유지한다. 브라우저의 업무 테이블·뷰·RPC 직접 허용 목록은 비어 있다.
 
-이 구현은 **로컬 Supabase 하위 계층 검증**까지다. 운영 프로젝트 적용, B-01 인증 포트 연결, B-04 업무 API, B-05 파일 검증·완료·재생 URL, TUS 재개, Realtime, 실제 로그아웃은 완료로 보지 않는다.
+이 구현은 **로컬 Supabase 하위 계층과 B-01 AuthorizationPort 연결 검증**까지다. 운영 프로젝트 적용, JWT AuthenticationPort, B-04 업무 API, B-05 파일 검증·완료·재생 URL, TUS 재개, Realtime, 실제 로그아웃은 완료로 보지 않는다.
 
 ## API·기능 엔터티와 저장 구조
 
@@ -71,9 +71,15 @@ SELECT·UPDATE·DELETE는 허용하지 않는다. private audio 조회·목록·
 
 ## 로컬 재현
 
-Docker Desktop, Node.js, npm이 필요하다. CLI는 전역 설치 대신 잠금된 개발 의존성 `supabase@2.117.0`을 사용한다.
+Docker Desktop, Node.js, npm, Python 3.12.12가 필요하다. CLI는 전역 설치 대신 잠금된 개발 의존성 `supabase@2.117.0`을 사용한다. 실제 AuthorizationPort 통합 시험도 포함하므로 B-01 API 개발 의존성을 먼저 설치한다.
 
 ```bash
+cd apps/api
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip==26.2.1
+python -m pip install --require-hashes --no-deps -r requirements-dev.lock
+cd ../..
 npm ci
 npm run test:supabase
 ```
@@ -100,14 +106,15 @@ npm run supabase:stop
 | 스키마·제약 | 빈 DB reset, 전체 migration+seed, 복합 FK, 중복 멤버십·OWNER, 정확한 15분·25,000,000바이트, 상태 전이 | SEC04 및 AC42의 DB 하위 조건만 통과 |
 | RLS·역할 | OWNER·CAREGIVER 읽기/수정, 타 아기, 타인 초안·정규화, 개인 알림, 제거 사용자 권리 경로, 멤버십 회수·아기 삭제 차단, 작성·수정·확인자 보호 | AC01·03·41·43·44와 SEC03·05·06·08·18·21의 DB 하위 조건만 통과 |
 | 직접 접근 | anon/authenticated Data API 테이블 404, RPC 404, GRANT·뷰·함수 ACL 검사 | SEC09 로컬 하위 시험 통과 |
-| 서버 문맥 | 한 연결에서 사용자 교차 처리, rollback·commit 뒤 문맥 소거, 누락 문맥 차단 | SEC10 DB 하위 시험 통과. B-01 실제 풀 연결은 미실행 |
+| 서버 문맥 | 한 연결에서 사용자 교차 처리, rollback·commit 뒤 문맥 소거, 누락 문맥 차단, B-01 실제 pool의 OWNER·CAREGIVER·비구성원 조회 2개와 DB probe | SEC10의 로컬 DB·실제 adapter 하위 시험 통과. JWT 인증 체인은 미실행 |
 | Storage HTTP | 실제 로컬 Auth JWT의 OWNER·CAREGIVER 성공, 비로그인·비구성원·다른 아기·업로더·세션·경로·만료·취소·초과 크기·덮어쓰기·목록·다운로드·서명·삭제·회수 후 접근 거부 | SEC22~23의 STANDARD 경로 통과, SEC18~19·24·27 일부 통과 |
 
 AC02의 비보관 분석 전체 흐름, 삭제 객체 실제 정리와 기존 재생 URL, AC41의 업무 API·구독, AC42의 동시 API 충돌, AC43의 학습 export 무효화, 브라우저 캐시를 포함한 AC44는 미실행이다. SEC03·06~08·11~12·18~21은 업무 API 전체 시험이 아니며, SEC24의 TUS 재개·잔여 파일 정리와 SEC27의 서버 발급 60초 URL도 미실행이다.
 
 ## B-01·B-04·B-05 연결
 
-- PR #5의 B-01은 이 브랜치 기준 develop에 아직 없다. 따라서 `AuthenticationPort`, `AuthorizationPort`, readiness 코드를 복제하거나 미설정 인증 거부를 우회하지 않았다.
-- B-01이 병합되면 검증된 JWT 주체·session ID를 위 트랜잭션 문맥으로 전달하고, `AuthorizationPort`의 현재 멤버십/아기 조회를 `baby_app` 연결로 구현한다. AuthenticationPort가 미설정이면 계속 차단하고 DB probe만으로 전체 readiness를 성공시키지 않는다.
+- PR #5가 develop에 병합된 뒤 기존 구조를 재사용했다. `services/postgres.py`의 `PostgresAuthorizationPort`가 `baby_app` pool 트랜잭션에서 검증된 주체·session ID를 `SET LOCAL`로 전달하고 현재 멤버십·아기 상태를 조회한다.
+- DB URL이 있으면 역할 전환까지 실제 probe한다. JWT/JWKS `AuthenticationPort`는 여전히 미설정 503이며, 따라서 DB가 준비돼도 전체 readiness는 503이다. 시험용 principal 주입은 integration test에만 있고 실제 인증 성공으로 사용하지 않는다.
+- 운영에서는 migration 로그인과 별도의 runtime 로그인을 만들고 `baby_app` SET 권한만 줘야 한다. 저장소는 실제 로그인이나 비밀번호를 생성·커밋하지 않는다.
 - B-04는 초대 수락·탈퇴·동의·삭제·기록 API의 원자적 트랜잭션, 409 version 비교, DB 멱등성 실행기를 연결한다.
 - B-05는 업로드 허가 발급량·TUS, 실제 컨테이너/코덱·길이·체크섬 검사, 완료 전환·고아 정리, 서버 재생 URL 발급을 구현한다.
