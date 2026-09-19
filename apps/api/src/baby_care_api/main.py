@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import AsyncIterator, Mapping
+from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI
@@ -18,6 +19,7 @@ from baby_care_api.core.logging import configure_logging
 from baby_care_api.core.request_context import install_request_context
 from baby_care_api.routes.health import router as health_router
 from baby_care_api.services.idempotency import UnconfiguredIdempotencyPort
+from baby_care_api.services.postgres import PostgresAuthorizationPort
 from baby_care_api.services.readiness import ComponentName, ReadinessProbe, ReadinessService
 from baby_care_api.services.security import (
     UnconfiguredAuthenticationPort,
@@ -54,6 +56,24 @@ def create_app(
 ) -> FastAPI:
     active_settings = settings or get_settings()
     configure_logging(active_settings.log_level)
+    database = (
+        PostgresAuthorizationPort(active_settings.database_url.get_secret_value())
+        if active_settings.database_url is not None
+        else None
+    )
+    active_readiness_probes = dict(readiness_probes or {})
+    if database is not None:
+        active_readiness_probes[ComponentName.DATABASE] = database.probe
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        if database is not None:
+            await database.open()
+        try:
+            yield
+        finally:
+            if database is not None:
+                await database.close()
 
     app = FastAPI(
         title="Baby Care API",
@@ -62,11 +82,12 @@ def create_app(
             "B-01 server foundation. The canonical business contract is version 1.0.0 at "
             "contracts/openapi계약.json; no business operation is claimed as implemented yet."
         ),
+        lifespan=lifespan,
     )
     app.state.settings = active_settings
-    app.state.readiness = ReadinessService(readiness_probes)
+    app.state.readiness = ReadinessService(active_readiness_probes)
     app.state.authentication = UnconfiguredAuthenticationPort()
-    app.state.authorization = UnconfiguredAuthorizationPort()
+    app.state.authorization = database or UnconfiguredAuthorizationPort()
     app.state.idempotency = UnconfiguredIdempotencyPort()
 
     install_exception_handlers(app)
