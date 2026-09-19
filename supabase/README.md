@@ -1,0 +1,113 @@
+# B-03 Supabase 데이터·권한·Storage 기반
+
+이 디렉터리는 B-03의 로컬 재현 가능한 기반이다. 업무 데이터는 `baby_data`, 정책 보조 함수는 `baby_private`에 두고 Data API가 노출하는 스키마는 `public`만 유지한다. 브라우저의 업무 테이블·뷰·RPC 직접 허용 목록은 비어 있다.
+
+이 구현은 **로컬 Supabase 하위 계층 검증**까지다. 운영 프로젝트 적용, B-01 인증 포트 연결, B-04 업무 API, B-05 파일 검증·완료·재생 URL, TUS 재개, Realtime, 실제 로그아웃은 완료로 보지 않는다.
+
+## API·기능 엔터티와 저장 구조
+
+API 응답마다 테이블을 만들지 않고, 원본·권한·실행 상태와 재현에 필요한 값을 저장한다. 표시용 조합과 시점 계산은 조회 계층에서 만든다.
+
+| 계약·기능 개념 | 주 저장 구조 | 저장하는 값 | 조회 시 계산·조합하는 값 |
+|---|---|---|---|
+| Baby, 현재 선택 | `babies`, `user_preferences` | 별칭, 생일, 수유 방식, 시간대, 상태, `context_revision`, 개인별 현재 아기 | 생후 일수, 현재 사용자가 선택 가능한 아기 목록 |
+| BabyMembership, Invitation | `baby_memberships`, `invitations` | 현재 역할·상태, 초대 이메일, 토큰 해시, 만료·수락 상태 | 현재 DB 멤버십에 따른 관리 가능 여부 |
+| Consent, 삭제 권리 | `consents`, `deletion_jobs` | 목적별 불변 동의 이력, 철회 연결, 삭제 범위·진행·미정리 범주 | 현재 유효 동의, 삭제 진행 표시 |
+| Episode, 관측 | `observation_sessions`, `observation_windows`, `episodes` | 전경 관측 구간, 공백 이유, 사건 시작·종료·출처 | 사건 지속 시간, 관측 공백 표시 |
+| AudioAsset, 업로드 허가 | `audio_assets`, `audio_upload_grants` | private object key, 바이트·체크섬·품질 상태, 정확한 사용자·세션·15분 허가 | 업로드 가능 여부. 재생 URL은 저장하지 않음 |
+| Analysis | `analyses`, `context_snapshots`, `recommendations` | 실행 상태·토큰·모드·품질·후보·버전, 사용한 시점 스냅샷·근거 | API 진행 표현과 근거 표시. 생활 맥락을 모델 결과로 합치지 않음 |
+| CareEvent | `care_events` | 수유·수면·기저귀 원본 사건, 작성자·수정자, `version` | 타임라인, 최근 기록, 간격 |
+| 행동·관찰·반응 | `caregiver_observations`, `action_attempts`, `action_groups`, `action_group_members`, `outcomes`, `state_observations` | 실제 수행·보호자 관찰·반응·출처를 각각 분리 | 사건별 행동 순서와 전후 상태 |
+| 원문·정규화 | `raw_care_entries`, `normalization_runs`, `label_annotations` | 작성자 전용 원문, `input_revision`, 실행 상태·결과, 확인 라벨 | 최신 revision의 확인 가능 초안과 확정 기록 |
+| 개인 알림 | `reminder_settings`, `reminders`, `record_coverage` | 수신자별 켜기·미루기·확인 상태, 근거 범위 | 공유 패턴에서 개인별 다음 알림 계산 |
+| 세션 회수 | `revoked_sessions` | `session_id`, 사용자, 만료, 회수 이유 | 현재 요청 세션 차단 여부 |
+
+상담 대화·개인 기억은 이 스키마에 넣지 않았다. B-14에서 계약과 본인 전용 접근 범위를 먼저 확정한다.
+
+## 제약과 권한 경계
+
+- 모든 식별자는 UUID, 시각은 `timestamptz` UTC instant로 저장한다. 모르는 시각·측정값은 `null`이고 측정값 `0`과 구분한다.
+- 사건·음원·분석·행동·관찰·원문 연결에는 `(baby_id, resource_id)` 복합 외래키를 사용한다. 다른 아기의 리소스 연결은 DB가 거부한다.
+- 부분 고유 인덱스와 지연 constraint trigger가 아기당 활성 OWNER 1명, 사용자당 활성 소유 아기 1명, 아기·사용자 활성 멤버십 1개, 진행 중 수면·관측 세션 1개를 보장한다.
+- 상태 전이는 단방향 allow-list이고 `version`이 있는 수정 레코드는 정확히 1씩 증가해야 한다. `input_revision`은 원문 변경 세대이고 실행 토큰과 섞지 않는다.
+- `baby_app` 요청에서는 작성자·수정자·확인자·업로더·요청 세션을 트랜잭션 문맥으로 덮어쓴다. 최초 작성자와 확인자는 이후 변경할 수 없다.
+- OWNER는 관리와 다른 작성자의 **확정 공유 기록** 수정이 가능하다. CAREGIVER는 본인 작성 공유 기록만 수정한다. 미확인 원문·정규화 초안과 알림 설정은 OWNER에게도 공개하지 않는다.
+- ACTIVE 멤버십과 ACTIVE 아기를 매 문장에서 다시 확인한다. 제거·탈퇴·`DELETING` 이후 일반 접근은 차단한다. 과거 구성원은 회수되지 않은 세션에서 본인 동의와 본인 삭제 진행만 조회할 수 있다.
+
+DB 역할은 다음처럼 분리한다.
+
+| 역할 | 용도 | 권한 |
+|---|---|---|
+| 배포별 관리 로그인 | 마이그레이션·역할 생성·운영 관리 | 저장소가 자격증명을 만들지 않음. 요청 처리에 사용 금지 |
+| `baby_app` | FastAPI 런타임이 `SET LOCAL ROLE`로 사용하는 NOLOGIN 그룹 | `baby_data` SELECT/INSERT/UPDATE와 FORCE RLS, DELETE·DDL·RLS 우회 없음 |
+| `baby_policy_owner` | RLS·Storage boolean helper 소유자 | NOLOGIN, 필요한 권한 입력 테이블 SELECT만, BYPASSRLS. 업무 자료 반환 함수 없음 |
+| `anon`, `authenticated`, `service_role` | Supabase Data API 역할 | `baby_data`의 GRANT 없음. `authenticated`에는 Storage 정책 평가용 boolean/거부 helper만 EXECUTE |
+
+운영의 runtime 로그인 생성과 비밀번호 주입은 배포 작업이다. runtime 로그인은 `baby_app`을 상속하지 않고 요청 트랜잭션에서만 역할과 검증된 문맥을 설정해야 한다.
+
+```sql
+begin;
+set local role baby_app;
+select set_config('baby.request_user_id', :verified_user_id, true);
+select set_config('baby.request_session_id', :verified_session_id, true);
+-- 업무 SQL
+commit;
+```
+
+두 설정 중 하나라도 없거나 `revoked_sessions`에 있으면 RLS가 거부한다. `SET LOCAL`이므로 commit·rollback 뒤 같은 풀 연결에 값이 남지 않는다. 사용자 ID는 요청 본문이나 오래된 JWT 역할에서 가져오지 않고, B-01 `AuthenticationPort`가 검증한 주체와 실제 현재 세션만 전달해야 한다.
+
+## private Storage
+
+`baby-audio` bucket은 private이고 정확히 25,000,000바이트가 상한이다. 일반 업로드 정책은 다음을 모두 만족할 때 INSERT만 허용한다.
+
+- 로컬 Auth가 발급·검증한 JWT의 `sub`와 `session_id`
+- ACTIVE 아기와 현재 ACTIVE 멤버십
+- `audio_assets`의 `ALLOCATED` 상태
+- 같은 업로더·세션·bucket·object key를 가진 미완료·미취소 허가
+- `recorded_at` 뒤 최대 15분 이내이고 아직 만료되지 않은 허가
+- 회수되지 않은 세션
+
+SELECT·UPDATE·DELETE는 허용하지 않는다. private audio 조회·목록·직접 서명은 명시적 권한 오류로 끝나며, 같은 경로 upsert도 거부한다. B-05가 파일 디코딩·품질 검사 뒤 자산 상태와 업로드 완료를 갱신하고, 현재 권한을 다시 검사해 60초 이하 재생 URL을 서버에서만 발급해야 한다.
+
+## 로컬 재현
+
+Docker Desktop, Node.js, npm이 필요하다. CLI는 전역 설치 대신 잠금된 개발 의존성 `supabase@2.117.0`을 사용한다.
+
+```bash
+npm ci
+npm run test:supabase
+```
+
+이 명령은 `baby-care-b03-local` 로컬 스택을 시작하고 **해당 로컬 DB만 초기화**한 뒤 migration, 합성 seed, DB·RLS·문맥·Auth/Storage HTTP 시험을 순서대로 실행한다. linked/운영 프로젝트에 `db reset`, `db push`를 실행하지 않는다.
+
+개별 실행은 다음과 같다.
+
+```bash
+npm run supabase:start
+npm run supabase:reset
+npm run test:supabase:db
+npm run test:supabase:context
+npm run test:supabase:http
+npm run supabase:stop
+```
+
+`seed.sql`의 `.invalid` 계정은 로그인할 수 없는 합성 DB fixture다. HTTP 시험은 매 실행마다 로컬 Auth API로 로그인 가능한 합성 사용자를 만들고 발급된 JWT로 Storage를 호출한다. 토큰·비밀번호는 출력하거나 저장하지 않는다. 환경 변수 이름과 placeholder는 [.env.example](.env.example)에만 두며 실제 값은 커밋하지 않는다.
+
+## 검증 범위와 인수 조건 연결
+
+| 구분 | 로컬에서 실제 실행한 하위 시험 | 전체 항목 판정 |
+|---|---|---|
+| 스키마·제약 | 빈 DB reset, 전체 migration+seed, 복합 FK, 중복 멤버십·OWNER, 정확한 15분·25,000,000바이트, 상태 전이 | SEC04 및 AC42의 DB 하위 조건만 통과 |
+| RLS·역할 | OWNER·CAREGIVER 읽기/수정, 타 아기, 타인 초안·정규화, 개인 알림, 제거 사용자 권리 경로, 멤버십 회수·아기 삭제 차단, 작성·수정·확인자 보호 | AC01·03·41·43·44와 SEC03·05·06·08·18·21의 DB 하위 조건만 통과 |
+| 직접 접근 | anon/authenticated Data API 테이블 404, RPC 404, GRANT·뷰·함수 ACL 검사 | SEC09 로컬 하위 시험 통과 |
+| 서버 문맥 | 한 연결에서 사용자 교차 처리, rollback·commit 뒤 문맥 소거, 누락 문맥 차단 | SEC10 DB 하위 시험 통과. B-01 실제 풀 연결은 미실행 |
+| Storage HTTP | 실제 로컬 Auth JWT의 OWNER·CAREGIVER 성공, 비로그인·비구성원·다른 아기·업로더·세션·경로·만료·취소·초과 크기·덮어쓰기·목록·다운로드·서명·삭제·회수 후 접근 거부 | SEC22~23의 STANDARD 경로 통과, SEC18~19·24·27 일부 통과 |
+
+AC02의 비보관 분석 전체 흐름, 삭제 객체 실제 정리와 기존 재생 URL, AC41의 업무 API·구독, AC42의 동시 API 충돌, AC43의 학습 export 무효화, 브라우저 캐시를 포함한 AC44는 미실행이다. SEC03·06~08·11~12·18~21은 업무 API 전체 시험이 아니며, SEC24의 TUS 재개·잔여 파일 정리와 SEC27의 서버 발급 60초 URL도 미실행이다.
+
+## B-01·B-04·B-05 연결
+
+- PR #5의 B-01은 이 브랜치 기준 develop에 아직 없다. 따라서 `AuthenticationPort`, `AuthorizationPort`, readiness 코드를 복제하거나 미설정 인증 거부를 우회하지 않았다.
+- B-01이 병합되면 검증된 JWT 주체·session ID를 위 트랜잭션 문맥으로 전달하고, `AuthorizationPort`의 현재 멤버십/아기 조회를 `baby_app` 연결로 구현한다. AuthenticationPort가 미설정이면 계속 차단하고 DB probe만으로 전체 readiness를 성공시키지 않는다.
+- B-04는 초대 수락·탈퇴·동의·삭제·기록 API의 원자적 트랜잭션, 409 version 비교, DB 멱등성 실행기를 연결한다.
+- B-05는 업로드 허가 발급량·TUS, 실제 컨테이너/코덱·길이·체크섬 검사, 완료 전환·고아 정리, 서버 재생 URL 발급을 구현한다.

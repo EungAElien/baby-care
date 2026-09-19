@@ -1,0 +1,16 @@
+{
+  "name": "baby-care-supabase-local",
+  "private": true,
+  "scripts": {
+    "supabase:start": "supabase start >/dev/null",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset --local",
+    "test:supabase:db": "supabase test db",
+    "test:supabase:context": "bash scripts/test-supabase-context.sh",
+    "test:supabase:http": "node scripts/test-supabase-http.mjs",
+    "test:supabase": "npm run supabase:start && npm run supabase:reset && npm run test:supabase:db && npm run test:supabase:context && npm run test:supabase:http"
+  },
+  "devDependencies": {
+    "supabase": "2.117.0"
+  }
+}
