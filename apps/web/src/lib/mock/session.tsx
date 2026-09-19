@@ -84,10 +84,17 @@ export function MockSessionProvider({ children }: Readonly<{ children: React.Rea
     [userId],
   );
 
-  const leaveBaby = useCallback((babyId: string) => {
-    setLeftBabyIds((prev) => new Set(prev).add(babyId));
-    setAddedMemberships((prev) => prev.filter((entry) => entry.baby_id !== babyId));
-  }, []);
+  const leaveBaby = useCallback(
+    (babyId: string) => {
+      setLeftBabyIds((prev) => new Set(prev).add(babyId));
+      setAddedMemberships((prev) => prev.filter((entry) => entry.baby_id !== babyId));
+      // Invalidate PrivateScope for the baby just left — otherwise its cached
+      // queries, AbortControllers, and snapshot survive the membership change,
+      // so a late in-flight response could still land as if access remained.
+      if (userId) scope.set(userId, null);
+    },
+    [userId, scope],
+  );
 
   const value = useMemo<MockSessionValue>(
     () => ({
