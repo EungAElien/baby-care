@@ -1,0 +1,1862 @@
+{
+  "contract_version": "1.0.0",
+  "notice": "All fixtures are synthetic contract examples. No model ran, no audio is supplied, and no real account or token is created. Never count these as measured model results.",
+  "test_users": [
+    {
+      "alias": "owner_a",
+      "user_id": "10000000-0000-4000-8000-000000000001",
+      "email_placeholder": "owner_a@example.invalid"
+    },
+    {
+      "alias": "caregiver_a",
+      "user_id": "10000000-0000-4000-8000-000000000002",
+      "email_placeholder": "caregiver_a@example.invalid"
+    },
+    {
+      "alias": "owner_b",
+      "user_id": "10000000-0000-4000-8000-000000000003",
+      "email_placeholder": "owner_b@example.invalid"
+    },
+    {
+      "alias": "invited_a",
+      "user_id": "10000000-0000-4000-8000-000000000004",
+      "email_placeholder": "invited_a@example.invalid"
+    },
+    {
+      "alias": "removed_a",
+      "user_id": "10000000-0000-4000-8000-000000000005",
+      "email_placeholder": "removed_a@example.invalid"
+    }
+  ],
+  "test_babies": {
+    "baby_a": "10000000-0000-4000-8000-000000000101",
+    "baby_b": "10000000-0000-4000-8000-000000000102"
+  },
+  "role_assignments": [
+    {
+      "user_id": "10000000-0000-4000-8000-000000000001",
+      "baby_id": "10000000-0000-4000-8000-000000000101",
+      "role": "OWNER",
+      "status": "ACTIVE"
+    },
+    {
+      "user_id": "10000000-0000-4000-8000-000000000002",
+      "baby_id": "10000000-0000-4000-8000-000000000101",
+      "role": "CAREGIVER",
+      "status": "ACTIVE"
+    },
+    {
+      "user_id": "10000000-0000-4000-8000-000000000003",
+      "baby_id": "10000000-0000-4000-8000-000000000102",
+      "role": "OWNER",
+      "status": "ACTIVE"
+    },
+    {
+      "user_id": "10000000-0000-4000-8000-000000000001",
+      "baby_id": "10000000-0000-4000-8000-000000000102",
+      "role": "CAREGIVER",
+      "status": "ACTIVE"
+    },
+    {
+      "user_id": "10000000-0000-4000-8000-000000000005",
+      "baby_id": "10000000-0000-4000-8000-000000000101",
+      "role": "CAREGIVER",
+      "status": "REVOKED"
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "baby_created",
+      "operation_id": "createBaby",
+      "synthetic": true,
+      "expected_ui": "아기와 OWNER 관계를 함께 표시",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby": {
+            "baby_id": "10000000-0000-4000-8000-000000000101",
+            "owner_user_id": "10000000-0000-4000-8000-000000000001",
+            "alias": "예시 아기 A",
+            "birth_date": "2026-07-01",
+            "feeding_mode": "MIXED",
+            "timezone": "Asia/Seoul",
+            "status": "ACTIVE",
+            "context_revision": 7,
+            "version": 1,
+            "recorded_at": "2026-09-19T09:00:00Z",
+            "updated_at": "2026-09-19T09:00:00Z"
+          },
+          "membership": {
+            "membership_id": "10000000-0000-4000-8000-000000000201",
+            "baby_id": "10000000-0000-4000-8000-000000000101",
+            "user_id": "10000000-0000-4000-8000-000000000001",
+            "role": "OWNER",
+            "relationship": "OTHER",
+            "display_name": "시험 소유자 A",
+            "status": "ACTIVE",
+            "version": 1,
+            "recorded_at": "2026-09-19T09:00:00Z",
+            "updated_at": "2026-09-19T09:00:00Z"
+          }
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000801"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000801",
+          "alias": "예시 아기 A",
+          "birth_date": "2026-07-01",
+          "feeding_mode": "MIXED",
+          "timezone": "Asia/Seoul"
+        }
+      }
+    },
+    {
+      "name": "active_baby_lost_membership",
+      "operation_id": "getActiveBaby",
+      "synthetic": true,
+      "expected_ui": "이전 아기 화면과 캐시를 비우고 선택 화면으로 이동",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby_id": null
+        }
+      }
+    },
+    {
+      "name": "analysis_complete_stub",
+      "operation_id": "createAnalysis",
+      "synthetic": true,
+      "expected_ui": "개발용 고정 응답 및 예시 자료 표시",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "analysis_id": "10000000-0000-4000-8000-000000000501",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "episode_id": "10000000-0000-4000-8000-000000000301",
+          "audio_id": "10000000-0000-4000-8000-000000000401",
+          "created_by_user_id": "10000000-0000-4000-8000-000000000001",
+          "status": "COMPLETE",
+          "stage": "FINISHED",
+          "attempt_no": 1,
+          "lease_expires_at": null,
+          "quality_status": "PASS",
+          "quality_reasons": [],
+          "cry_detected": true,
+          "audio_candidates": [
+            {
+              "code": "hungry",
+              "label": "수유 필요 신호 확인",
+              "rank": 1
+            }
+          ],
+          "abstain_reason": null,
+          "failure": null,
+          "model_version": "stub-audio-v1",
+          "preprocess_version": "stub-preprocess-v1",
+          "label_mapping_version": "fixture-labels-v1",
+          "context_snapshot": null,
+          "recommendation": {
+            "recommendation_id": "10000000-0000-4000-8000-000000000502",
+            "analysis_id": "10000000-0000-4000-8000-000000000501",
+            "context_snapshot_id": null,
+            "status": "GENERAL_CHECKLIST",
+            "actions": [
+              {
+                "action_type": "FEEDING",
+                "text": "수유가 필요한 신호가 있는지 살펴보세요.",
+                "evidence_refs": [
+                  {
+                    "kind": "AUDIO",
+                    "resource_id": "10000000-0000-4000-8000-000000000401",
+                    "version": 1
+                  }
+                ]
+              }
+            ],
+            "optional_questions": [],
+            "help_action": null,
+            "policy_version": "stub-policy-v1",
+            "supersedes_id": null,
+            "recorded_at": "2026-09-19T09:00:00Z"
+          },
+          "inference_mode": "STUB",
+          "inference_executed": false,
+          "data_origin": "DEMO",
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "completed_at": "2026-09-19T09:00:00Z"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000802"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000802",
+          "analysis_id": "10000000-0000-4000-8000-000000000501",
+          "audio_id": "10000000-0000-4000-8000-000000000401"
+        }
+      }
+    },
+    {
+      "name": "analysis_running",
+      "operation_id": "getAnalysis",
+      "synthetic": true,
+      "expected_ui": "분석 중, 같은 ID로 조회",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "analysis_id": "10000000-0000-4000-8000-000000000501",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "episode_id": "10000000-0000-4000-8000-000000000301",
+          "audio_id": "10000000-0000-4000-8000-000000000401",
+          "created_by_user_id": "10000000-0000-4000-8000-000000000001",
+          "status": "RUNNING",
+          "stage": "INFERENCE",
+          "attempt_no": 1,
+          "lease_expires_at": "2026-09-19T09:01:00Z",
+          "quality_status": "PASS",
+          "quality_reasons": [],
+          "cry_detected": true,
+          "audio_candidates": [],
+          "abstain_reason": null,
+          "failure": null,
+          "model_version": "stub-audio-v1",
+          "preprocess_version": "stub-preprocess-v1",
+          "label_mapping_version": "fixture-labels-v1",
+          "context_snapshot": null,
+          "recommendation": null,
+          "inference_mode": "STUB",
+          "inference_executed": false,
+          "data_origin": "DEMO",
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "completed_at": null
+        }
+      }
+    },
+    {
+      "name": "analysis_abstain",
+      "operation_id": "getAnalysis",
+      "synthetic": true,
+      "expected_ui": "판단 유보 및 입력 품질 사유 표시, 처리 실패로 집계하지 않음",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "analysis_id": "10000000-0000-4000-8000-000000000501",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "episode_id": "10000000-0000-4000-8000-000000000301",
+          "audio_id": "10000000-0000-4000-8000-000000000401",
+          "created_by_user_id": "10000000-0000-4000-8000-000000000001",
+          "status": "ABSTAIN",
+          "stage": "FINISHED",
+          "attempt_no": 1,
+          "lease_expires_at": null,
+          "quality_status": "INSUFFICIENT",
+          "quality_reasons": [
+            "HIGH_NOISE"
+          ],
+          "cry_detected": null,
+          "audio_candidates": [],
+          "abstain_reason": "LOW_QUALITY",
+          "failure": null,
+          "model_version": "stub-audio-v1",
+          "preprocess_version": "stub-preprocess-v1",
+          "label_mapping_version": "fixture-labels-v1",
+          "context_snapshot": null,
+          "recommendation": null,
+          "inference_mode": "STUB",
+          "inference_executed": false,
+          "data_origin": "DEMO",
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "completed_at": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "analysis_no_cry",
+      "operation_id": "getAnalysis",
+      "synthetic": true,
+      "expected_ui": "울음이 확인되지 않았어요",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "analysis_id": "10000000-0000-4000-8000-000000000501",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "episode_id": "10000000-0000-4000-8000-000000000301",
+          "audio_id": "10000000-0000-4000-8000-000000000401",
+          "created_by_user_id": "10000000-0000-4000-8000-000000000001",
+          "status": "ABSTAIN",
+          "stage": "FINISHED",
+          "attempt_no": 1,
+          "lease_expires_at": null,
+          "quality_status": "PASS",
+          "quality_reasons": [
+            "NO_CRY"
+          ],
+          "cry_detected": false,
+          "audio_candidates": [],
+          "abstain_reason": "NO_CRY",
+          "failure": null,
+          "model_version": "stub-audio-v1",
+          "preprocess_version": "stub-preprocess-v1",
+          "label_mapping_version": "fixture-labels-v1",
+          "context_snapshot": null,
+          "recommendation": null,
+          "inference_mode": "STUB",
+          "inference_executed": false,
+          "data_origin": "DEMO",
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "completed_at": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "analysis_failed",
+      "operation_id": "getAnalysis",
+      "synthetic": true,
+      "expected_ui": "HTTP 조회 성공과 분석 작업 실패를 구분",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "analysis_id": "10000000-0000-4000-8000-000000000501",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "episode_id": "10000000-0000-4000-8000-000000000301",
+          "audio_id": "10000000-0000-4000-8000-000000000401",
+          "created_by_user_id": "10000000-0000-4000-8000-000000000001",
+          "status": "FAILED",
+          "stage": "FINISHED",
+          "attempt_no": 1,
+          "lease_expires_at": null,
+          "quality_status": "PASS",
+          "quality_reasons": [],
+          "cry_detected": true,
+          "audio_candidates": [],
+          "abstain_reason": null,
+          "failure": {
+            "code": "ANALYSIS_TIMEOUT",
+            "message": "처리 시간이 초과됐어요.",
+            "retryable": true
+          },
+          "model_version": "stub-audio-v1",
+          "preprocess_version": "stub-preprocess-v1",
+          "label_mapping_version": "fixture-labels-v1",
+          "context_snapshot": null,
+          "recommendation": null,
+          "inference_mode": "STUB",
+          "inference_executed": false,
+          "data_origin": "DEMO",
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "completed_at": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "analysis_in_progress",
+      "operation_id": "createAnalysis",
+      "synthetic": true,
+      "expected_ui": "새 분석 생성 없이 기존 분석 조회",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "ANALYSIS_IN_PROGRESS",
+          "message": "이미 분석 중이에요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": "10000000-0000-4000-8000-000000000501",
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": "/v1/analyses/10000000-0000-4000-8000-000000000501",
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "idempotent_replay",
+      "operation_id": "createAnalysis",
+      "synthetic": true,
+      "expected_ui": "같은 요청을 다시 보내도 같은 분석 ID와 결과",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "analysis_id": "10000000-0000-4000-8000-000000000501",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "episode_id": "10000000-0000-4000-8000-000000000301",
+          "audio_id": "10000000-0000-4000-8000-000000000401",
+          "created_by_user_id": "10000000-0000-4000-8000-000000000001",
+          "status": "COMPLETE",
+          "stage": "FINISHED",
+          "attempt_no": 1,
+          "lease_expires_at": null,
+          "quality_status": "PASS",
+          "quality_reasons": [],
+          "cry_detected": true,
+          "audio_candidates": [
+            {
+              "code": "hungry",
+              "label": "수유 필요 신호 확인",
+              "rank": 1
+            }
+          ],
+          "abstain_reason": null,
+          "failure": null,
+          "model_version": "stub-audio-v1",
+          "preprocess_version": "stub-preprocess-v1",
+          "label_mapping_version": "fixture-labels-v1",
+          "context_snapshot": null,
+          "recommendation": {
+            "recommendation_id": "10000000-0000-4000-8000-000000000502",
+            "analysis_id": "10000000-0000-4000-8000-000000000501",
+            "context_snapshot_id": null,
+            "status": "GENERAL_CHECKLIST",
+            "actions": [
+              {
+                "action_type": "FEEDING",
+                "text": "수유가 필요한 신호가 있는지 살펴보세요.",
+                "evidence_refs": [
+                  {
+                    "kind": "AUDIO",
+                    "resource_id": "10000000-0000-4000-8000-000000000401",
+                    "version": 1
+                  }
+                ]
+              }
+            ],
+            "optional_questions": [],
+            "help_action": null,
+            "policy_version": "stub-policy-v1",
+            "supersedes_id": null,
+            "recorded_at": "2026-09-19T09:00:00Z"
+          },
+          "inference_mode": "STUB",
+          "inference_executed": false,
+          "data_origin": "DEMO",
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "completed_at": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "idempotency_mismatch",
+      "operation_id": "createAnalysis",
+      "synthetic": true,
+      "expected_ui": "내용을 바꾼 새 작업에는 새 키 사용",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "IDEMPOTENCY_KEY_REUSED",
+          "message": "요청 키와 내용이 일치하지 않아요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "auth_expired",
+      "operation_id": "getAnalysis",
+      "synthetic": true,
+      "expected_ui": "갱신 1회 후 재로그인",
+      "response": {
+        "status": 401,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "TOKEN_EXPIRED",
+          "message": "다시 로그인해 주세요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "owner_required",
+      "operation_id": "patchBaby",
+      "synthetic": true,
+      "expected_ui": "권한 안내, 반복 재시도 금지",
+      "response": {
+        "status": 403,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "OWNER_ONLY",
+          "message": "관리 보호자만 바꿀 수 있어요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "not_member",
+      "operation_id": "getEpisode",
+      "synthetic": true,
+      "expected_ui": "아기 데이터와 식별 정보 노출하지 않음",
+      "response": {
+        "status": 404,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "RESOURCE_NOT_FOUND",
+          "message": "찾을 수 없거나 접근할 수 없어요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "edit_conflict",
+      "operation_id": "patchCareEvent",
+      "synthetic": true,
+      "expected_ui": "최신 수유량과 로컬 초안 비교",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "VERSION_CONFLICT",
+          "message": "다른 보호자가 먼저 수정했어요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": 2,
+            "current_resource": {
+              "care_event_id": "10000000-0000-4000-8000-000000000601",
+              "baby_id": "10000000-0000-4000-8000-000000000101",
+              "created_by_user_id": "10000000-0000-4000-8000-000000000002",
+              "updated_by_user_id": "10000000-0000-4000-8000-000000000002",
+              "source_entry_id": null,
+              "status": "ACTIVE",
+              "event": {
+                "type": "FEEDING",
+                "occurred_at": "2026-09-19T09:00:00Z",
+                "ended_at": null,
+                "time_precision": "EXACT",
+                "payload": {
+                  "mode": "FORMULA",
+                  "amount_ml": 80,
+                  "duration_minutes": null
+                }
+              },
+              "data_origin": "DEMO",
+              "version": 2,
+              "recorded_at": "2026-09-19T09:00:00Z",
+              "updated_at": "2026-09-19T09:00:00Z"
+            },
+            "resource_type": "CARE_EVENT",
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000803"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000803",
+          "version": 1,
+          "event": {
+            "type": "FEEDING",
+            "occurred_at": "2026-09-19T09:00:00Z",
+            "ended_at": null,
+            "time_precision": "EXACT",
+            "payload": {
+              "mode": "FORMULA",
+              "amount_ml": 80,
+              "duration_minutes": null
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "owner_cannot_leave",
+      "operation_id": "removeMembership",
+      "synthetic": true,
+      "expected_ui": "아기 공간 전체 삭제 경로 안내",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "OWNER_REQUIRED",
+          "message": "관리 보호자는 나갈 수 없어요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "invite_expired",
+      "operation_id": "acceptInvite",
+      "synthetic": true,
+      "expected_ui": "관리 보호자에게 새 초대 요청",
+      "response": {
+        "status": 410,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "INVITE_EXPIRED",
+          "message": "초대가 만료됐어요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "invite_wrong_email",
+      "operation_id": "acceptInvite",
+      "synthetic": true,
+      "expected_ui": "계정 전환 안내",
+      "response": {
+        "status": 403,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "INVITE_EMAIL_MISMATCH",
+          "message": "초대받은 이메일로 로그인해 주세요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "invite_used",
+      "operation_id": "acceptInvite",
+      "synthetic": true,
+      "expected_ui": "기존 참여 상태 확인",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "INVITE_ALREADY_USED",
+          "message": "이미 사용된 초대예요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "sleep_conflict",
+      "operation_id": "createCareEvent",
+      "synthetic": true,
+      "expected_ui": "기존 수면 종료 또는 수정 선택",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "SLEEP_ALREADY_ACTIVE",
+          "message": "진행 중인 수면 기록이 있어요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": {
+              "care_event_id": "10000000-0000-4000-8000-000000000604",
+              "baby_id": "10000000-0000-4000-8000-000000000101",
+              "created_by_user_id": "10000000-0000-4000-8000-000000000002",
+              "updated_by_user_id": "10000000-0000-4000-8000-000000000002",
+              "source_entry_id": null,
+              "status": "ACTIVE",
+              "event": {
+                "type": "SLEEP",
+                "occurred_at": "2026-09-19T09:00:00Z",
+                "ended_at": null,
+                "time_precision": "EXACT",
+                "payload": {}
+              },
+              "data_origin": "DEMO",
+              "version": 1,
+              "recorded_at": "2026-09-19T09:00:00Z",
+              "updated_at": "2026-09-19T09:00:00Z"
+            },
+            "resource_type": "CARE_EVENT",
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "detection_conflict",
+      "operation_id": "createObservationSession",
+      "synthetic": true,
+      "expected_ui": "기존 세션 명시적 종료 후 새 감지 시작",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "ACTIVE_SESSION_EXISTS",
+          "message": "다른 기기에서 감지 중이에요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": "10000000-0000-4000-8000-000000000701",
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "normalization_review",
+      "operation_id": "createNormalization",
+      "synthetic": true,
+      "expected_ui": "확인 전 초안, 실제 수행 기록과 분리",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "run_id": "10000000-0000-4000-8000-000000000751",
+          "entry_id": "10000000-0000-4000-8000-000000000750",
+          "input_revision": 1,
+          "status": "COMPLETE",
+          "lease_expires_at": null,
+          "execution_mode": "STUB",
+          "provider": null,
+          "model": null,
+          "prompt_version": "fixture-prompt-v1",
+          "schema_version": "1.0.0",
+          "ontology_version": "care-v1",
+          "result": {
+            "actions": [
+              {
+                "action_ref": "a1",
+                "action_code": "FEEDING",
+                "assertion": "PERFORMED",
+                "performed_by_user_id": null,
+                "occurred_at": null,
+                "relative_time": null,
+                "time_precision": "UNKNOWN",
+                "sequence": 1,
+                "amount": 80,
+                "unit": "ML",
+                "feeding_mode": "FORMULA",
+                "evidence": [
+                  {
+                    "source": "TEXT",
+                    "choice_id": null,
+                    "span_start": 0,
+                    "span_end": 12,
+                    "quote": "분유 80mL 먹였어요"
+                  }
+                ]
+              }
+            ],
+            "states": [],
+            "outcomes": [],
+            "caregiver_interpretations": [],
+            "unresolved": [
+              {
+                "field": "actions.a1.occurred_at",
+                "code": "UNKNOWN_TIME",
+                "message": "수유한 시각을 확인하거나 모름으로 저장해 주세요."
+              }
+            ]
+          },
+          "failure": null,
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "completed_at": "2026-09-19T09:00:00Z"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000804"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000804",
+          "run_id": "10000000-0000-4000-8000-000000000751",
+          "input_revision": 1
+        }
+      }
+    },
+    {
+      "name": "draft_private",
+      "operation_id": "getCareEntry",
+      "synthetic": true,
+      "expected_ui": "작성자 본인의 초안만 표시",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "entry_id": "10000000-0000-4000-8000-000000000750",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "author_user_id": "10000000-0000-4000-8000-000000000001",
+          "original_author_user_id": "10000000-0000-4000-8000-000000000001",
+          "episode_id": "10000000-0000-4000-8000-000000000301",
+          "input_mode": "TEXT",
+          "raw_text": "분유 80mL 먹였어요",
+          "choices": [],
+          "occurred_at": null,
+          "time_precision": "UNKNOWN",
+          "input_revision": 1,
+          "status": "REVIEW_READY",
+          "normalization_run_id": "10000000-0000-4000-8000-000000000751",
+          "normalized_content": {
+            "actions": [
+              {
+                "action_ref": "a1",
+                "action_code": "FEEDING",
+                "assertion": "PERFORMED",
+                "performed_by_user_id": null,
+                "occurred_at": null,
+                "relative_time": null,
+                "time_precision": "UNKNOWN",
+                "sequence": 1,
+                "amount": 80,
+                "unit": "ML",
+                "feeding_mode": "FORMULA",
+                "evidence": [
+                  {
+                    "source": "TEXT",
+                    "choice_id": null,
+                    "span_start": 0,
+                    "span_end": 12,
+                    "quote": "분유 80mL 먹였어요"
+                  }
+                ]
+              }
+            ],
+            "states": [],
+            "outcomes": [],
+            "caregiver_interpretations": [],
+            "unresolved": [
+              {
+                "field": "actions.a1.occurred_at",
+                "code": "UNKNOWN_TIME",
+                "message": "수유한 시각을 확인하거나 모름으로 저장해 주세요."
+              }
+            ]
+          },
+          "supersedes_entry_id": null,
+          "base_record_versions": [],
+          "confirmed_resources": null,
+          "confirmed_by_user_id": null,
+          "confirmed_at": null,
+          "data_origin": "DEMO",
+          "version": 1,
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "updated_at": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "draft_other_author",
+      "operation_id": "getCareEntry",
+      "synthetic": true,
+      "expected_ui": "OWNER라도 타인 미공유 초안을 표시하지 않음",
+      "response": {
+        "status": 404,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "RESOURCE_NOT_FOUND",
+          "message": "찾을 수 없거나 접근할 수 없어요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "normalization_failure",
+      "operation_id": "getNormalization",
+      "synthetic": true,
+      "expected_ui": "원문을 보존하고 선택지 직접 정리 제공",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "run_id": "10000000-0000-4000-8000-000000000751",
+          "entry_id": "10000000-0000-4000-8000-000000000750",
+          "input_revision": 1,
+          "status": "FAILED",
+          "lease_expires_at": null,
+          "execution_mode": "STUB",
+          "provider": null,
+          "model": null,
+          "prompt_version": "fixture-prompt-v1",
+          "schema_version": "1.0.0",
+          "ontology_version": "care-v1",
+          "result": null,
+          "failure": {
+            "code": "NORMALIZATION_TIMEOUT",
+            "message": "문장을 정리하지 못했어요.",
+            "retryable": true
+          },
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "completed_at": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "stale_draft",
+      "operation_id": "confirmCareEntry",
+      "synthetic": true,
+      "expected_ui": "오래된 정규화 결과를 적용하지 않음",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "SOURCE_REVISION_CHANGED",
+          "message": "원문이 바뀌어 다시 확인해야 해요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": 2,
+            "current_resource": null,
+            "resource_type": "CARE_ENTRY",
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "confirm_once",
+      "operation_id": "confirmCareEntry",
+      "synthetic": true,
+      "expected_ui": "생활 기록과 행동 한 번만 저장, 반응은 미확인",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "entry_id": "10000000-0000-4000-8000-000000000750",
+          "input_revision": 1,
+          "care_event_ids": [
+            "10000000-0000-4000-8000-000000000601"
+          ],
+          "action_ids": [
+            "10000000-0000-4000-8000-000000000602"
+          ],
+          "action_group_ids": [],
+          "state_observation_ids": [],
+          "outcome_ids": [],
+          "label_annotation_ids": [
+            "10000000-0000-4000-8000-000000000603"
+          ]
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000805"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000805",
+          "input_revision": 1,
+          "run_id": "10000000-0000-4000-8000-000000000751",
+          "normalization_mode": "LLM",
+          "content": {
+            "actions": [
+              {
+                "action_ref": "a1",
+                "action_code": "FEEDING",
+                "assertion": "PERFORMED",
+                "performed_by_user_id": null,
+                "occurred_at": null,
+                "relative_time": null,
+                "time_precision": "UNKNOWN",
+                "sequence": 1,
+                "amount": 80,
+                "unit": "ML",
+                "feeding_mode": "FORMULA",
+                "evidence": [
+                  {
+                    "source": "TEXT",
+                    "choice_id": null,
+                    "span_start": 0,
+                    "span_end": 12,
+                    "quote": "분유 80mL 먹였어요"
+                  }
+                ]
+              }
+            ],
+            "states": [],
+            "outcomes": [],
+            "caregiver_interpretations": [],
+            "unresolved": [
+              {
+                "field": "actions.a1.occurred_at",
+                "code": "UNKNOWN_TIME",
+                "message": "수유한 시각을 확인하거나 모름으로 저장해 주세요."
+              }
+            ]
+          },
+          "base_record_versions": []
+        }
+      }
+    },
+    {
+      "name": "confirm_replay",
+      "operation_id": "confirmCareEntry",
+      "synthetic": true,
+      "expected_ui": "같은 저장 요청은 같은 생성 ID 반환",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "entry_id": "10000000-0000-4000-8000-000000000750",
+          "input_revision": 1,
+          "care_event_ids": [
+            "10000000-0000-4000-8000-000000000601"
+          ],
+          "action_ids": [
+            "10000000-0000-4000-8000-000000000602"
+          ],
+          "action_group_ids": [],
+          "state_observation_ids": [],
+          "outcome_ids": [],
+          "label_annotation_ids": [
+            "10000000-0000-4000-8000-000000000603"
+          ]
+        }
+      }
+    },
+    {
+      "name": "deletion_accepted",
+      "operation_id": "deleteBabyData",
+      "synthetic": true,
+      "expected_ui": "삭제 요청 접수, 접근 차단, 아직 완료 아님",
+      "response": {
+        "status": 202,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "deletion_job_id": "10000000-0000-4000-8000-000000000780",
+          "requester_user_id": "10000000-0000-4000-8000-000000000001",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "scope": "ALL",
+          "resource_id": null,
+          "status": "PENDING",
+          "access_blocked": true,
+          "requested_at": "2026-09-19T09:00:00Z",
+          "completed_at": null,
+          "failure": null,
+          "pending_categories": [
+            "AUDIO",
+            "RAW_TEXT",
+            "RECORDS",
+            "ANALYSES",
+            "DERIVED_FEATURES",
+            "TRAINING_COPIES"
+          ],
+          "attempt_no": 1
+        }
+      }
+    },
+    {
+      "name": "resource_deleting",
+      "operation_id": "createCareEvent",
+      "synthetic": true,
+      "expected_ui": "신규 저장 차단 및 삭제 진행 안내",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "RESOURCE_DELETING",
+          "message": "아기 자료를 삭제하고 있어요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": "10000000-0000-4000-8000-000000000780",
+            "status_url": "/v1/deletions/10000000-0000-4000-8000-000000000780",
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "deletion_failed",
+      "operation_id": "getDeletion",
+      "synthetic": true,
+      "expected_ui": "일부 자료 정리 중, 차단 유지, 재시도 제공",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "deletion_job_id": "10000000-0000-4000-8000-000000000780",
+          "requester_user_id": "10000000-0000-4000-8000-000000000001",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "scope": "ALL",
+          "resource_id": null,
+          "status": "FAILED",
+          "access_blocked": true,
+          "requested_at": "2026-09-19T09:00:00Z",
+          "completed_at": null,
+          "failure": {
+            "code": "CLEANUP_FAILED",
+            "message": "일부 자료 정리가 남아 있어요.",
+            "retryable": true
+          },
+          "pending_categories": [
+            "TRAINING_COPIES"
+          ],
+          "attempt_no": 1
+        }
+      }
+    },
+    {
+      "name": "deletion_complete",
+      "operation_id": "getDeletion",
+      "synthetic": true,
+      "expected_ui": "완료 확인 뒤 삭제 완료 표시",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "deletion_job_id": "10000000-0000-4000-8000-000000000780",
+          "requester_user_id": "10000000-0000-4000-8000-000000000001",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "scope": "ALL",
+          "resource_id": null,
+          "status": "COMPLETE",
+          "access_blocked": true,
+          "requested_at": "2026-09-19T09:00:00Z",
+          "completed_at": "2026-09-19T09:00:00Z",
+          "failure": null,
+          "pending_categories": [],
+          "attempt_no": 1
+        }
+      }
+    },
+    {
+      "name": "consent_revoke_after_leave",
+      "operation_id": "setMyTrainingConsent",
+      "synthetic": true,
+      "expected_ui": "탈퇴 후 본인 학습 참여 철회, 공동 기록 접근은 열리지 않음",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "consent_id": "10000000-0000-4000-8000-000000000790",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "actor_user_id": "10000000-0000-4000-8000-000000000005",
+          "scope": "CONTRIBUTOR_TRAINING",
+          "status": "REVOKED",
+          "policy_version": "fixture-policy-v1",
+          "granted_at": "2026-09-18T09:00:00Z",
+          "revoked_at": "2026-09-19T09:00:00Z",
+          "version": 2
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000806"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000806",
+          "granted": false,
+          "policy_version": "fixture-policy-v1",
+          "version": 1
+        }
+      }
+    },
+    {
+      "name": "care_event_saved",
+      "operation_id": "createCareEvent",
+      "synthetic": true,
+      "expected_ui": "80mL 수유 기록 저장",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "care_event_id": "10000000-0000-4000-8000-000000000601",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "created_by_user_id": "10000000-0000-4000-8000-000000000002",
+          "updated_by_user_id": "10000000-0000-4000-8000-000000000002",
+          "source_entry_id": null,
+          "status": "ACTIVE",
+          "event": {
+            "type": "FEEDING",
+            "occurred_at": "2026-09-19T09:00:00Z",
+            "ended_at": null,
+            "time_precision": "EXACT",
+            "payload": {
+              "mode": "FORMULA",
+              "amount_ml": 80,
+              "duration_minutes": null
+            }
+          },
+          "data_origin": "DEMO",
+          "version": 1,
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "updated_at": "2026-09-19T09:00:00Z"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "10000000-0000-4000-8000-000000000807"
+        },
+        "body": {
+          "client_request_id": "10000000-0000-4000-8000-000000000807",
+          "event": {
+            "type": "FEEDING",
+            "occurred_at": "2026-09-19T09:00:00Z",
+            "ended_at": null,
+            "time_precision": "EXACT",
+            "payload": {
+              "mode": "FORMULA",
+              "amount_ml": 80,
+              "duration_minutes": null
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "file_rejected",
+      "operation_id": "completeUpload",
+      "synthetic": true,
+      "expected_ui": "파일 교체 및 기존 음원 REJECTED 표시",
+      "response": {
+        "status": 422,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "code": "INVALID_AUDIO",
+          "message": "검증할 수 없는 음원 파일이에요.",
+          "retryable": false,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": null
+          }
+        }
+      }
+    },
+    {
+      "name": "model_unavailable",
+      "operation_id": "createAnalysis",
+      "synthetic": true,
+      "expected_ui": "요청 미등록 여부 확인, 목으로 바꾸지 않음",
+      "response": {
+        "status": 503,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900",
+          "Retry-After": "5"
+        },
+        "body": {
+          "code": "MODEL_NOT_READY",
+          "message": "분석 모델을 준비하고 있어요.",
+          "retryable": true,
+          "request_id": "10000000-0000-4000-8000-000000000900",
+          "field_errors": [],
+          "details": {
+            "current_version": null,
+            "current_resource": null,
+            "resource_type": null,
+            "existing_analysis_id": null,
+            "existing_run_id": null,
+            "existing_session_id": null,
+            "deletion_job_id": null,
+            "status_url": null,
+            "retry_after_seconds": 5
+          }
+        }
+      }
+    },
+    {
+      "name": "invite_issued",
+      "operation_id": "createInvite",
+      "synthetic": true,
+      "expected_ui": "관리 보호자가 링크를 복사해 직접 전달",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "invite": {
+            "invite_id": "10000000-0000-4000-8000-000000000260",
+            "baby_id": "10000000-0000-4000-8000-000000000101",
+            "inviter_user_id": "10000000-0000-4000-8000-000000000001",
+            "email": "invited_a@example.invalid",
+            "status": "PENDING",
+            "expires_at": "2026-09-20T09:00:00Z",
+            "version": 1,
+            "recorded_at": "2026-09-19T09:00:00Z",
+            "updated_at": "2026-09-19T09:00:00Z"
+          },
+          "invite_url": "https://example.invalid/invite#synthetic-not-a-working-token",
+          "link_reissue_required": false
+        }
+      }
+    },
+    {
+      "name": "invite_replay_no_token",
+      "operation_id": "createInvite",
+      "synthetic": true,
+      "expected_ui": "동일 초대는 유지, 링크를 잃었으면 명시적 재발급",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "invite": {
+            "invite_id": "10000000-0000-4000-8000-000000000260",
+            "baby_id": "10000000-0000-4000-8000-000000000101",
+            "inviter_user_id": "10000000-0000-4000-8000-000000000001",
+            "email": "invited_a@example.invalid",
+            "status": "PENDING",
+            "expires_at": "2026-09-20T09:00:00Z",
+            "version": 1,
+            "recorded_at": "2026-09-19T09:00:00Z",
+            "updated_at": "2026-09-19T09:00:00Z"
+          },
+          "invite_url": null,
+          "link_reissue_required": true
+        }
+      }
+    },
+    {
+      "name": "invite_accepted",
+      "operation_id": "acceptInvite",
+      "synthetic": true,
+      "expected_ui": "공유 범위 수락 후 아기 홈으로 이동",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby": {
+            "baby_id": "10000000-0000-4000-8000-000000000101",
+            "owner_user_id": "10000000-0000-4000-8000-000000000001",
+            "alias": "예시 아기 A",
+            "birth_date": "2026-07-01",
+            "feeding_mode": "MIXED",
+            "timezone": "Asia/Seoul",
+            "status": "ACTIVE",
+            "context_revision": 7,
+            "version": 1,
+            "recorded_at": "2026-09-19T09:00:00Z",
+            "updated_at": "2026-09-19T09:00:00Z"
+          },
+          "membership": {
+            "membership_id": "10000000-0000-4000-8000-000000000204",
+            "baby_id": "10000000-0000-4000-8000-000000000101",
+            "user_id": "10000000-0000-4000-8000-000000000004",
+            "role": "CAREGIVER",
+            "relationship": "OTHER",
+            "display_name": "시험 초대자",
+            "status": "ACTIVE",
+            "version": 1,
+            "recorded_at": "2026-09-19T09:00:00Z",
+            "updated_at": "2026-09-19T09:00:00Z"
+          }
+        }
+      }
+    },
+    {
+      "name": "member_left",
+      "operation_id": "removeMembership",
+      "synthetic": true,
+      "expected_ui": "권한·캐시 정리, 기록 삭제와 동의 철회는 별도",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "membership_id": "10000000-0000-4000-8000-000000000202",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "user_id": "10000000-0000-4000-8000-000000000002",
+          "role": "CAREGIVER",
+          "relationship": "OTHER",
+          "display_name": "시험 소유자 A",
+          "status": "LEFT",
+          "version": 1,
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "updated_at": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "normalization_running",
+      "operation_id": "getNormalization",
+      "synthetic": true,
+      "expected_ui": "정리 중, 기존 run ID 조회",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "run_id": "10000000-0000-4000-8000-000000000751",
+          "entry_id": "10000000-0000-4000-8000-000000000750",
+          "input_revision": 1,
+          "status": "RUNNING",
+          "lease_expires_at": "2026-09-19T09:00:30Z",
+          "execution_mode": "STUB",
+          "provider": null,
+          "model": null,
+          "prompt_version": "fixture-prompt-v1",
+          "schema_version": "1.0.0",
+          "ontology_version": "care-v1",
+          "result": null,
+          "failure": null,
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "completed_at": null
+        }
+      }
+    },
+    {
+      "name": "normalization_stale",
+      "operation_id": "getNormalization",
+      "synthetic": true,
+      "expected_ui": "원문이 수정되어 이전 초안을 적용하지 않음",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "run_id": "10000000-0000-4000-8000-000000000751",
+          "entry_id": "10000000-0000-4000-8000-000000000750",
+          "input_revision": 1,
+          "status": "STALE",
+          "lease_expires_at": null,
+          "execution_mode": "STUB",
+          "provider": null,
+          "model": null,
+          "prompt_version": "fixture-prompt-v1",
+          "schema_version": "1.0.0",
+          "ontology_version": "care-v1",
+          "result": {
+            "actions": [
+              {
+                "action_ref": "a1",
+                "action_code": "FEEDING",
+                "assertion": "PERFORMED",
+                "performed_by_user_id": null,
+                "occurred_at": null,
+                "relative_time": null,
+                "time_precision": "UNKNOWN",
+                "sequence": 1,
+                "amount": 80,
+                "unit": "ML",
+                "feeding_mode": "FORMULA",
+                "evidence": [
+                  {
+                    "source": "TEXT",
+                    "choice_id": null,
+                    "span_start": 0,
+                    "span_end": 12,
+                    "quote": "분유 80mL 먹였어요"
+                  }
+                ]
+              }
+            ],
+            "states": [],
+            "outcomes": [],
+            "caregiver_interpretations": [],
+            "unresolved": [
+              {
+                "field": "actions.a1.occurred_at",
+                "code": "UNKNOWN_TIME",
+                "message": "수유한 시각을 확인하거나 모름으로 저장해 주세요."
+              }
+            ]
+          },
+          "failure": null,
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "completed_at": "2026-09-19T09:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "summary_empty",
+      "operation_id": "getDailySummary",
+      "synthetic": true,
+      "expected_ui": "기록 없음 표시, 실제 수유량 0으로 오인하지 않음",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "date": "2026-09-19",
+          "timezone": "Asia/Seoul",
+          "as_of": "2026-09-19T09:00:00Z",
+          "context_revision": 7,
+          "has_records": false,
+          "feeding": {
+            "record_count": 0,
+            "known_amount_count": 0,
+            "unknown_amount_count": 0,
+            "total_recorded_ml": null,
+            "breastfeeding_minutes": null
+          },
+          "sleep": {
+            "record_count": 0,
+            "recorded_minutes_in_day": 0,
+            "active_sleep_id": null,
+            "has_unknown_duration": false
+          },
+          "diaper": {
+            "check_count": 0,
+            "change_count": 0
+          },
+          "record_coverage": [],
+          "latest_confirmed_state": null,
+          "missing_fields": [
+            "feeding",
+            "sleep",
+            "diaper"
+          ]
+        }
+      }
+    },
+    {
+      "name": "summary_unknown_amount",
+      "operation_id": "getDailySummary",
+      "synthetic": true,
+      "expected_ui": "수유 1회, 양 모름을 구별",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "date": "2026-09-19",
+          "timezone": "Asia/Seoul",
+          "as_of": "2026-09-19T09:00:00Z",
+          "context_revision": 7,
+          "has_records": true,
+          "feeding": {
+            "record_count": 1,
+            "known_amount_count": 0,
+            "unknown_amount_count": 1,
+            "total_recorded_ml": null,
+            "breastfeeding_minutes": null
+          },
+          "sleep": {
+            "record_count": 0,
+            "recorded_minutes_in_day": 0,
+            "active_sleep_id": null,
+            "has_unknown_duration": false
+          },
+          "diaper": {
+            "check_count": 0,
+            "change_count": 0
+          },
+          "record_coverage": [],
+          "latest_confirmed_state": null,
+          "missing_fields": [
+            "feeding.amount",
+            "sleep",
+            "diaper"
+          ]
+        }
+      }
+    },
+    {
+      "name": "pattern_insufficient",
+      "operation_id": "getPatterns",
+      "synthetic": true,
+      "expected_ui": "유효 간격과 날짜 부족으로 준비 시점 보류",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "range_days": 7,
+          "as_of": "2026-09-19T09:00:00Z",
+          "items": [
+            {
+              "kind": "FEEDING",
+              "status": "ON_HOLD",
+              "reason": "INSUFFICIENT_RECORDS",
+              "valid_days": 1,
+              "interval_count": 2,
+              "median_minutes": null,
+              "p25_minutes": null,
+              "p75_minutes": null,
+              "anchor_event_id": null,
+              "estimated_due_at": null,
+              "policy_version": "fixture-pattern-v1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "similar_cases_empty",
+      "operation_id": "getSimilarCases",
+      "synthetic": true,
+      "expected_ui": "적격 이전 사례가 없다고 표시",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "analysis_id": "10000000-0000-4000-8000-000000000501",
+          "items": [],
+          "eligible_case_count": 0,
+          "reason": "NO_CASES",
+          "policy_version": "fixture-personalization-v1"
+        }
+      }
+    },
+    {
+      "name": "confirmed_state_visual",
+      "operation_id": "createStateObservation",
+      "synthetic": true,
+      "expected_ui": "보호자가 잠듦으로 기록한 시각 표시, 자동 기분 추정 아님",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "state_observation_id": "10000000-0000-4000-8000-000000000820",
+          "baby_id": "10000000-0000-4000-8000-000000000101",
+          "episode_id": "10000000-0000-4000-8000-000000000301",
+          "action_id": null,
+          "source_entry_id": "10000000-0000-4000-8000-000000000750",
+          "phase": "AFTER",
+          "observed_at": "2026-09-19T09:00:00Z",
+          "time_precision": "EXACT",
+          "state_codes": [
+            "ASLEEP"
+          ],
+          "observation_source": "SELF_REPORTED",
+          "confirmation_status": "USER_CONFIRMED",
+          "visual_state_code": "ASLEEP",
+          "visual_mapping_version": "care-visual-v1",
+          "created_by_user_id": "10000000-0000-4000-8000-000000000001",
+          "data_origin": "DEMO",
+          "version": 1,
+          "recorded_at": "2026-09-19T09:00:00Z",
+          "updated_at": "2026-09-19T09:00:00Z"
+        }
+      }
+    }
+  ]
+}
