@@ -1,4 +1,4 @@
-"""Command-line entry points for preparation-only supervised M2D checks."""
+"""Preflight, isolated pilot, resumable training and detached launch commands."""
 
 from __future__ import annotations
 
@@ -23,18 +23,24 @@ def _path(value: str) -> Path:
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(
         prog="m2d-supervised",
-        description="Validate frozen M2D supervised-learning inputs without training.",
+        description="Prepare and train the fixed M2D development experiments.",
     )
     commands = root.add_subparsers(dest="command", required=True)
-    preflight = commands.add_parser(
-        "preflight",
-        help="Verify sources, checkpoints, splits, features, resources and locks.",
-    )
-    preflight.add_argument("--research-root", required=True, type=_path)
-    preflight.add_argument("--output-root", required=True, type=_path)
-    preflight.add_argument("--m2d-source-root", required=True, type=_path)
-    preflight.add_argument("--repository-root", type=_path, default=DEFAULT_REPOSITORY_ROOT)
-    preflight.add_argument("--config", type=_path, default=DEFAULT_CONFIG)
+    options = {}
+    for command, help_text in (
+        ("preflight", "Verify frozen inputs without an optimizer step."),
+        ("pilot", "Run an isolated MPS timing and checkpoint-resume verification."),
+        ("train-matrix", "Run or resume the 27 development experiments sequentially."),
+        ("launch", "Detach a caffeinate-protected training worker from a code snapshot."),
+    ):
+        sub = commands.add_parser(command, help=help_text)
+        sub.add_argument("--research-root", required=True, type=_path)
+        sub.add_argument("--output-root", required=True, type=_path)
+        sub.add_argument("--m2d-source-root", required=True, type=_path)
+        sub.add_argument("--repository-root", type=_path, default=DEFAULT_REPOSITORY_ROOT)
+        sub.add_argument("--config", type=_path, default=DEFAULT_CONFIG)
+        options[command] = sub
+    preflight = options["preflight"]
     preflight.add_argument(
         "--bounded-check",
         action="store_true",
@@ -48,8 +54,6 @@ def parser() -> argparse.ArgumentParser:
 
 def main(argv: Sequence[str] | None = None) -> int:
     arguments = parser().parse_args(argv)
-    if arguments.command != "preflight":
-        raise AssertionError(f"Unhandled command: {arguments.command}")
     config = read_json(arguments.config)
     paths = RuntimePaths(
         research_root=arguments.research_root,
@@ -57,12 +61,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         m2d_source_root=arguments.m2d_source_root,
         repository_root=arguments.repository_root,
     )
-    report = run_preflight(
-        config,
-        arguments.config,
-        paths,
-        full_feature_check=not arguments.bounded_check,
-    )
+    if arguments.command == "preflight":
+        report = run_preflight(
+            config, arguments.config, paths, full_feature_check=not arguments.bounded_check
+        )
+    elif arguments.command == "pilot":
+        from .pilot import run_pilot
+
+        report = run_pilot(config, arguments.config, paths)
+    else:
+        from .runtime import launch, train_matrix
+
+        operation = launch if arguments.command == "launch" else train_matrix
+        report = operation(config, arguments.config, paths)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0
 
