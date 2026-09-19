@@ -1,9 +1,12 @@
+"use client";
+
 // SC09 내용 확인 — 원문·정규화 초안·근거·미해결 항목을 확인 저장 전에
 // 보여준다. `scenario`로 REVIEW_READY(원문 포함)와 RUNNING/STALE/FAILED
 // 작업 상태를 목 화면으로 오갈 수 있다. 실제 확인 저장은 A-07에서 연결한다.
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { mockCareEntry, mockNormalizationRun } from "@/lib/mock/fixtures";
+import { notFound, useParams } from "next/navigation";
+import { isForBaby, mockCareEntry, mockErrorEnvelope, mockNormalizationRun } from "@/lib/mock/fixtures";
+import { useMockSession } from "@/lib/mock/session";
 import { ScreenSection, LoadingState, ErrorState } from "@/components/screen-state";
 
 const unresolvedLabel: Record<string, string> = {
@@ -21,10 +24,8 @@ const previewLinks = [
   { scenario: "failure", label: "정리 실패" },
 ] as const;
 
-export default async function EntryConfirmPage({
-  params,
-}: Readonly<{ params: Promise<{ babyId: string; scenario: string }> }>) {
-  const { babyId, scenario } = await params;
+export default function EntryConfirmPage() {
+  const { babyId, scenario } = useParams<{ babyId: string; scenario: string }>();
 
   return (
     <div className="flex flex-col gap-4">
@@ -55,7 +56,16 @@ export default async function EntryConfirmPage({
 }
 
 function ReviewReady({ babyId }: Readonly<{ babyId: string }>) {
+  const session = useMockSession();
   const entry = mockCareEntry();
+
+  // OWNER를 포함해 타인의 비공개 초안은 존재 자체를 숨기는 404 목 상태로 대체한다 (개발계약 §2 / getCareEntry).
+  const isVisibleToCurrentUser = isForBaby(babyId, entry) && entry.author_user_id === session.userId;
+  if (!isVisibleToCurrentUser) {
+    const notFoundError = mockErrorEnvelope("draft_other_author");
+    return <ErrorState label={notFoundError.message} />;
+  }
+
   const content = entry.normalized_content;
   return (
     <ScreenSection title="원문">
