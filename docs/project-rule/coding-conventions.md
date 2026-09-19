@@ -101,7 +101,7 @@ hotfix/42-api-invite-expiry
 
 ## 5. 커밋과 PR
 
-커밋 제목은 `type: 변경 내용` 형식으로 씁니다. `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore` 중 목적에 맞는 타입을 사용합니다. 긴급 수정도 내용에 맞춰 `fix`를 사용하고 브랜치·PR에서 긴급성을 표시합니다.
+커밋 제목은 `type: 변경 내용(한글)` 형식으로 씁니다. `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore` 중 목적에 맞는 타입을 사용합니다. 긴급 수정도 내용에 맞춰 `fix`를 사용하고 브랜치·PR에서 긴급성을 표시합니다.
 
 ```text
 feat: 아기 전환 시 이전 캐시 정리
