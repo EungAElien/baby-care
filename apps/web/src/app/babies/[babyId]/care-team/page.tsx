@@ -3,7 +3,7 @@
 // SC10 공동양육 — 구성원·관계·권한·초대 및 참여 상태. 발급·취소·제거의
 // 실제 호출은 A-03에서 연결하며, 여기서는 목 응답으로 상태 구분만 보인다.
 import { useParams } from "next/navigation";
-import { mockRoleAssignments, getMockScenario } from "@/lib/mock/fixtures";
+import { isForBaby, mockIssuedInvite, mockRoleAssignments, getMockScenario } from "@/lib/mock/fixtures";
 import { useMockSession } from "@/lib/mock/session";
 import { ScreenSection } from "@/components/screen-state";
 
@@ -15,9 +15,8 @@ export default function CareTeamPage() {
   const session = useMockSession();
   const membership = session.membershipFor(babyId);
   const members = mockRoleAssignments.filter((entry) => entry.baby_id === babyId);
-  const issuedInvite = getMockScenario("invite_issued").response.body as {
-    invite: { email: string; status: string; expires_at: string };
-  };
+  const issuedInviteFixture = mockIssuedInvite();
+  const issuedInvite = isForBaby(babyId, issuedInviteFixture.invite) ? issuedInviteFixture : null;
 
   if (!membership) return null;
 
@@ -42,7 +41,11 @@ export default function CareTeamPage() {
 
       {membership.role === "OWNER" ? (
         <ScreenSection title="초대 발급">
-          <p className="text-sm text-foreground">{issuedInvite.invite.email}로 24시간 유효한 링크를 만들었어요.</p>
+          {issuedInvite ? (
+            <p className="text-sm text-foreground">{issuedInvite.invite.email}로 24시간 유효한 링크를 만들었어요.</p>
+          ) : (
+            <p className="text-sm text-muted-foreground">이 아기의 초대 내역이 없어요.</p>
+          )}
           <p className="text-xs text-muted-foreground">링크는 최초 한 번만 보여줘요. 잃어버리면 재발급해야 해요.</p>
           <button type="button" disabled className="min-h-11 rounded-md border border-border px-4 text-sm text-muted-foreground">
             새 초대 발급 (실제 API 연동 이후)
