@@ -1,8 +1,8 @@
-# B-03 Supabase 데이터·권한·Storage 기반
+# B-03/B-04 Supabase 데이터·권한·계정·기록 기반
 
 이 디렉터리는 B-03의 로컬 재현 가능한 기반이다. 업무 데이터는 `baby_data`, 정책 보조 함수는 `baby_private`에 두고 Data API가 노출하는 스키마는 `public`만 유지한다. 브라우저의 업무 테이블·뷰·RPC 직접 허용 목록은 비어 있다.
 
-이 구현은 **로컬 Supabase 하위 계층과 B-01 AuthorizationPort 연결 검증**까지다. 운영 프로젝트 적용, JWT AuthenticationPort, B-04 업무 API, B-05 파일 검증·완료·재생 URL, TUS 재개, Realtime, 실제 로그아웃은 완료로 보지 않는다.
+이 구현은 B-03 하위 계층 위에 B-04의 실제 Supabase JWT/JWKS 인증, OTP 재인증, 세션 회수, DB 멱등성, 계정·공동양육·기록 API를 연결한다. 전용 로컬 스택에서는 Auth JWT → FastAPI → `baby_app` RLS와 Auth 로그아웃 → 기존 Storage 업로드 차단까지 검증한다. 운영 프로젝트 적용, B-05 파일 검증·완료·재생 URL, TUS 재개, B-09 Realtime, 삭제 실행기는 완료로 보지 않는다.
 
 ## API·기능 엔터티와 저장 구조
 
@@ -20,7 +20,9 @@ API 응답마다 테이블을 만들지 않고, 원본·권한·실행 상태와
 | 행동·관찰·반응 | `caregiver_observations`, `action_attempts`, `action_groups`, `action_group_members`, `outcomes`, `state_observations` | 실제 수행·보호자 관찰·반응·출처를 각각 분리 | 사건별 행동 순서와 전후 상태 |
 | 원문·정규화 | `raw_care_entries`, `normalization_runs`, `label_annotations` | 작성자 전용 원문, `input_revision`, 실행 상태·결과, 확인 라벨 | 최신 revision의 확인 가능 초안과 확정 기록 |
 | 개인 알림 | `reminder_settings`, `reminders`, `record_coverage` | 수신자별 켜기·미루기·확인 상태, 근거 범위 | 공유 패턴에서 개인별 다음 알림 계산 |
-| 세션 회수 | `revoked_sessions` | `session_id`, 사용자, 만료, 회수 이유 | 현재 요청 세션 차단 여부 |
+| 세션·재인증 | `observed_auth_sessions`, `session_revocation_rules`, `revoked_sessions`, `session_revocation_jobs`, `reauthentication_challenges`, `reauthentication_proofs` | 관측 세션, 회수 범위·상태, OTP challenge, proof 해시·소비 시각 | 현재 JWT 차단, 다른 세션 범위, 민감 작업 proof 유효성 |
+| 중복 방지·보안 시도 | `idempotency_records`, `security_attempts` | 정규화 요청 해시, 결과 참조, 최소 7일 만료, 대상 해시와 성공 여부 | 같은 요청 복구, 다른 본문 409, 초대·재인증 시도 제한 |
+| 아동 처리 게이트 | `guardian_verifications` | 확인 상태·수단·정책 버전·시각 | 운영 처리 허용 여부. OWNER·이메일 OTP만으로 VERIFIED가 되지 않음 |
 
 상담 대화·개인 기억은 이 스키마에 넣지 않았다. B-14에서 계약과 본인 전용 접근 범위를 먼저 확정한다.
 
@@ -86,6 +88,8 @@ npm run test:supabase
 
 이 명령은 `baby-care-b03-local` 로컬 스택을 시작하고 **해당 로컬 DB만 초기화**한 뒤 migration, 합성 seed, DB·RLS·문맥·Auth/Storage HTTP 시험을 순서대로 실행한다. linked/운영 프로젝트에 `db reset`, `db push`를 실행하지 않는다.
 
+API 단계는 단위·실제 로컬 통합 시험 49개를 함께 실행하고 90% coverage 기준을 적용한다. 2026-09-20 최종 실행에서는 90.49%였으며, 수치는 코드 변경에 따라 달라져도 기준 미달이면 명령이 실패한다.
+
 개별 실행은 다음과 같다.
 
 ```bash
@@ -93,11 +97,12 @@ npm run supabase:start
 npm run supabase:reset
 npm run test:supabase:db
 npm run test:supabase:context
+npm run test:supabase:api-db
 npm run test:supabase:http
 npm run supabase:stop
 ```
 
-`seed.sql`의 `.invalid` 계정은 로그인할 수 없는 합성 DB fixture다. HTTP 시험은 매 실행마다 로컬 Auth API로 로그인 가능한 합성 사용자를 만들고 발급된 JWT로 Storage를 호출한다. 토큰·비밀번호는 출력하거나 저장하지 않는다. 환경 변수 이름과 placeholder는 [.env.example](.env.example)에만 두며 실제 값은 커밋하지 않는다.
+`seed.sql`의 `.invalid` 계정은 로그인할 수 없는 합성 DB fixture다. HTTP 시험은 매 실행마다 로컬 Auth API로 로그인 가능한 합성 사용자를 만들고 발급된 JWT로 Storage를 호출한다. B-04 API 시험은 `example.test` 합성 계정과 로컬 Mailpit의 숫자 OTP를 사용한다. `local_smtp`와 전용 템플릿은 실제 메일을 발송하지 않으며 토큰·비밀번호는 출력하거나 저장하지 않는다. 환경 변수 이름과 placeholder는 [.env.example](.env.example)에만 두며 실제 값은 커밋하지 않는다.
 
 ## 검증 범위와 인수 조건 연결
 
@@ -106,15 +111,16 @@ npm run supabase:stop
 | 스키마·제약 | 빈 DB reset, 전체 migration+seed, 복합 FK, 중복 멤버십·OWNER, 정확한 15분·25,000,000바이트, 상태 전이 | SEC04 및 AC42의 DB 하위 조건만 통과 |
 | RLS·역할 | OWNER·CAREGIVER 읽기/수정, 타 아기, 타인 초안·정규화, 개인 알림, 제거 사용자 권리 경로, 멤버십 회수·아기 삭제 차단, 작성·수정·확인자 보호 | AC01·03·41·43·44와 SEC03·05·06·08·18·21의 DB 하위 조건만 통과 |
 | 직접 접근 | anon/authenticated Data API 테이블 404, RPC 404, GRANT·뷰·함수 ACL 검사 | SEC09 로컬 하위 시험 통과 |
-| 서버 문맥 | 한 연결에서 사용자 교차 처리, rollback·commit 뒤 문맥 소거, 누락 문맥 차단, B-01 실제 pool의 OWNER·CAREGIVER·비구성원 조회 2개와 DB probe | SEC10의 로컬 DB·실제 adapter 하위 시험 통과. JWT 인증 체인은 미실행 |
-| Storage HTTP | 실제 로컬 Auth JWT의 OWNER·CAREGIVER 성공, 비로그인·비구성원·다른 아기·업로더·세션·경로·만료·취소·초과 크기·덮어쓰기·목록·다운로드·서명·삭제·회수 후 접근 거부 | SEC22~23의 STANDARD 경로 통과, SEC18~19·24·27 일부 통과 |
+| 서버 문맥 | 한 연결에서 사용자 교차 처리, rollback·commit 뒤 문맥 소거, 누락 문맥 차단, B-01 실제 pool과 B-04 요청 트랜잭션의 현재 사용자·세션 검사 | SEC10의 로컬 DB·실제 adapter/API 하위 시험 통과 |
+| JWT·공동양육 API | 실제 로컬 Auth JWT/JWKS, 아기·OWNER 원자 생성, OTP proof, 초대 발급·수락·재발급·재가입·경쟁·만료·불일치, 탈퇴 후 본인 동의 철회·삭제 권리, 기록·타임라인·행동 연결, 작성자 초안·revision, 동시 수정·수면·삭제 재시도 | AC01·03·13~16·21~22·39~44와 SEC05·07~08·12~21·48·62의 명시된 로컬 API 하위 조건만 통과. 브라우저·운영은 미실행 |
+| 세션 회수·Storage HTTP | 실제 로컬 Auth JWT의 OWNER·CAREGIVER 성공, 비로그인·비구성원·다른 아기·업로더·세션·경로·만료·취소·초과 크기·덮어쓰기·목록·다운로드·서명·삭제 거부, `OTHERS|ALL` 제공자 로그아웃과 회수 JWT의 API·기존 STANDARD 업로드 차단 | SEC18~24·27의 로컬 STANDARD/API 하위 조건 통과. TUS·기존 재생 URL·브라우저 캐시는 미실행 |
 
-AC02의 비보관 분석 전체 흐름, 삭제 객체 실제 정리와 기존 재생 URL, AC41의 업무 API·구독, AC42의 동시 API 충돌, AC43의 학습 export 무효화, 브라우저 캐시를 포함한 AC44는 미실행이다. SEC03·06~08·11~12·18~21은 업무 API 전체 시험이 아니며, SEC24의 TUS 재개·잔여 파일 정리와 SEC27의 서버 발급 60초 URL도 미실행이다.
+AC02의 비보관 분석 전체 흐름, 삭제 객체 실제 정리와 기존 재생 URL, AC41의 구독, AC43의 실제 학습 export 무효화, 브라우저 캐시를 포함한 AC44 전체는 미실행이다. 대표 변경 경로에서 같은 키 동시 전송·새 API 인스턴스 재전송·세션 회수 응답 유실 복구를 시험했지만 모든 변경 경로의 프로세스 강제 종료·동시 경쟁을 전부 시험한 것은 아니다. SEC24의 TUS 재개·잔여 파일 정리와 SEC27의 서버 발급 60초 URL도 미실행이다.
 
 ## B-01·B-04·B-05 연결
 
 - PR #5가 develop에 병합된 뒤 기존 구조를 재사용했다. `services/postgres.py`의 `PostgresAuthorizationPort`가 `baby_app` pool 트랜잭션에서 검증된 주체·session ID를 `SET LOCAL`로 전달하고 현재 멤버십·아기 상태를 조회한다.
-- DB URL이 있으면 역할 전환까지 실제 probe한다. JWT/JWKS `AuthenticationPort`는 여전히 미설정 503이며, 따라서 DB가 준비돼도 전체 readiness는 503이다. 시험용 principal 주입은 integration test에만 있고 실제 인증 성공으로 사용하지 않는다.
+- DB URL과 JWT/JWKS가 설정되면 역할 전환과 JWKS 조회를 실제 probe한다. 둘 중 하나가 실패하면 readiness는 503이다.
 - 운영에서는 migration 로그인과 별도의 runtime 로그인을 만들고 `baby_app` SET 권한만 줘야 한다. 저장소는 실제 로그인이나 비밀번호를 생성·커밋하지 않는다.
-- B-04는 초대 수락·탈퇴·동의·삭제·기록 API의 원자적 트랜잭션, 409 version 비교, DB 멱등성 실행기를 연결한다.
+- B-04는 초대 수락·탈퇴·동의·삭제·기록 API의 원자적 트랜잭션, 409 version 비교, DB 멱등성 실행기, OTP 재인증과 세션 회수를 연결했다. 아동 정보 실사용 확인은 승인 정책이 없어 fail-closed이며 합성 시험만 했다.
 - B-05는 업로드 허가 발급량·TUS, 실제 컨테이너/코덱·길이·체크섬 검사, 완료 전환·고아 정리, 서버 재생 URL 발급을 구현한다.

@@ -17,14 +17,57 @@ from baby_care_api.core.config import (
 from baby_care_api.core.errors import install_exception_handlers
 from baby_care_api.core.logging import configure_logging
 from baby_care_api.core.request_context import install_request_context
+from baby_care_api.routes.b04 import router as b04_router
 from baby_care_api.routes.health import router as health_router
+from baby_care_api.services.auth_provider import SupabaseSessionRevocationProvider
+from baby_care_api.services.b04 import PostgresBabyCareService
 from baby_care_api.services.idempotency import UnconfiguredIdempotencyPort
 from baby_care_api.services.postgres import PostgresAuthorizationPort
 from baby_care_api.services.readiness import ComponentName, ReadinessProbe, ReadinessService
 from baby_care_api.services.security import (
+    SupabaseJwtAuthenticationPort,
     UnconfiguredAuthenticationPort,
     UnconfiguredAuthorizationPort,
 )
+
+B04_IMPLEMENTED_OPERATIONS = [
+    "acceptInvite",
+    "createAction",
+    "createBaby",
+    "createCareEntry",
+    "createCareEvent",
+    "createInvite",
+    "createReauthenticationChallenge",
+    "createReauthenticationProof",
+    "deleteBabyData",
+    "deleteCareEntry",
+    "deleteCareEvent",
+    "deleteMyContributions",
+    "getActiveBaby",
+    "getCareEntry",
+    "getCareEvent",
+    "getChildDataVerification",
+    "getDeletion",
+    "getSessionRevocation",
+    "getTimeline",
+    "listBabies",
+    "listConsents",
+    "listInvites",
+    "listMembers",
+    "listMyCareEntries",
+    "patchBaby",
+    "patchCareEntry",
+    "patchCareEvent",
+    "patchMyRelationship",
+    "reissueInvite",
+    "removeMembership",
+    "retryDeletion",
+    "revokeInvite",
+    "revokeSessions",
+    "setActiveBaby",
+    "setBabyConsent",
+    "setMyTrainingConsent",
+]
 
 
 def _install_openapi(app: FastAPI) -> None:
@@ -41,7 +84,7 @@ def _install_openapi(app: FastAPI) -> None:
             "source": "contracts/openapi계약.json",
             "version": CONTRACT_VERSION,
             "api_prefix": API_V1_PREFIX,
-            "implemented_operations": [],
+            "implemented_operations": B04_IMPLEMENTED_OPERATIONS,
         }
         app.openapi_schema = schema
         return schema
@@ -56,14 +99,63 @@ def create_app(
 ) -> FastAPI:
     active_settings = settings or get_settings()
     configure_logging(active_settings.log_level)
+    database_url = (
+        None
+        if active_settings.database_url is None
+        else active_settings.database_url.get_secret_value()
+    )
+    proof_secret = (
+        None
+        if active_settings.reauthentication_proof_secret is None
+        else active_settings.reauthentication_proof_secret.get_secret_value()
+    )
+    b04_service = (
+        PostgresBabyCareService(
+            database_url,
+            invite_base_url=active_settings.invite_base_url,
+            proof_secret=proof_secret,
+            child_data_production_enabled=active_settings.child_data_production_enabled,
+        )
+        if database_url is not None and proof_secret is not None
+        else None
+    )
     database = (
-        PostgresAuthorizationPort(active_settings.database_url.get_secret_value())
-        if active_settings.database_url is not None
+        b04_service
+        if b04_service is not None
+        else PostgresAuthorizationPort(database_url)
+        if database_url is not None
+        else None
+    )
+    authentication = (
+        SupabaseJwtAuthenticationPort(
+            issuer=active_settings.supabase_jwt_issuer,
+            audience=active_settings.supabase_jwt_audience,
+            jwks_url=active_settings.supabase_jwks_url,
+            algorithms=tuple(
+                item.strip()
+                for item in active_settings.supabase_jwt_algorithms.split(",")
+                if item.strip()
+            ),
+        )
+        if active_settings.supabase_jwt_issuer
+        and active_settings.supabase_jwt_audience
+        and active_settings.supabase_jwks_url
+        else None
+    )
+    session_revocation = (
+        SupabaseSessionRevocationProvider(
+            supabase_url=active_settings.supabase_url,
+            publishable_key=active_settings.supabase_publishable_key.get_secret_value(),
+        )
+        if active_settings.supabase_url is not None
+        and active_settings.supabase_publishable_key is not None
         else None
     )
     active_readiness_probes = dict(readiness_probes or {})
     if database is not None:
         active_readiness_probes[ComponentName.DATABASE] = database.probe
+    if authentication is not None:
+        active_readiness_probes[ComponentName.AUTHENTICATION] = authentication.probe
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
@@ -79,20 +171,23 @@ def create_app(
         title="Baby Care API",
         version=SERVICE_VERSION,
         description=(
-            "B-01 server foundation. The canonical business contract is version 1.0.0 at "
-            "contracts/openapi계약.json; no business operation is claimed as implemented yet."
+            "B-04 account, shared-care, and record API. The canonical business contract is "
+            "version 1.1.0 at contracts/openapi계약.json."
         ),
         lifespan=lifespan,
     )
     app.state.settings = active_settings
     app.state.readiness = ReadinessService(active_readiness_probes)
-    app.state.authentication = UnconfiguredAuthenticationPort()
+    app.state.authentication = authentication or UnconfiguredAuthenticationPort()
     app.state.authorization = database or UnconfiguredAuthorizationPort()
+    app.state.b04_service = b04_service
+    app.state.session_revocation = session_revocation
     app.state.idempotency = UnconfiguredIdempotencyPort()
 
     install_exception_handlers(app)
     install_request_context(app)
     app.include_router(health_router)
+    app.include_router(b04_router)
     _install_openapi(app)
     return app
 

@@ -4,7 +4,7 @@ from enum import StrEnum
 from typing import Self
 from uuid import UUID
 
-from pydantic import NonNegativeFloat, PositiveInt
+from pydantic import Field, NonNegativeFloat, PositiveInt
 
 from baby_care_api.models.base import ContractModel
 from baby_care_api.models.care_events import CareEvent
@@ -14,10 +14,14 @@ class ErrorCode(StrEnum):
     AUTH_REQUIRED = "AUTH_REQUIRED"
     TOKEN_EXPIRED = "TOKEN_EXPIRED"
     INVALID_TOKEN = "INVALID_TOKEN"
+    SESSION_REVOKED = "SESSION_REVOKED"
+    REAUTH_REQUIRED = "REAUTH_REQUIRED"
+    REAUTH_PROOF_INVALID = "REAUTH_PROOF_INVALID"
     OWNER_ONLY = "OWNER_ONLY"
     AUTHOR_ONLY = "AUTHOR_ONLY"
     INVITE_EMAIL_MISMATCH = "INVITE_EMAIL_MISMATCH"
     CONSENT_REQUIRED = "CONSENT_REQUIRED"
+    CHILD_DATA_VERIFICATION_REQUIRED = "CHILD_DATA_VERIFICATION_REQUIRED"
     RESOURCE_NOT_FOUND = "RESOURCE_NOT_FOUND"
     VERSION_CONFLICT = "VERSION_CONFLICT"
     SOURCE_REVISION_CHANGED = "SOURCE_REVISION_CHANGED"
@@ -45,6 +49,7 @@ class ErrorCode(StrEnum):
     INTERNAL_ERROR = "INTERNAL_ERROR"
     MODEL_NOT_READY = "MODEL_NOT_READY"
     SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE"
+    AUTH_PROVIDER_REVOCATION_FAILED = "AUTH_PROVIDER_REVOCATION_FAILED"
 
 
 class FieldError(ContractModel):
@@ -61,12 +66,14 @@ class ErrorDetails(ContractModel):
     """
 
     current_version: PositiveInt | None
-    current_resource: CareEvent | None
+    current_resource: CareEvent | dict[str, object] | None = Field(union_mode="left_to_right")
     resource_type: str | None
     existing_analysis_id: UUID | None
     existing_run_id: UUID | None
     existing_session_id: UUID | None
     deletion_job_id: UUID | None
+    session_revocation_id: UUID | None = None
+    reauthentication_challenge_id: UUID | None = None
     status_url: str | None
     retry_after_seconds: NonNegativeFloat | None
 
@@ -80,6 +87,8 @@ class ErrorDetails(ContractModel):
             existing_run_id=None,
             existing_session_id=None,
             deletion_job_id=None,
+            session_revocation_id=None,
+            reauthentication_challenge_id=None,
             status_url=None,
             retry_after_seconds=None,
         )
