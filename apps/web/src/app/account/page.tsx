@@ -5,21 +5,22 @@
 // 멤버십과 무관하게 열려야 하므로 /babies/[babyId] 가드 밖에 둔다.
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useMockSession } from "@/lib/mock/session";
+import { useMockSessionOptional } from "@/lib/mock/session";
 import { getMockScenario } from "@/lib/mock/fixtures";
 import { ScreenSection } from "@/components/screen-state";
 
 export default function AccountPage() {
   const router = useRouter();
-  const session = useMockSession();
+  const session = useMockSessionOptional();
+  const alias = session?.alias ?? null;
 
   useEffect(() => {
-    if (!session.alias) router.replace("/login");
-  }, [session.alias, router]);
+    if (!alias) router.replace("/login");
+  }, [alias, router]);
 
-  if (!session.alias) return null;
+  if (!alias) return null;
 
-  const isRemoved = session.alias === "removed_a";
+  const isRemoved = alias === "removed_a";
   const revoked = isRemoved
     ? (getMockScenario("consent_revoke_after_leave").response.body as {
         status: string;

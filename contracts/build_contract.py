@@ -50,7 +50,7 @@ VERSION_FIELDS = {'version': INT, 'recorded_at': TIME, 'updated_at': TIME}
 schema('SourceRef', {'kind': enum('AUDIO','CARE_EVENT','ANALYSIS','OBSERVATION','PRIOR_CASE'), 'resource_id': UUID, 'version': nullable(INT)})
 schema('RecordVersion', {'resource_type': enum('CARE_EVENT','OUTCOME','STATE_OBSERVATION','ACTION'), 'resource_id': UUID, 'version': INT})
 schema('ModelInfo', {'available': BOOL, 'model_version': nullable(STR), 'preprocess_version': nullable(STR), 'label_mapping_version': nullable(STR), 'supported_labels': arr(STR), 'inference_mode': enum('REAL','STUB')})
-schema('Capabilities', {'contract_version': {'const':'1.0.0','type':'string'}, 'audio_model': ref('ModelInfo'), 'supported_mime_types': arr(STR), 'upload_max_bytes': {'const':25000000,'type':'integer'}, 'upload_max_seconds': {'const':60,'type':'integer'}, 'normalizer_available': BOOL, 'automatic_detection_supported': BOOL})
+schema('Capabilities', {'contract_version': {'const':'1.1.0','type':'string'}, 'audio_model': ref('ModelInfo'), 'supported_mime_types': arr(STR), 'upload_max_bytes': {'const':25000000,'type':'integer'}, 'upload_max_seconds': {'const':60,'type':'integer'}, 'normalizer_available': BOOL, 'automatic_detection_supported': BOOL})
 schema('BrowserSupport', {'os':STR,'browser':STR,'tested_version':STR,'automatic_detection_supported':BOOL,'recording_supported':BOOL,'verified_at':TIME,'evidence_ref':STR})
 schema('DetectorInfo', {'available':BOOL,'execution_mode':enum('REAL','STUB'),'model_version':nullable(STR),'model_asset_url':nullable(URI),'weights_sha256':nullable({'type':'string','pattern':'^[0-9a-f]{64}$'}),'input_sample_rate_hz':nullable(INT),'policy_version':nullable(STR),'supported_clients':arr(ref('BrowserSupport'))})
 SCHEMAS['Capabilities']['properties']['detector']=ref('DetectorInfo')
@@ -70,8 +70,19 @@ page('Membership')
 schema('Invite', {'invite_id':UUID,'baby_id':UUID,'inviter_user_id':UUID,'email':{'type':'string','format':'email'},'status':enum('PENDING','ACCEPTED','EXPIRED','REVOKED'),'expires_at':TIME,**VERSION_FIELDS})
 schema('IssuedInvite', {'invite':ref('Invite'),'invite_url':nullable(URI),'link_reissue_required':BOOL}, description='Plaintext token is returned only on initial creation. An idempotent replay returns invite_url=null and link_reissue_required=true; explicitly reissue to obtain a new link.')
 mutation('CreateInvite', {'email':{'type':'string','format':'email'}})
+mutation('ReissueInvite', {})
 mutation('AcceptInvite', {'token':{'type':'string','minLength':32},'accept_shared_use':{'const':True,'type':'boolean'},'policy_version':TEXT,'relationship':enum('MOTHER','FATHER','GRANDPARENT','OTHER')})
 page('Invite')
+
+REAUTH_OPERATION = enum('CREATE_INVITE','DELETE_BABY','ENABLE_BABY_TRAINING')
+schema('ReauthenticationChallenge', {'challenge_id':UUID,'user_id':UUID,'requested_session_id':UUID,'operation':REAUTH_OPERATION,'baby_id':UUID,'auth_method':{'const':'SUPABASE_OTP','type':'string'},'status':enum('PENDING','PROVED','EXPIRED'),'created_at':TIME,'expires_at':TIME}, description='A challenge is valid for 10 minutes. Complete a fresh Supabase email OTP sign-in; token_refresh alone is never proof.')
+mutation('CreateReauthenticationChallenge', {'operation':REAUTH_OPERATION,'baby_id':UUID})
+schema('ReauthenticationProof', {'proof_id':UUID,'challenge_id':UUID,'user_id':UUID,'session_id':UUID,'operation':REAUTH_OPERATION,'baby_id':UUID,'proof_token':nullable(STR),'token_reissue_required':BOOL,'issued_at':TIME,'expires_at':TIME}, description='The 5-minute proof is bound to user, OTP-authenticated session, operation, and baby. It is consumed atomically with the protected mutation. Idempotent replay recovers the prior mutation result without consuming it again.')
+mutation('CreateReauthenticationProof', {'challenge_id':UUID})
+schema('SessionRevocationFailure', {'code':enum('PROVIDER_REJECTED_REVOCATION','PROVIDER_UNREACHABLE'),'message':STR,'retryable':BOOL})
+schema('SessionRevocation', {'revocation_id':UUID,'requester_user_id':UUID,'requester_session_id':UUID,'scope':enum('CURRENT','OTHERS','ALL'),'status':enum('PENDING','COMPLETE','FAILED'),'target_session_count':NONNEG,'provider_scope':enum('local','others','global'),'provider_http_status':nullable(NONNEG),'failure':nullable(ref('SessionRevocationFailure')),'access_blocked':{'const':True,'type':'boolean'},'requested_at':TIME,'completed_at':nullable(TIME)}, description='Local API and Storage access is blocked durably before provider refresh-session revocation. FAILED is not reported as logout success.')
+mutation('RevokeSessions', {'scope':enum('CURRENT','OTHERS','ALL')})
+schema('ChildDataVerification', {'baby_id':UUID,'subject_user_id':UUID,'status':enum('UNVERIFIED','SYNTHETIC_TEST_ONLY','VERIFIED'),'method':nullable(STR),'policy_version':nullable(STR),'verified_at':nullable(TIME),'production_processing_allowed':BOOL}, description='OWNER role and email OTP do not establish legal-guardian status. Production child-data processing remains disabled until an approved verification method and policy are configured.')
 
 SCOPES = enum('SERVICE_PROCESSING','AUDIO_RETENTION','BABY_TRAINING','CONTRIBUTOR_TRAINING','SHARED_USE')
 schema('Consent', {'consent_id':UUID,'baby_id':UUID,'actor_user_id':UUID,'scope':SCOPES,'status':enum('NOT_GRANTED','GRANTED','REVOKED'),'policy_version':STR,'granted_at':nullable(TIME),'revoked_at':nullable(TIME),'version':INT})
@@ -150,6 +161,7 @@ schema('NormalizedContent', {'actions':arr(ref('DraftAction')),'states':arr(ref(
 schema('Choice', {'choice_id':STR,'kind':enum('ACTION','STATE','RESPONSE'),'code':STR,'assertion':nullable(enum('PERFORMED','PLANNED','NEGATED','UNCERTAIN'))})
 schema('ConfirmedResources', {'entry_id':UUID,'input_revision':INT,'care_event_ids':arr(UUID),'action_ids':arr(UUID),'action_group_ids':arr(UUID),'state_observation_ids':arr(UUID),'outcome_ids':arr(UUID),'label_annotation_ids':arr(UUID)})
 schema('CareEntry', {'entry_id':UUID,'baby_id':UUID,'author_user_id':UUID,'original_author_user_id':UUID,'episode_id':nullable(UUID),'input_mode':enum('CHOICE','TEXT','MIXED'),'raw_text':nullable({'type':'string','maxLength':2000}),'choices':arr(ref('Choice')),'occurred_at':nullable(TIME),'time_precision':PRECISION,'input_revision':INT,'status':enum('DRAFT','NORMALIZING','REVIEW_READY','CONFIRMED','NEEDS_MANUAL_REVIEW','DELETING','DELETED'),'normalization_run_id':nullable(UUID),'normalized_content':nullable(ref('NormalizedContent')),'supersedes_entry_id':nullable(UUID),'base_record_versions':arr(ref('RecordVersion')),'confirmed_resources':nullable(ref('ConfirmedResources')),'confirmed_by_user_id':nullable(UUID),'confirmed_at':nullable(TIME),'data_origin':ORIGIN,**VERSION_FIELDS})
+page('CareEntry')
 ENTRY_INPUT = {'input_mode':enum('CHOICE','TEXT','MIXED'),'raw_text':nullable({'type':'string','maxLength':2000}),'choices':arr(ref('Choice')),'occurred_at':nullable(TIME),'time_precision':PRECISION}
 mutation('CreateCareEntry', {'episode_id':nullable(UUID),**ENTRY_INPUT,'supersedes_entry_id':nullable(UUID),'base_record_versions':arr(ref('RecordVersion'))})
 mutation('PatchCareEntry', {'input_revision':INT,**ENTRY_INPUT})
@@ -190,15 +202,15 @@ mutation('RetryDeletion', {'expected_attempt':INT})
 
 schema('FieldError', {'field':STR,'code':STR,'message':STR})
 ERROR_CODES = {
- 401:['AUTH_REQUIRED','TOKEN_EXPIRED','INVALID_TOKEN'],
- 403:['OWNER_ONLY','AUTHOR_ONLY','INVITE_EMAIL_MISMATCH','CONSENT_REQUIRED'],
+ 401:['AUTH_REQUIRED','TOKEN_EXPIRED','INVALID_TOKEN','SESSION_REVOKED','REAUTH_REQUIRED','REAUTH_PROOF_INVALID'],
+ 403:['OWNER_ONLY','AUTHOR_ONLY','INVITE_EMAIL_MISMATCH','CONSENT_REQUIRED','CHILD_DATA_VERIFICATION_REQUIRED'],
  404:['RESOURCE_NOT_FOUND'],
  409:['VERSION_CONFLICT','SOURCE_REVISION_CHANGED','ANALYSIS_IN_PROGRESS','NORMALIZATION_IN_PROGRESS','OPERATION_IN_PROGRESS','IDEMPOTENCY_KEY_REUSED','OWNER_REQUIRED','ACTIVE_SESSION_EXISTS','SLEEP_ALREADY_ACTIVE','RESOURCE_DELETING','ALREADY_MEMBER','INVITE_ALREADY_USED','OWNER_BABY_LIMIT','ALREADY_CONFIRMED','INVALID_STATE'],
  410:['INVITE_EXPIRED','INVITE_REVOKED','RESOURCE_DELETED'],
- 413:['FILE_TOO_LARGE'],415:['UNSUPPORTED_MEDIA_TYPE'],422:['VALIDATION_ERROR','INVALID_AUDIO'],429:['RATE_LIMITED'],500:['INTERNAL_ERROR'],503:['MODEL_NOT_READY','SERVICE_UNAVAILABLE']}
+ 413:['FILE_TOO_LARGE'],415:['UNSUPPORTED_MEDIA_TYPE'],422:['VALIDATION_ERROR','INVALID_AUDIO'],429:['RATE_LIMITED'],500:['INTERNAL_ERROR'],503:['MODEL_NOT_READY','SERVICE_UNAVAILABLE','AUTH_PROVIDER_REVOCATION_FAILED']}
 SCHEMAS['ErrorCode']=enum(*[c for codes in ERROR_CODES.values() for c in codes])
 SCHEMAS['Failure']['properties']['code']=enum('ANALYSIS_TIMEOUT','ANALYSIS_LEASE_EXPIRED','INFERENCE_ERROR','NORMALIZATION_TIMEOUT','NORMALIZATION_LEASE_EXPIRED','NORMALIZATION_SCHEMA_INVALID','NORMALIZATION_PROVIDER_ERROR','CLEANUP_FAILED','SOURCE_DELETED','ACCESS_REVOKED')
-schema('ErrorDetails', {'current_version':nullable(INT),'current_resource':nullable({'oneOf':[ref(n) for n in ['Baby','Membership','CareEvent','Outcome','CareEntry','ActionAttempt','Consent','Invite','Episode','StateObservation','AudioAsset','Reminder','ReminderSetting','RecordCoverage']]}),'resource_type':nullable(STR),'existing_analysis_id':nullable(UUID),'existing_run_id':nullable(UUID),'existing_session_id':nullable(UUID),'deletion_job_id':nullable(UUID),'status_url':nullable(URI),'retry_after_seconds':nullable(NUM)})
+schema('ErrorDetails', {'current_version':nullable(INT),'current_resource':nullable({'oneOf':[ref(n) for n in ['Baby','Membership','CareEvent','Outcome','CareEntry','ActionAttempt','Consent','Invite','Episode','StateObservation','AudioAsset','Reminder','ReminderSetting','RecordCoverage']]}),'resource_type':nullable(STR),'existing_analysis_id':nullable(UUID),'existing_run_id':nullable(UUID),'existing_session_id':nullable(UUID),'deletion_job_id':nullable(UUID),'session_revocation_id':nullable(UUID),'reauthentication_challenge_id':nullable(UUID),'status_url':nullable(URI),'retry_after_seconds':nullable(NUM)})
 schema('ApiError', {'code':ref('ErrorCode'),'message':STR,'retryable':BOOL,'request_id':UUID,'field_errors':arr(ref('FieldError')),'details':ref('ErrorDetails')})
 
 def when_status(name,status,properties):
@@ -227,6 +239,7 @@ SCHEMAS['ConfirmCareEntry']['allOf']=[{'if':{'properties':{'normalization_mode':
 PARAMS = {
     'IdempotencyKey': {'name':'Idempotency-Key','in':'header','required':True,'schema':UUID,'description':'UUID per logical mutation. Must equal client_request_id in JSON bodies. Reuse after an uncertain response.'},
     'Version': {'name':'version','in':'query','required':True,'schema':INT,'description':'Current resource version for destructive changes.'},
+    'ReauthenticationProof': {'name':'X-Reauthentication-Proof','in':'header','required':True,'schema':STR,'description':'Single-use 5-minute proof bound to this user, OTP-authenticated session, operation, and baby.'},
 }
 ERRORS = {
     401:'Authentication required or expired token.',403:'Authenticated but insufficient role or consent.',
@@ -254,6 +267,10 @@ def op(method,path,name,response,status=200,request=None,description='',tag='Cor
     REGISTRY[name]={'method':method.upper(),'path':path,'request':request,'response':response,'status':status}
 
 op('get','/capabilities','getCapabilities','Capabilities',tag='Configuration')
+op('post','/auth/reauthentication/challenges','createReauthenticationChallenge','ReauthenticationChallenge',201,'CreateReauthenticationChallenge',tag='Authentication',description='Creates a 10-minute challenge; the client then performs a fresh Supabase email OTP sign-in. Access-token refresh is insufficient.')
+op('post','/auth/reauthentication/proofs','createReauthenticationProof','ReauthenticationProof',201,'CreateReauthenticationProof',tag='Authentication',description='Requires a JWT whose amr contains a fresh otp or magiclink authentication after challenge creation. The proof is returned once and lasts 5 minutes.')
+op('post','/auth/session-revocations','revokeSessions','SessionRevocation',request='RevokeSessions',tag='Authentication',errors=[401,409,422,429,500,503],description='Durably blocks selected sessions locally, then invokes the matching Supabase local/others/global sign-out scope. Provider failure returns 503 with the durable revocation id.')
+op('get','/auth/session-revocations/{revocation_id}','getSessionRevocation','SessionRevocation',tag='Authentication',errors=[401,404,500,503],description='Requester only. Use another live session or a new login when the current session was revoked.')
 op('get','/babies','listBabies','BabyList',tag='Baby')
 op('get','/babies/current','getActiveBaby','ActiveBaby',tag='Baby')
 op('put','/me/active-baby','setActiveBaby','ActiveBaby',request='SetActiveBaby',tag='Baby',description='Stores the next-login preference. Other tabs and devices do not switch automatically.')
@@ -263,11 +280,13 @@ op('get','/babies/{baby_id}/members','listMembers','MembershipPage',tag='Members
 op('patch','/babies/{baby_id}/members/me','patchMyRelationship','Membership',request='PatchMembership',tag='Membership')
 op('delete','/babies/{baby_id}/members/{user_id}','removeMembership','Membership',tag='Membership',params=[{'$ref':'#/components/parameters/Version'}],description='OWNER removes a caregiver; caregiver may leave. OWNER cannot leave. New access stops immediately.')
 op('get','/babies/{baby_id}/invites','listInvites','InvitePage',tag='Invite',description='OWNER only; tokens are never listed.')
-op('post','/babies/{baby_id}/invites','createInvite','IssuedInvite',201,'CreateInvite',tag='Invite',description='OWNER only. 24-hour single-use token; old pending invite for the same target is revoked.')
+op('post','/babies/{baby_id}/invites','createInvite','IssuedInvite',201,'CreateInvite',tag='Invite',params=[{'$ref':'#/components/parameters/ReauthenticationProof'}],description='OWNER only. Requires a CREATE_INVITE reauthentication proof. 24-hour single-use token; old pending invite for the same target is revoked.')
 op('post','/invites/accept','acceptInvite','BabyAccess',request='AcceptInvite',tag='Invite',errors=[401,403,404,409,410,422,429,500,503],description='Verified email must match. Atomic membership creation and shared-use consent.')
+op('post','/invites/{invite_id}/reissue','reissueInvite','IssuedInvite',201,'ReissueInvite',tag='Invite',params=[{'$ref':'#/components/parameters/ReauthenticationProof'}],description='OWNER only. Requires a CREATE_INVITE reauthentication proof, revokes the selected pending link, and returns a new invite id and one-time plaintext link. The old link remains unusable.')
 op('delete','/invites/{invite_id}','revokeInvite','Invite',tag='Invite',params=[{'$ref':'#/components/parameters/Version'}])
 op('get','/consents','listConsents','ConsentPage',tag='Consent',params=[query('baby_id',UUID,True)],description='Current own consent history and authorized baby settings. After leaving, only own consent history is returned.')
-op('put','/consents','setBabyConsent','Consent',request='SetBabyConsent',tag='Consent')
+op('put','/consents','setBabyConsent','Consent',request='SetBabyConsent',tag='Consent',params=[{'name':'X-Reauthentication-Proof','in':'header','required':False,'schema':STR,'description':'Required only when granting BABY_TRAINING; must be bound to ENABLE_BABY_TRAINING and the target baby.'}])
+op('get','/babies/{baby_id}/child-data-verification','getChildDataVerification','ChildDataVerification',tag='Consent',description='Current members may inspect the gate. UNVERIFIED and SYNTHETIC_TEST_ONLY never enable production child-data processing.')
 op('put','/me/training-consents/{baby_id}','setMyTrainingConsent','Consent',request='SetTrainingConsent',tag='Consent')
 op('post','/episodes','createEpisode','Episode',201,'CreateEpisode',tag='Episode')
 op('get','/episodes/{episode_id}','getEpisode','EpisodeDetail',tag='Episode')
@@ -293,6 +312,7 @@ op('patch','/outcomes/{outcome_id}','patchOutcome','Outcome',request='PatchOutco
 op('post','/babies/{baby_id}/state-observations','createStateObservation','StateObservation',201,'CreateStateObservation',tag='Care')
 op('post','/episodes/{episode_id}/observations','createObservation','CaregiverObservation',201,'CreateObservation',tag='Care')
 op('post','/babies/{baby_id}/care-entries','createCareEntry','CareEntry',201,'CreateCareEntry',tag='Normalization')
+op('get','/babies/{baby_id}/care-entries','listMyCareEntries','CareEntryPage',tag='Normalization',params=[query('cursor',STR),query('limit',{'type':'integer','minimum':1,'maximum':100,'default':30}),query('status',enum('DRAFT','NORMALIZING','REVIEW_READY','NEEDS_MANUAL_REVIEW'))],description='Returns only the authenticated author own unconfirmed server drafts. Never place drafts on the shared timeline.')
 op('patch','/care-entries/{entry_id}','patchCareEntry','CareEntry',request='PatchCareEntry',tag='Normalization',description='Draft author only. CONFIRMED cannot be directly patched; create a revision draft.')
 op('get','/care-entries/{entry_id}','getCareEntry','CareEntry',tag='Normalization',description='Draft: author only, even OWNER cannot read another draft. Confirmed: active members.')
 op('delete','/care-entries/{entry_id}','deleteCareEntry','DeletionJob',202,tag='Normalization',params=[{'$ref':'#/components/parameters/Version'}],description='Draft author only. Confirmed records use record/contribution deletion and lineage cleanup.')
@@ -312,19 +332,19 @@ op('put','/babies/{baby_id}/reminder-settings','setReminderSetting','ReminderSet
 op('post','/observation-sessions','createObservationSession','ObservationSession',201,'CreateSession',tag='Detection')
 op('post','/observation-sessions/{session_id}/heartbeat','heartbeatObservationSession','ObservationSession',request='Heartbeat',tag='Detection',description='Every 10 seconds. Verify monotonic seq, actual input range, current membership and session owner. Lease expires after 30 seconds.')
 op('post','/observation-sessions/{session_id}/stop','stopObservationSession','ObservationSession',request='StopSession',tag='Detection',description='Session owner may stop; another active member may explicitly stop for takeover. Start the new session after this response.')
-op('delete','/babies/{baby_id}/data','deleteBabyData','DeletionJob',202,tag='Deletion',params=[{'$ref':'#/components/parameters/Version'},query('confirm',{'const':'DELETE_BABY','type':'string'},True)],description='OWNER only; sets Baby=DELETING and enqueues durable cleanup atomically. Ordinary reads and writes are blocked immediately.')
+op('delete','/babies/{baby_id}/data','deleteBabyData','DeletionJob',202,tag='Deletion',params=[{'$ref':'#/components/parameters/Version'},{'$ref':'#/components/parameters/ReauthenticationProof'},query('confirm',{'const':'DELETE_BABY','type':'string'},True)],description='OWNER only; requires a DELETE_BABY reauthentication proof, then sets Baby=DELETING and enqueues durable cleanup atomically. Ordinary reads and writes are blocked immediately.')
 op('delete','/me/contributions/{baby_id}','deleteMyContributions','DeletionJob',202,tag='Deletion',params=[query('confirm',{'const':'DELETE_MY_CONTRIBUTIONS','type':'string'},True)],description='Authenticated contributor, including a former member. Resolves only the caller own contribution lineage; does not disclose other baby data.')
 op('get','/deletions/{deletion_job_id}','getDeletion','DeletionJob',tag='Deletion',description='Requester only, including after membership removal. FAILED retains access_blocked=true for the deletion scope.')
-op('post','/deletions/{deletion_job_id}/retry','retryDeletion','DeletionJob',202,'RetryDeletion',tag='Deletion',description='Requester only; same failed job and matching expected_attempt. Returns to PENDING while access remains blocked.')
+op('post','/deletions/{deletion_job_id}/retry','retryDeletion','DeletionJob',202,'RetryDeletion',tag='Deletion',description='Requester only; same failed job and matching expected_attempt. Returns to RUNNING while access remains blocked.')
 
-DOC = {'openapi':'3.1.0','info':{'title':'Baby care team integration contract','version':'1.0.0','description':'P0 frontend integration agreement dated 2026-09-19, covering A-01 to A-11. Contract only, not a running API. Internal training curator/export APIs retain the v2 scope and are not browser endpoints.'},
+DOC = {'openapi':'3.1.0','info':{'title':'Baby care team integration contract','version':'1.1.0','description':'P0 frontend integration agreement dated 2026-09-20, covering A-01 to A-11. B-04 adds authentication recovery, reauthentication, invite reissue, child-data gate status, and private draft listing. Internal training curator/export APIs retain the v2 scope and are not browser endpoints.'},
        'servers':[{'url':'/v1','description':'Relative API prefix. The development deployment URL is not provisioned by this file.'}],
        'security':[{'UserBearer':[]}], 'paths':PATHS,
        'components':{'securitySchemes':{'UserBearer':{'type':'http','scheme':'bearer','bearerFormat':'Supabase user access token','description':'B validates signature, issuer, audience, expiry and current DB membership. A publishable key is not a user token.'}},
          'parameters':PARAMS,'schemas':SCHEMAS,
          'responses':{f'Error{k}':{'description':v,'headers':{'X-Request-ID':{'schema':UUID},**({'Retry-After':{'schema':{'type':'integer','minimum':1}}} if k in [429,503] else {})},'content':{'application/json':{'schema':ref('ApiError')}}} for k,v in ERRORS.items()}},
        'x-error-status':{c:status for status,codes in ERROR_CODES.items() for c in codes},
-       'x-contract-rules':{'browser_data_api_allowlist':[],'direct_supabase':['Auth','registered-private-Storage-upload','issued-playback-URL','authorized-private-Realtime-subscription'],'idempotency_retention_days':7,'analysis_deadline_seconds':45,'analysis_lease_seconds':60,'analysis_client_timeout_seconds':65,'normalization_deadline_seconds':20,'normalization_lease_seconds':30,'normalization_client_timeout_seconds':35,'invite_ttl_seconds':86400,'playback_ttl_seconds':60,'upload_session_ttl_seconds':900,'foreground_refresh_seconds':5,'observation_heartbeat_seconds':10,'observation_lease_seconds':30}}
+       'x-contract-rules':{'browser_data_api_allowlist':[],'direct_supabase':['Auth','registered-private-Storage-upload','issued-playback-URL','authorized-private-Realtime-subscription'],'idempotency_retention_days':7,'analysis_deadline_seconds':45,'analysis_lease_seconds':60,'analysis_client_timeout_seconds':65,'normalization_deadline_seconds':20,'normalization_lease_seconds':30,'normalization_client_timeout_seconds':35,'invite_ttl_seconds':86400,'reauthentication_challenge_ttl_seconds':600,'reauthentication_proof_ttl_seconds':300,'reauthentication_accepted_amr':['otp','magiclink'],'child_data_production_gate':'APPROVED_GUARDIAN_VERIFICATION_REQUIRED','playback_ttl_seconds':60,'upload_session_ttl_seconds':900,'foreground_refresh_seconds':5,'observation_heartbeat_seconds':10,'observation_lease_seconds':30}}
 
 def uid(n): return f'10000000-0000-4000-8000-{n:012d}'
 NOW='2026-09-19T09:00:00Z'
@@ -351,6 +371,14 @@ def fixture(name,operation,status,response,expected,request=None):
 
 fixture('baby_created','createBaby',201,{'baby':baby,'membership':member},'아기와 OWNER 관계를 함께 표시',{'client_request_id':uid(801),'alias':'예시 아기 A','birth_date':'2026-07-01','feeding_mode':'MIXED','timezone':'Asia/Seoul'})
 fixture('active_baby_lost_membership','getActiveBaby',200,{'baby_id':None},'이전 아기 화면과 캐시를 비우고 선택 화면으로 이동')
+challenge={'challenge_id':uid(830),'user_id':USERS['owner_a'],'requested_session_id':uid(831),'operation':'CREATE_INVITE','baby_id':BABY_A,'auth_method':'SUPABASE_OTP','status':'PENDING','created_at':NOW,'expires_at':'2026-09-19T09:10:00Z'}
+fixture('reauthentication_challenge','createReauthenticationChallenge',201,challenge,'10분 안에 새 이메일 OTP 인증 화면으로 이동, access token 갱신만으로 완료 처리하지 않음',{'client_request_id':uid(832),'operation':'CREATE_INVITE','baby_id':BABY_A})
+proof={'proof_id':uid(833),'challenge_id':uid(830),'user_id':USERS['owner_a'],'session_id':uid(834),'operation':'CREATE_INVITE','baby_id':BABY_A,'proof_token':'synthetic-one-time-proof-not-a-live-secret','token_reissue_required':False,'issued_at':'2026-09-19T09:01:00Z','expires_at':'2026-09-19T09:06:00Z'}
+fixture('reauthentication_proof','createReauthenticationProof',201,proof,'현재 OTP 세션·작업·아기에 묶인 5분 일회용 증명을 메모리에만 유지',{'client_request_id':uid(835),'challenge_id':uid(830)})
+revocation={'revocation_id':uid(836),'requester_user_id':USERS['owner_a'],'requester_session_id':uid(834),'scope':'OTHERS','status':'COMPLETE','target_session_count':1,'provider_scope':'others','provider_http_status':200,'failure':None,'access_blocked':True,'requested_at':NOW,'completed_at':'2026-09-19T09:00:01Z'}
+fixture('other_sessions_revoked','revokeSessions',200,revocation,'다른 기기의 로컬 접근 차단과 제공자 refresh 세션 종료 완료를 함께 표시',{'client_request_id':uid(837),'scope':'OTHERS'})
+fixture('session_revocation_provider_failed','revokeSessions',503,err('AUTH_PROVIDER_REVOCATION_FAILED','제공자 세션 종료를 완료하지 못했어요.',True,session_revocation_id=uid(838),status_url=f'/v1/auth/session-revocations/{uid(838)}'),'로컬 접근 차단은 유지하고 로그아웃 완료가 아닌 재시도 가능한 실패로 표시',{'client_request_id':uid(839),'scope':'CURRENT'})
+fixture('child_data_unverified','getChildDataVerification',200,{'baby_id':BABY_A,'subject_user_id':USERS['owner_a'],'status':'UNVERIFIED','method':None,'policy_version':None,'verified_at':None,'production_processing_allowed':False},'OWNER·이메일 OTP만으로 법정대리인 확인 완료로 표시하지 않고 실사용 처리를 잠금')
 fixture('analysis_complete_stub','createAnalysis',200,analysis,'개발용 고정 응답 및 예시 자료 표시',{'client_request_id':uid(802),'analysis_id':uid(501),'audio_id':uid(401)})
 running={**analysis,'status':'RUNNING','stage':'INFERENCE','lease_expires_at':'2026-09-19T09:01:00Z','audio_candidates':[],'recommendation':None,'completed_at':None}
 fixture('analysis_running','getAnalysis',200,running,'분석 중, 같은 ID로 조회')
@@ -379,6 +407,7 @@ run={'run_id':uid(751),'entry_id':uid(750),'input_revision':1,'status':'COMPLETE
 entry={'entry_id':uid(750),'baby_id':BABY_A,'author_user_id':USERS['owner_a'],'original_author_user_id':USERS['owner_a'],'episode_id':uid(301),'input_mode':'TEXT','raw_text':raw,'choices':[],'occurred_at':None,'time_precision':'UNKNOWN','input_revision':1,'status':'REVIEW_READY','normalization_run_id':uid(751),'normalized_content':content,'supersedes_entry_id':None,'base_record_versions':[],'confirmed_resources':None,'confirmed_by_user_id':None,'confirmed_at':None,'data_origin':'DEMO',**VER}
 fixture('normalization_review','createNormalization',200,run,'확인 전 초안, 실제 수행 기록과 분리',{'client_request_id':uid(804),'run_id':uid(751),'input_revision':1})
 fixture('draft_private','getCareEntry',200,entry,'작성자 본인의 초안만 표시')
+fixture('draft_list_private','listMyCareEntries',200,{'items':[entry],'next_cursor':None},'현재 사용자와 아기에 묶인 서버 초안만 복구하며 공동 타임라인에는 넣지 않음')
 fixture('draft_other_author','getCareEntry',404,err('RESOURCE_NOT_FOUND','찾을 수 없거나 접근할 수 없어요.'),'OWNER라도 타인 미공유 초안을 표시하지 않음')
 fixture('normalization_failure','getNormalization',200,{**run,'status':'FAILED','result':None,'failure':{'code':'NORMALIZATION_TIMEOUT','message':'문장을 정리하지 못했어요.','retryable':True}},'원문을 보존하고 선택지 직접 정리 제공')
 fixture('stale_draft','confirmCareEntry',409,err('SOURCE_REVISION_CHANGED','원문이 바뀌어 다시 확인해야 해요.',current_version=2,resource_type='CARE_ENTRY'),'오래된 정규화 결과를 적용하지 않음')
@@ -397,8 +426,12 @@ fixture('file_rejected','completeUpload',422,err('INVALID_AUDIO','검증할 수 
 fixture('model_unavailable','createAnalysis',503,err('MODEL_NOT_READY','분석 모델을 준비하고 있어요.',True,retry_after_seconds=5),'요청 미등록 여부 확인, 목으로 바꾸지 않음')
 fixtures[-1]['response']['headers']['Retry-After']='5'
 invite={'invite_id':uid(260),'baby_id':BABY_A,'inviter_user_id':USERS['owner_a'],'email':'invited_a@example.invalid','status':'PENDING','expires_at':'2026-09-20T09:00:00Z',**VER}
-fixture('invite_issued','createInvite',201,{'invite':invite,'invite_url':'https://example.invalid/invite#synthetic-not-a-working-token','link_reissue_required':False},'관리 보호자가 링크를 복사해 직접 전달')
+fixture('invite_issued','createInvite',201,{'invite':invite,'invite_url':'https://example.invalid/invite#synthetic-not-a-working-token','link_reissue_required':False},'관리 보호자가 최초 한 번 표시된 링크를 복사해 직접 전달',{'client_request_id':uid(840),'email':'invited_a@example.invalid'})
+fixtures[-1]['request']['headers']['X-Reauthentication-Proof']='synthetic-one-time-proof-not-a-live-secret'
 fixture('invite_replay_no_token','createInvite',201,{'invite':invite,'invite_url':None,'link_reissue_required':True},'동일 초대는 유지, 링크를 잃었으면 명시적 재발급')
+reissued_invite={**invite,'invite_id':uid(261),'version':1}
+fixture('invite_reissued','reissueInvite',201,{'invite':reissued_invite,'invite_url':'https://example.invalid/invite#synthetic-reissued-token','link_reissue_required':False},'이전 링크를 폐기하고 새 링크를 최초 한 번 표시',{'client_request_id':uid(841)})
+fixtures[-1]['request']['headers']['X-Reauthentication-Proof']='synthetic-one-time-proof-not-a-live-secret'
 fixture('invite_accepted','acceptInvite',200,{'baby':baby,'membership':{**member,'membership_id':uid(204),'user_id':USERS['invited_a'],'role':'CAREGIVER','display_name':'시험 초대자'}},'공유 범위 수락 후 아기 홈으로 이동')
 fixture('member_left','removeMembership',200,{**member,'membership_id':uid(202),'user_id':USERS['caregiver_a'],'role':'CAREGIVER','status':'LEFT'},'권한·캐시 정리, 기록 삭제와 동의 철회는 별도')
 fixture('normalization_running','getNormalization',200,{**run,'status':'RUNNING','result':None,'completed_at':None,'lease_expires_at':'2026-09-19T09:00:30Z'},'정리 중, 기존 run ID 조회')
@@ -412,7 +445,7 @@ fixture('similar_cases_empty','getSimilarCases',200,{'baby_id':BABY_A,'analysis_
 state={'state_observation_id':uid(820),'baby_id':BABY_A,'episode_id':uid(301),'action_id':None,'source_entry_id':uid(750),'phase':'AFTER','observed_at':NOW,'time_precision':'EXACT','state_codes':['ASLEEP'],'observation_source':'SELF_REPORTED','confirmation_status':'USER_CONFIRMED','visual_state_code':'ASLEEP','visual_mapping_version':'care-visual-v1','created_by_user_id':USERS['owner_a'],'data_origin':'DEMO',**VER}
 fixture('confirmed_state_visual','createStateObservation',201,state,'보호자가 잠듦으로 기록한 시각 표시, 자동 기분 추정 아님')
 
-FIXTURE_DOC={'contract_version':'1.0.0','notice':'All fixtures are synthetic contract examples. No model ran, no audio is supplied, and no real account or token is created. Never count these as measured model results.',
+FIXTURE_DOC={'contract_version':'1.1.0','notice':'All fixtures are synthetic contract examples. No model ran, no audio is supplied, and no real account or token is created. Never count these as measured model results.',
     'test_users':[{'alias':alias,'user_id':user,'email_placeholder':alias+'@example.invalid'} for alias,user in USERS.items()],
     'test_babies':{'baby_a':BABY_A,'baby_b':BABY_B},
     'role_assignments':[{'user_id':USERS['owner_a'],'baby_id':BABY_A,'role':'OWNER','status':'ACTIVE'}, {'user_id':USERS['caregiver_a'],'baby_id':BABY_A,'role':'CAREGIVER','status':'ACTIVE'}, {'user_id':USERS['owner_b'],'baby_id':BABY_B,'role':'OWNER','status':'ACTIVE'}, {'user_id':USERS['owner_a'],'baby_id':BABY_B,'role':'CAREGIVER','status':'ACTIVE'}, {'user_id':USERS['removed_a'],'baby_id':BABY_A,'role':'CAREGIVER','status':'REVOKED'}],

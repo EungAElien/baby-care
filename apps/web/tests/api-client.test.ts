@@ -105,7 +105,7 @@ describe("OpenAPI client with provided synthetic fixtures", () => {
       params: {
         path: { baby_id: "10000000-0000-4000-8000-000000000101" },
         query: { version: 1, confirm: "DELETE_BABY" },
-        header: { "Idempotency-Key": key },
+        header: { "Idempotency-Key": key, "X-Reauthentication-Proof": "test-reauth-proof" },
       },
     });
     expect(requireData(result)).toEqual(fixture("deletion_accepted").response.body);

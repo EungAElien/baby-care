@@ -5,8 +5,8 @@
 // the same role/membership rules the contract defines — it never calls a
 // server and never claims to be authentication. Real login lands in A-03's
 // follow-up once B provides live Supabase test accounts.
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { usePrivateScope } from "@/components/app-providers";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { usePrivateScope, useSyncPrivateScopeForBaby } from "@/components/app-providers";
 import {
   activeMembershipsFor,
   testUserByAlias,
@@ -112,16 +112,17 @@ export function useMockSession(): MockSessionValue {
   return value;
 }
 
+/**
+ * Never throws — returns null when NEXT_PUBLIC_ENABLE_MOCK_NAV is off and
+ * MockSessionProvider isn't mounted. Routes shared between the real and mock
+ * paths (e.g. the drafts store) must use this instead of `useMockSession`.
+ */
+export function useMockSessionOptional(): MockSessionValue | null {
+  return useContext(MockSessionContext);
+}
+
 /** Keeps the real PrivateScope's (user_id, baby_id) snapshot in sync with the current route's baby. */
 export function useSyncPrivateScope(babyId: string): void {
   const session = useMockSession();
-  const scope = usePrivateScope();
-  const lastKey = useRef<string | null>(null);
-
-  useEffect(() => {
-    const key = `${session.userId ?? ""}:${babyId}`;
-    if (lastKey.current === key) return;
-    lastKey.current = key;
-    if (session.userId) scope.set(session.userId, babyId);
-  }, [session.userId, babyId, scope]);
+  useSyncPrivateScopeForBaby(session.userId, babyId);
 }

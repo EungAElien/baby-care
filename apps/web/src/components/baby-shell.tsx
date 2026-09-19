@@ -5,8 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, Clock, BarChart3, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockBabyLabel } from "@/lib/mock/fixtures";
-import { useMockSession } from "@/lib/mock/session";
 import { useDraft } from "@/lib/mock/draft";
 
 type NavItem = Readonly<{ href: string; label: string; icon: typeof Home }>;
@@ -20,18 +18,33 @@ function navItems(babyId: string): readonly NavItem[] {
   ];
 }
 
-/** Mobile-first shell shared by SC02~SC10: sticky baby header + bottom tab bar. */
+export type OtherBaby = Readonly<{ babyId: string; label: string }>;
+
+/**
+ * Mobile-first shell shared by SC02~SC10: sticky baby header + bottom tab
+ * bar. Purely presentational — the real and mock baby layouts each resolve
+ * identity and pass the result in, so this component doesn't care which one
+ * is active.
+ */
 export function BabyShell({
   babyId,
+  babyLabel,
   role,
+  otherBabies,
+  onSignOut,
   children,
-}: Readonly<{ babyId: string; role: "OWNER" | "CAREGIVER"; children: React.ReactNode }>) {
+}: Readonly<{
+  babyId: string;
+  babyLabel: string;
+  role: "OWNER" | "CAREGIVER";
+  otherBabies: readonly OtherBaby[];
+  onSignOut: () => void;
+  children: React.ReactNode;
+}>) {
   const pathname = usePathname();
   const router = useRouter();
-  const session = useMockSession();
   const draft = useDraft();
   const items = navItems(babyId);
-  const otherBabies = session.activeMemberships.filter((membership) => membership.baby_id !== babyId);
   const [pendingSwitch, setPendingSwitch] = useState<string | null>(null);
 
   function requestSwitch(nextBabyId: string) {
@@ -50,7 +63,7 @@ export function BabyShell({
         style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top, 0px))" }}
       >
         <div className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-semibold text-foreground">{mockBabyLabel(babyId)}</span>
+          <span className="truncate text-sm font-semibold text-foreground">{babyLabel}</span>
           <span className="text-xs text-muted-foreground">{role === "OWNER" ? "관리 보호자" : "공동 보호자"}</span>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -66,20 +79,17 @@ export function BabyShell({
               value={babyId}
               onChange={(event) => requestSwitch(event.target.value)}
             >
-              <option value={babyId}>{mockBabyLabel(babyId)}</option>
-              {otherBabies.map((membership) => (
-                <option key={membership.baby_id} value={membership.baby_id}>
-                  {mockBabyLabel(membership.baby_id)}
+              <option value={babyId}>{babyLabel}</option>
+              {otherBabies.map((other) => (
+                <option key={other.babyId} value={other.babyId}>
+                  {other.label}
                 </option>
               ))}
             </select>
           )}
           <button
             type="button"
-            onClick={() => {
-              session.signOut();
-              router.push("/login");
-            }}
+            onClick={onSignOut}
             className="h-11 rounded-md px-3 text-sm font-medium text-muted-foreground hover:bg-muted"
           >
             로그아웃

@@ -6,7 +6,8 @@
 // accounts all discard it, matching "로그아웃·다른 계정 로그인·권한 해제 때는
 // 해당 캐시와 미전송 내용을 지우고 자동 저장·재전송하지 않는다."
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useMockSession } from "@/lib/mock/session";
+import { useMockSessionOptional } from "@/lib/mock/session";
+import { useRealSession } from "@/lib/auth/real-session";
 
 type DraftContextValue = Readonly<{
   getLiveText: (babyId: string) => string;
@@ -20,18 +21,22 @@ type DraftContextValue = Readonly<{
 const DraftContext = createContext<DraftContextValue | null>(null);
 
 export function DraftProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-  const session = useMockSession();
+  // Optional: this provider sits above [babyId] for every visitor, real or
+  // mock, so it must not assume MockSessionProvider is mounted.
+  const mock = useMockSessionOptional();
+  const real = useRealSession();
+  const identityKey = mock?.alias ?? (real.userId ? `real:${real.userId}` : null);
   const [live, setLive] = useState<Readonly<Record<string, string>>>({});
   const [saved, setSaved] = useState<Readonly<Record<string, string>>>({});
-  const lastAlias = useRef(session.alias);
+  const lastIdentityKey = useRef(identityKey);
 
   // A different login (or logging out) must not let one account's draft leak into another's.
   useEffect(() => {
-    if (lastAlias.current === session.alias) return;
-    lastAlias.current = session.alias;
+    if (lastIdentityKey.current === identityKey) return;
+    lastIdentityKey.current = identityKey;
     setLive({});
     setSaved({});
-  }, [session.alias]);
+  }, [identityKey]);
 
   const getLiveText = useCallback((babyId: string) => live[babyId] ?? "", [live]);
   const hasLiveText = useCallback((babyId: string) => (live[babyId]?.trim().length ?? 0) > 0, [live]);

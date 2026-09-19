@@ -5,8 +5,9 @@
 // 즉시 주소창에서 지워 referrer·분석 이벤트·서버 로그·로그인 리디렉션에
 // 남기지 않는다. 탭 메모리에만 보관하며 sessionStorage 등에 쓰지 않는다.
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMockSession } from "@/lib/mock/session";
+import { useMockSessionOptional } from "@/lib/mock/session";
 import { getMockScenario, mockTestBabies, mockTestUsers, type MockScenario } from "@/lib/mock/fixtures";
 import { ScreenSection, ErrorState, PermissionState } from "@/components/screen-state";
 
@@ -27,7 +28,7 @@ function isDemoToken(value: string): value is DemoToken {
 
 export default function AcceptInvitePage() {
   const router = useRouter();
-  const session = useMockSession();
+  const session = useMockSessionOptional();
   const [tokenState, setTokenState] = useState<{ read: boolean; token: string | null }>({ read: false, token: null });
   const [accepted, setAccepted] = useState(false);
   const consumed = useRef(false);
@@ -50,6 +51,21 @@ export default function AcceptInvitePage() {
 
   if (!tokenState.read) return null;
   const token = tokenState.token;
+
+  if (!session) {
+    return (
+      <main className="mx-auto flex min-h-svh max-w-xl flex-col justify-center gap-4 px-6">
+        <ScreenSection title="초대 수락은 아직 실제 API에 연결되지 않았어요">
+          <p className="text-sm text-muted-foreground">
+            이 미리보기는 개발용 목 화면 전환(NEXT_PUBLIC_ENABLE_MOCK_NAV)에서만 열 수 있어요.
+          </p>
+          <Link href="/login" className="text-sm font-medium text-primary">
+            로그인 화면으로
+          </Link>
+        </ScreenSection>
+      </main>
+    );
+  }
 
   if (!session.alias) {
     return (

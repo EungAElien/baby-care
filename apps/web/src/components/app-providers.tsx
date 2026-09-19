@@ -1,7 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { PrivateScope } from "@/lib/private-scope";
 
 const PrivateScopeContext = createContext<PrivateScope | null>(null);
@@ -53,4 +53,17 @@ export function usePrivateScope(): PrivateScope {
   const scope = useContext(PrivateScopeContext);
   if (!scope) throw new Error("usePrivateScope must be called below AppProviders.");
   return scope;
+}
+
+/** Shared by the real and mock baby layouts to keep PrivateScope's (user_id, baby_id) snapshot current. */
+export function useSyncPrivateScopeForBaby(userId: string | null, babyId: string): void {
+  const scope = usePrivateScope();
+  const lastKey = useRef<string | null>(null);
+
+  useEffect(() => {
+    const key = `${userId ?? ""}:${babyId}`;
+    if (lastKey.current === key) return;
+    lastKey.current = key;
+    if (userId) scope.set(userId, babyId);
+  }, [userId, babyId, scope]);
 }
