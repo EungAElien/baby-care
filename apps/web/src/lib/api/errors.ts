@@ -13,6 +13,7 @@ export type ApiErrorEnvelope = Readonly<{
 
 export type ApiErrorKind =
   | "authentication"
+  | "reauth-required"
   | "permission"
   | "not-found"
   | "version-conflict"
@@ -25,9 +26,14 @@ export type ApiErrorKind =
   | "service"
   | "unknown";
 
+// SESSION_REVOKED ends the whole session like a normal 401 (contract §2 handoff:
+// "로그인/갱신/새 OTP를 구분. 회수 세션은 캐시·마이크 정리 후 재로그인"). REAUTH_REQUIRED
+// and REAUTH_PROOF_INVALID mean the operation, not the session, needs a fresh
+// short-lived proof — that is a distinct "reauth-required" kind below.
 const authenticationCodes = new Set<ContractErrorCode>([
-  "AUTH_REQUIRED", "TOKEN_EXPIRED", "INVALID_TOKEN", "SESSION_REVOKED", "REAUTH_REQUIRED", "REAUTH_PROOF_INVALID",
+  "AUTH_REQUIRED", "TOKEN_EXPIRED", "INVALID_TOKEN", "SESSION_REVOKED",
 ]);
+const reauthCodes = new Set<ContractErrorCode>(["REAUTH_REQUIRED", "REAUTH_PROOF_INVALID"]);
 const permissionCodes = new Set<ContractErrorCode>([
   "OWNER_ONLY", "AUTHOR_ONLY", "INVITE_EMAIL_MISMATCH", "CONSENT_REQUIRED", "CHILD_DATA_VERIFICATION_REQUIRED",
 ]);
@@ -44,6 +50,7 @@ const serviceCodes = new Set<ContractErrorCode>([
 
 export function classifyErrorCode(code: string): ApiErrorKind {
   if (authenticationCodes.has(code as ContractErrorCode)) return "authentication";
+  if (reauthCodes.has(code as ContractErrorCode)) return "reauth-required";
   if (permissionCodes.has(code as ContractErrorCode)) return "permission";
   if (code === "RESOURCE_NOT_FOUND") return "not-found";
   if (code === "VERSION_CONFLICT" || code === "SOURCE_REVISION_CHANGED") return "version-conflict";

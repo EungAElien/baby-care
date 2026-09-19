@@ -34,6 +34,16 @@ export function readPublicConfig(): PublicConfig {
   });
 }
 
+/** Non-throwing variant so screens can fall back (e.g. to the dev mock nav) when no real backend is configured. */
+export function tryReadPublicConfig(): PublicConfig | null {
+  const result = publicConfigSchema.safeParse({
+    apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    supabasePublishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  });
+  return result.success ? result.data : null;
+}
+
 export function validateApiBaseUrl(baseUrl: string): string {
   const result = publicConfigSchema.shape.apiBaseUrl.parse(baseUrl);
   return result.replace(/\/$/, "");
