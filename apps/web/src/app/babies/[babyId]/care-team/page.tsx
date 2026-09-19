@@ -11,6 +11,8 @@ import { useParams, useRouter } from "next/navigation";
 import { isForBaby, mockIssuedInvite, mockRoleAssignments, getMockScenario } from "@/lib/mock/fixtures";
 import { useMockSessionOptional } from "@/lib/mock/session";
 import { useRealSession } from "@/lib/auth/real-session";
+import { usePrivateScope } from "@/components/app-providers";
+import { useDraft } from "@/lib/mock/draft";
 import { useBabiesQuery, findBabyAccess } from "@/lib/api/babies";
 import { useInvitesQuery, useMembersQuery, useRemoveMembershipMutation, useRevokeInviteMutation } from "@/lib/api/members";
 import { ContractApiError } from "@/lib/api/errors";
@@ -40,6 +42,8 @@ export default function CareTeamPage() {
 function RealCareTeam({ babyId }: Readonly<{ babyId: string }>) {
   const router = useRouter();
   const real = useRealSession();
+  const scope = usePrivateScope();
+  const draft = useDraft();
   const babies = useBabiesQuery(true);
   const members = useMembersQuery(babyId, true);
   const myAccess = findBabyAccess(babies.data, babyId);
@@ -62,6 +66,10 @@ function RealCareTeam({ babyId }: Readonly<{ babyId: string }>) {
     setLeaveError(null);
     try {
       await removeMembership.mutateAsync({ userId: real.userId, version: me.version });
+      // Only self-removal loses this browser's access. Removing someone else
+      // must not discard the current caretaker's own scope or drafts.
+      scope.set(real.userId, null);
+      draft.clearBaby(babyId);
       router.push("/login");
     } catch (error) {
       // OWNER가 시도하면 계약상 409 OWNER_REQUIRED가 그대로 여기로 온다 — 문구를 지어내지 않고 서버 메시지를 보여준다.
@@ -210,6 +218,7 @@ const invitePreviewLinks = [
 
 function MockCareTeam({ babyId }: Readonly<{ babyId: string }>) {
   const router = useRouter();
+  const draft = useDraft();
   const session = useMockSessionOptional();
   const membership = session?.membershipFor(babyId) ?? null;
   const members = mockRoleAssignments.filter((entry) => entry.baby_id === babyId);
@@ -224,6 +233,7 @@ function MockCareTeam({ babyId }: Readonly<{ babyId: string }>) {
   // 감싼 레이아웃의 실시간 권한 가드가 즉시 404로 바꿔버려 결과를 보여줄 틈이 없다.
   function confirmLeave() {
     session!.leaveBaby(babyId);
+    draft.clearBaby(babyId);
     router.push("/login");
   }
 

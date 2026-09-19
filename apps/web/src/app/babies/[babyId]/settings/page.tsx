@@ -6,8 +6,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { useSearchParams, useParams } from "next/navigation";
 import { isForBaby, mockBabyLabel, mockDeletionJob, mockErrorEnvelope } from "@/lib/mock/fixtures";
-import { useMockSession } from "@/lib/mock/session";
-import { ScreenSection, ErrorState, PermissionState } from "@/components/screen-state";
+import { useMockSessionOptional } from "@/lib/mock/session";
+import { useRealSession } from "@/lib/auth/real-session";
+import { ScreenSection, ErrorState, LoadingState, PermissionState } from "@/components/screen-state";
 
 const consentScopes = ["SERVICE_PROCESSING", "AUDIO_RETENTION", "BABY_TRAINING"] as const;
 const consentLabel: Record<(typeof consentScopes)[number], string> = {
@@ -26,9 +27,35 @@ type ProfileAttempt = "IDLE" | "DENIED" | "ACCEPTED";
 
 export default function SettingsPage() {
   const { babyId } = useParams<{ babyId: string }>();
+  const real = useRealSession();
+  if (real.status === "loading") return <LoadingState label="계정을 확인하고 있어요" />;
+  if (real.status === "signed-in") return <RealSettings babyId={babyId} />;
+  return <MockSettings babyId={babyId} />;
+}
+
+function RealSettings({ babyId }: Readonly<{ babyId: string }>) {
+  return (
+    <div className="flex flex-col gap-4">
+      <h1 className="text-lg font-semibold text-foreground">설정</h1>
+      <ScreenSection title="아기 설정">
+        <p className="text-sm text-muted-foreground">
+          프로필 변경·아기 동의·삭제 작업 화면은 아직 실제 API와 연결되지 않았어요.
+        </p>
+        <Link href={`/babies/${babyId}/care-team`} className="text-sm font-medium text-primary">
+          공동양육 관리로 이동
+        </Link>
+      </ScreenSection>
+      <Link href="/account" className="text-sm font-medium text-primary">
+        내 계정으로 이동
+      </Link>
+    </div>
+  );
+}
+
+function MockSettings({ babyId }: Readonly<{ babyId: string }>) {
   const searchParams = useSearchParams();
-  const session = useMockSession();
-  const membership = session.membershipFor(babyId);
+  const session = useMockSessionOptional();
+  const membership = session?.membershipFor(babyId);
   const deletionState = (searchParams.get("deletion") ?? "accepted") as keyof typeof deletionScenarioByState;
   const deletionJobFixture = mockDeletionJob(deletionScenarioByState[deletionState] ?? "deletion_accepted");
   const deletionJob = isForBaby(babyId, deletionJobFixture) ? deletionJobFixture : null;
