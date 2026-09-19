@@ -2,6 +2,10 @@
 
 아기 돌봄 기록·분석 서비스를 위한 A/B 공동 개발 저장소입니다. 현재는 v2 기획 문서, 확정 API 계약, 웹 앱의 초기 기반이 있으며 실제 백엔드와 Supabase 설정은 아직 구현 중입니다.
 
+## 작업 기준
+
+작업 전에 [코딩 및 협업 컨벤션](docs/project-rule/coding-conventions.md), [개발 원칙](DEVELOPMENT_PRINCIPLES.md), [저장소 지침](AGENTS.md)을 확인합니다. 일반 작업은 최신 `develop`에서 목적별 브랜치로 시작하고 `develop` 대상 PR로 검토합니다. 제품·API 변경은 [개발계약](contracts/개발계약.md)과 [OpenAPI](contracts/openapi계약.json)를 함께 확인합니다.
+
 ## 폴더
 
 - `apps/web/`: Next.js 웹 앱(A 담당)
