@@ -34,6 +34,19 @@ export function ErrorState({ label, retryable }: Readonly<{ label: string; retry
   );
 }
 
+/**
+ * 403 권한 없음 — 404(존재 자체를 숨김)와 다른 문구·스타일을 쓴다. 활성
+ * 구성원이지만 관리 권한이 없을 때만 쓰고, 비구성원에는 쓰지 않는다.
+ */
+export function PermissionState({ label }: Readonly<{ label: string }>) {
+  return (
+    <div role="alert" className="flex flex-col gap-1 rounded-lg border border-amber-300 bg-amber-50 p-4">
+      <p className="text-sm font-medium text-amber-800">권한이 필요해요</p>
+      <p className="text-sm text-amber-900">{label}</p>
+    </div>
+  );
+}
+
 export function ScreenSection({
   title,
   className,

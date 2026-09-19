@@ -3,10 +3,11 @@
 // SC08 설정 — 프로필·동의·보관·데이터 삭제·공동양육 진입점. OWNER/CAREGIVER
 // 조작 구분은 개발계약 §2 권한표를 따른다. 실제 저장·삭제는 A-03에서 연결한다.
 import Link from "next/link";
+import { useState } from "react";
 import { useSearchParams, useParams } from "next/navigation";
-import { mockBabyLabel, mockDeletionJob } from "@/lib/mock/fixtures";
+import { mockBabyLabel, mockDeletionJob, mockErrorEnvelope } from "@/lib/mock/fixtures";
 import { useMockSession } from "@/lib/mock/session";
-import { ScreenSection, ErrorState } from "@/components/screen-state";
+import { ScreenSection, ErrorState, PermissionState } from "@/components/screen-state";
 
 const consentScopes = ["SERVICE_PROCESSING", "AUDIO_RETENTION", "BABY_TRAINING"] as const;
 const consentLabel: Record<(typeof consentScopes)[number], string> = {
@@ -21,6 +22,8 @@ const deletionScenarioByState = {
   complete: "deletion_complete",
 } as const;
 
+type ProfileAttempt = "IDLE" | "DENIED" | "ACCEPTED";
+
 export default function SettingsPage() {
   const { babyId } = useParams<{ babyId: string }>();
   const searchParams = useSearchParams();
@@ -28,6 +31,8 @@ export default function SettingsPage() {
   const membership = session.membershipFor(babyId);
   const deletionState = (searchParams.get("deletion") ?? "accepted") as keyof typeof deletionScenarioByState;
   const deletionJob = mockDeletionJob(deletionScenarioByState[deletionState] ?? "deletion_accepted");
+  const [profileAttempt, setProfileAttempt] = useState<ProfileAttempt>("IDLE");
+  const ownerOnlyError = mockErrorEnvelope("owner_required");
 
   if (!membership) return null;
 
@@ -38,6 +43,17 @@ export default function SettingsPage() {
       <ScreenSection title="프로필">
         <p className="text-sm text-foreground">{mockBabyLabel(babyId)}</p>
         <p className="text-xs text-muted-foreground">공통 값 변경은 관리 보호자만 할 수 있어요.</p>
+        <button
+          type="button"
+          onClick={() => setProfileAttempt(membership.role === "OWNER" ? "ACCEPTED" : "DENIED")}
+          className="min-h-11 w-fit rounded-md border border-border px-4 text-sm text-foreground"
+        >
+          별칭 저장 시도 (예시)
+        </button>
+        {profileAttempt === "DENIED" && <PermissionState label={ownerOnlyError.message} />}
+        {profileAttempt === "ACCEPTED" && (
+          <p className="text-sm text-primary">요청을 보냈어요 (예시 — 실제 저장은 연결되지 않았어요)</p>
+        )}
       </ScreenSection>
 
       <ScreenSection title="동의">

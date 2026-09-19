@@ -18,7 +18,17 @@ export default async function SummaryPage({
       <h1 className="text-lg font-semibold text-foreground">오늘 요약</h1>
 
       {!summary.has_records ? (
-        <EmptyState label="기록이 없어요" />
+        <EmptyState
+          label="기록이 없어요"
+          action={
+            <Link
+              href={`/babies/${babyId}/quick-record`}
+              className="flex min-h-11 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
+            >
+              지금 기록하기
+            </Link>
+          }
+        />
       ) : (
         <ScreenSection title="수유">
           <p className="text-sm text-foreground">{summary.feeding.record_count}회</p>
