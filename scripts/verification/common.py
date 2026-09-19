@@ -175,6 +175,13 @@ def _junit_counts(path: Path) -> dict[str, int] | None:
     return totals
 
 
+def _evidence_list(evidence: Iterable[str]) -> list[str]:
+    """Keep a single evidence label intact if a caller passes a bare string."""
+    if isinstance(evidence, str):
+        return [evidence]
+    return list(evidence)
+
+
 class VerificationReport:
     def __init__(self, suite: str, artifact_dir: Path) -> None:
         self.suite = suite
@@ -214,7 +221,7 @@ class VerificationReport:
             "working_directory": str(cwd.relative_to(ROOT)) if cwd != ROOT else ".",
             "required": True,
             "verification_level": verification_level,
-            "evidence": list(evidence),
+            "evidence": _evidence_list(evidence),
             "status": "failed",
             "exit_code": None,
             "duration_seconds": None,
@@ -272,7 +279,7 @@ class VerificationReport:
                 "command": None,
                 "required": True,
                 "verification_level": verification_level,
-                "evidence": list(evidence),
+                "evidence": _evidence_list(evidence),
                 "status": status,
                 "exit_code": None,
                 "duration_seconds": 0,

@@ -302,7 +302,7 @@ def run_container(artifact_dir: Path) -> int:
             "container-test-image-cleanup",
             ["docker", "image", "rm", "--force", image],
             verification_level="owned-resource-cleanup",
-            evidence=("unique test image tag"),
+            evidence=("unique test image tag",),
         )
     else:
         for name, level in (
@@ -522,7 +522,7 @@ def run_integration(artifact_dir: Path) -> int:
                 "container-configured-image-cleanup",
                 ["docker", "image", "rm", "--force", integration_image],
                 verification_level="owned-resource-cleanup",
-                evidence=("unique configured test image tag"),
+                evidence=("unique configured test image tag",),
             )
         else:
             report.record(
