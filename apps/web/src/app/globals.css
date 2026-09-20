@@ -773,3 +773,16 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline-colo
 .seed-text-field__input::placeholder, .seed-text-field__textarea::placeholder { color: var(--palette-gray-700); }
 
 .capture-panel .brand-scene { width: min(100%, 15rem); }
+
+/* Transparent originals from the shared character-production conversation. */
+.character-poster {
+  object-fit: contain;
+  background: var(--surface-brand);
+  border-radius: 50%;
+  display: block;
+}
+.character-poster-small {
+  width: 4rem;
+  height: 4rem;
+  flex: none;
+}

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { observationDisplay, stateLabels } from "@/lib/care-entries/content";
 import { Eye } from "lucide-react";
+import { CharacterImage } from "./brand-scene";
 import { useRealSession } from "@/lib/auth/real-session";
 import { useTimelineQuery } from "@/lib/api/care-events";
 import type { components } from "@/lib/api/generated";
@@ -39,7 +40,11 @@ function ObservationView({
   return observation ? (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Eye size={20} aria-hidden="true" />
+        {display?.visual === "CALM" && display.minutes !== null && !display.stale ? (
+          <CharacterImage scene="calm" compact />
+        ) : (
+          <Eye size={20} aria-hidden="true" />
+        )}
         <p className="text-xl font-bold">
           {display?.stale
             ? "현재 상태를 알 수 없어요"

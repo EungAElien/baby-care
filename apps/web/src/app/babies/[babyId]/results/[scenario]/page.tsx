@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CharacterImage } from "@/components/brand-scene";
 import { notFound } from "next/navigation";
 import { Check, CircleHelp, CircleX, ArrowLeft } from "lucide-react";
 import {
@@ -106,6 +107,9 @@ export default async function ResultPage({
         {analysis.status === "COMPLETE" && (
           <div className="detail-grid">
             <ScreenSection title="살펴볼 원인 후보">
+              {analysis.audio_candidates[0]?.code === "hungry" && (
+                <CharacterImage scene="hungry" />
+              )}
               <List>
                 {analysis.audio_candidates.slice(0, 3).map((candidate, i) => (
                   <ListItem

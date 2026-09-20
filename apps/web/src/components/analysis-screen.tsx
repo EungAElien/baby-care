@@ -1,5 +1,6 @@
 "use client";
 import { ActionButton } from "./seed-design/ui/action-button";
+import { CharacterImage } from "./brand-scene";
 
 // A-06 ①: the real analysis request/result/recovery screen for a READY
 // (episode, audio) pair handed off from A-05. Reads only server-declared
@@ -87,6 +88,9 @@ export function ResolvedAnalysis({
             않아요.
           </p>
         </div>
+        {analysis.audio_candidates[0]?.code === "hungry" && (
+          <CharacterImage scene="hungry" />
+        )}
         <ul className="flex flex-col gap-2">
           {analysis.audio_candidates.slice(0, 3).map((candidate) => (
             <li

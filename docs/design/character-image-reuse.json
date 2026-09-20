@@ -1,0 +1,26 @@
+{
+  "sourceConversation": "https://chatgpt.com/s/cx_6aaff39a83588191b3d5f4cee720fccb",
+  "sourceCommit": "aeb565a62b9499ba58b58e8ccd235a14e5b2e4a0",
+  "sourcePr": 32,
+  "mode": "static-posters",
+  "assets": [
+    {
+      "file": "apps/web/public/characters/2.0.0-review/action-holding-source.png",
+      "sha256": "ac0da9e52f3a94a936b10fe8fcad0bb0bad887d1334be853bfc042df9b2e9772",
+      "bytes": 25497,
+      "unchanged": true
+    },
+    {
+      "file": "apps/web/public/characters/2.0.0-review/observation-calm.png",
+      "sha256": "166a99d87efb5dc47c3f2e38b640a32870ab3f67709d8f553789c9d1cdfd2bfa",
+      "bytes": 20782,
+      "unchanged": true
+    },
+    {
+      "file": "apps/web/public/characters/2.0.0-review/ai-hungry.png",
+      "sha256": "a3986f06946b706ab0933bc37614ecc46c3cb14a3025fa8f5c12cf5ee36e1065",
+      "bytes": 22306,
+      "unchanged": true
+    }
+  ]
+}
