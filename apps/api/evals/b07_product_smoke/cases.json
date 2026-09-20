@@ -1,0 +1,228 @@
+{
+  "schema_version": "baby-care.b07-product-smoke.cases.v1",
+  "frozen_before_provider_calls": true,
+  "synthetic_only": true,
+  "cases": [
+    {
+      "case_id": "B07-LIVE-001",
+      "purpose": "Korean emoji evidence, performed feeding, and explicit awake state",
+      "entry": {
+        "input_mode": "TEXT",
+        "raw_text": "🍼 분유 80mL 먹였어요. 지금은 깨어 있어요.",
+        "choices": [],
+        "occurred_at": null,
+        "time_precision": "UNKNOWN"
+      },
+      "expected": {
+        "model_checks": [
+          "performed FEEDING with amount 80 ML and FORMULA",
+          "explicit AWAKE state",
+          "all TEXT evidence is an exact Unicode code-point slice",
+          "no invented performer or feeding timestamp"
+        ],
+        "persisted_care_event_count": 1,
+        "persisted_state_observation_count": 1
+      },
+      "confirmed_content": {
+        "actions": [
+          {
+            "action_ref": "a1",
+            "action_code": "FEEDING",
+            "assertion": "PERFORMED",
+            "performed_by_user_id": null,
+            "occurred_at": null,
+            "relative_time": null,
+            "time_precision": "UNKNOWN",
+            "sequence": 1,
+            "amount": 80,
+            "unit": "ML",
+            "feeding_mode": "FORMULA",
+            "evidence": [
+              {
+                "source": "USER_CORRECTION",
+                "choice_id": null,
+                "span_start": null,
+                "span_end": null,
+                "quote": "합성 사용자가 80mL 분유 수행을 확인"
+              }
+            ]
+          }
+        ],
+        "states": [
+          {
+            "state_codes": ["AWAKE"],
+            "phase": "AFTER",
+            "observed_at": null,
+            "time_precision": "UNKNOWN",
+            "linked_action_refs": ["a1"],
+            "evidence": [
+              {
+                "source": "USER_CORRECTION",
+                "choice_id": null,
+                "span_start": null,
+                "span_end": null,
+                "quote": "합성 사용자가 깨어 있음 관찰을 확인"
+              }
+            ]
+          }
+        ],
+        "outcomes": [],
+        "caregiver_interpretations": [],
+        "unresolved": [
+          {
+            "field": "actions.a1.occurred_at",
+            "code": "UNKNOWN_TIME",
+            "message": "수유 시각은 입력되지 않았습니다."
+          },
+          {
+            "field": "states.0.observed_at",
+            "code": "UNKNOWN_TIME",
+            "message": "상태 관찰 시각은 입력되지 않았습니다."
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "B07-LIVE-002",
+      "purpose": "Performed, planned, negated, and uncertain actions remain distinct",
+      "entry": {
+        "input_mode": "TEXT",
+        "raw_text": "기저귀를 갈았어요. 수유는 아직 안 했고, 10분 뒤에 안아 줄 계획이에요. 트림을 시켰는지는 잘 모르겠어요.",
+        "choices": [],
+        "occurred_at": null,
+        "time_precision": "UNKNOWN"
+      },
+      "expected": {
+        "model_checks": [
+          "DIAPER_CHANGE is PERFORMED",
+          "FEEDING is NEGATED",
+          "HOLDING is PLANNED",
+          "BURPING is UNCERTAIN",
+          "only PERFORMED actions become shared CareEvents"
+        ],
+        "persisted_care_event_count": 1,
+        "persisted_state_observation_count": 0
+      },
+      "confirmed_content": {
+        "actions": [
+          {
+            "action_ref": "a1",
+            "action_code": "DIAPER_CHANGE",
+            "assertion": "PERFORMED",
+            "performed_by_user_id": null,
+            "occurred_at": null,
+            "relative_time": null,
+            "time_precision": "UNKNOWN",
+            "sequence": 1,
+            "amount": null,
+            "unit": null,
+            "feeding_mode": null,
+            "evidence": [{"source":"USER_CORRECTION","choice_id":null,"span_start":null,"span_end":null,"quote":"합성 사용자가 기저귀 교체 수행을 확인"}]
+          },
+          {
+            "action_ref": "a2",
+            "action_code": "FEEDING",
+            "assertion": "NEGATED",
+            "performed_by_user_id": null,
+            "occurred_at": null,
+            "relative_time": null,
+            "time_precision": "UNKNOWN",
+            "sequence": 2,
+            "amount": null,
+            "unit": null,
+            "feeding_mode": null,
+            "evidence": [{"source":"USER_CORRECTION","choice_id":null,"span_start":null,"span_end":null,"quote":"합성 사용자가 수유하지 않음을 확인"}]
+          },
+          {
+            "action_ref": "a3",
+            "action_code": "HOLDING",
+            "assertion": "PLANNED",
+            "performed_by_user_id": null,
+            "occurred_at": null,
+            "relative_time": "10분 뒤",
+            "time_precision": "RELATIVE",
+            "sequence": 3,
+            "amount": null,
+            "unit": null,
+            "feeding_mode": null,
+            "evidence": [{"source":"USER_CORRECTION","choice_id":null,"span_start":null,"span_end":null,"quote":"합성 사용자가 안아 주기는 계획임을 확인"}]
+          },
+          {
+            "action_ref": "a4",
+            "action_code": "BURPING",
+            "assertion": "UNCERTAIN",
+            "performed_by_user_id": null,
+            "occurred_at": null,
+            "relative_time": null,
+            "time_precision": "UNKNOWN",
+            "sequence": 4,
+            "amount": null,
+            "unit": null,
+            "feeding_mode": null,
+            "evidence": [{"source":"USER_CORRECTION","choice_id":null,"span_start":null,"span_end":null,"quote":"합성 사용자가 트림 수행 여부를 불확실로 확인"}]
+          }
+        ],
+        "states": [],
+        "outcomes": [],
+        "caregiver_interpretations": [],
+        "unresolved": [
+          {"field":"actions.a1.occurred_at","code":"UNKNOWN_TIME","message":"기저귀 교체 시각은 입력되지 않았습니다."},
+          {"field":"actions.a2.occurred_at","code":"UNKNOWN_TIME","message":"수유 시각은 입력되지 않았습니다."},
+          {"field":"actions.a4.occurred_at","code":"UNKNOWN_TIME","message":"트림 시각은 불확실합니다."}
+        ]
+      }
+    },
+    {
+      "case_id": "B07-LIVE-003",
+      "purpose": "Mixed-input conflict and unknown quantity/time remain unresolved",
+      "entry": {
+        "input_mode": "MIXED",
+        "raw_text": "분유를 먹였지만 양과 시각은 모르겠어요. 기저귀는 갈지 않았어요.",
+        "choices": [
+          {"choice_id":"feeding-performed","kind":"ACTION","code":"FEEDING","assertion":"PERFORMED"},
+          {"choice_id":"diaper-performed","kind":"ACTION","code":"DIAPER_CHANGE","assertion":"PERFORMED"}
+        ],
+        "occurred_at": null,
+        "time_precision": "UNKNOWN"
+      },
+      "expected": {
+        "model_checks": [
+          "choice/text diaper conflict is preserved as CONFLICT",
+          "unknown feeding amount is not replaced with zero",
+          "unknown time is not replaced with current time",
+          "blocking content is rejected before explicit correction"
+        ],
+        "persisted_care_event_count": 1,
+        "persisted_state_observation_count": 0
+      },
+      "blocking_content": {
+        "actions": [
+          {"action_ref":"a1","action_code":"FEEDING","assertion":"PERFORMED","performed_by_user_id":null,"occurred_at":null,"relative_time":null,"time_precision":"UNKNOWN","sequence":1,"amount":null,"unit":null,"feeding_mode":"FORMULA","evidence":[{"source":"USER_CORRECTION","choice_id":null,"span_start":null,"span_end":null,"quote":"합성 사용자가 수유 수행을 검토"}]},
+          {"action_ref":"a2","action_code":"DIAPER_CHANGE","assertion":"PERFORMED","performed_by_user_id":null,"occurred_at":null,"relative_time":null,"time_precision":"UNKNOWN","sequence":2,"amount":null,"unit":null,"feeding_mode":null,"evidence":[{"source":"USER_CORRECTION","choice_id":null,"span_start":null,"span_end":null,"quote":"선택값과 텍스트가 충돌하여 미확정"}]}
+        ],
+        "states": [],
+        "outcomes": [],
+        "caregiver_interpretations": [],
+        "unresolved": [
+          {"field":"actions.a1.amount","code":"UNKNOWN_VALUE","message":"수유량은 모릅니다."},
+          {"field":"actions.a1.occurred_at","code":"UNKNOWN_TIME","message":"수유 시각은 모릅니다."},
+          {"field":"actions.a2.assertion","code":"CONFLICT","message":"기저귀 수행 여부의 선택값과 텍스트가 충돌합니다."}
+        ]
+      },
+      "confirmed_content": {
+        "actions": [
+          {"action_ref":"a1","action_code":"FEEDING","assertion":"PERFORMED","performed_by_user_id":null,"occurred_at":null,"relative_time":null,"time_precision":"UNKNOWN","sequence":1,"amount":null,"unit":null,"feeding_mode":"FORMULA","evidence":[{"source":"USER_CORRECTION","choice_id":null,"span_start":null,"span_end":null,"quote":"합성 사용자가 수유 수행과 미상 수량을 확인"}]},
+          {"action_ref":"a2","action_code":"DIAPER_CHANGE","assertion":"NEGATED","performed_by_user_id":null,"occurred_at":null,"relative_time":null,"time_precision":"UNKNOWN","sequence":2,"amount":null,"unit":null,"feeding_mode":null,"evidence":[{"source":"USER_CORRECTION","choice_id":null,"span_start":null,"span_end":null,"quote":"합성 사용자가 기저귀를 갈지 않았음을 확인"}]}
+        ],
+        "states": [],
+        "outcomes": [],
+        "caregiver_interpretations": [],
+        "unresolved": [
+          {"field":"actions.a1.amount","code":"UNKNOWN_VALUE","message":"수유량은 모릅니다."},
+          {"field":"actions.a1.occurred_at","code":"UNKNOWN_TIME","message":"수유 시각은 모릅니다."},
+          {"field":"actions.a2.occurred_at","code":"UNKNOWN_TIME","message":"부정 진술의 시각은 입력되지 않았습니다."}
+        ]
+      }
+    }
+  ]
+}
