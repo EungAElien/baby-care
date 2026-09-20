@@ -10,6 +10,7 @@ import { useMockSessionOptional } from "@/lib/mock/session";
 import { useRealSession } from "@/lib/auth/real-session";
 import { ScreenSection, ErrorState, LoadingState, PermissionState } from "@/components/screen-state";
 import { ConsentPanel } from "@/components/consent-panel";
+import { DeleteBabyPanel } from "@/components/delete-baby-panel";
 import { findBabyAccess, useBabiesQuery } from "@/lib/api/babies";
 
 const consentScopes = ["SERVICE_PROCESSING", "AUDIO_RETENTION", "BABY_TRAINING"] as const;
@@ -45,13 +46,14 @@ function RealSettings({ babyId }: Readonly<{ babyId: string }>) {
       <h1 className="text-lg font-semibold text-foreground">설정</h1>
       <ScreenSection title="아기 설정">
         <p className="text-sm text-muted-foreground">
-          프로필 변경·아기 삭제 작업 화면은 아직 실제 API와 연결되지 않았어요.
+          프로필 변경 화면은 아직 실제 API와 연결되지 않았어요.
         </p>
         <Link href={`/babies/${babyId}/care-team`} className="text-sm font-medium text-primary">
           공동양육 관리로 이동
         </Link>
       </ScreenSection>
       <ConsentPanel babyId={babyId} isOwner={access.membership.role === "OWNER"} />
+      {access.membership.role === "OWNER" && <DeleteBabyPanel baby={access.baby} />}
       <Link href="/account" className="text-sm font-medium text-primary">
         내 계정으로 이동
       </Link>

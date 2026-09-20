@@ -33,6 +33,9 @@ vi.mock("@/lib/api/babies", () => ({
 vi.mock("@/components/consent-panel", () => ({
   ConsentPanel: () => createElement("p", null, "실제 동의 패널"),
 }));
+vi.mock("@/components/delete-baby-panel", () => ({
+  DeleteBabyPanel: () => createElement("p", null, "실제 전체 삭제 패널"),
+}));
 
 let draft: ReturnType<typeof useDraft>;
 function DraftProbe() {

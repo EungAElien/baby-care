@@ -7,8 +7,9 @@ import { PrivateScope } from "../src/lib/private-scope";
 import { consumeInviteFragment } from "../src/lib/invite-link";
 import { createReauthenticationChallenge, createReauthenticationProof, revokeSessions } from "../src/lib/api/account-security";
 import { acceptInvite, createInvite, setBabyConsent, setMyTrainingConsent } from "../src/lib/api/shared-care";
-import { resolveApprovedPolicy } from "../src/lib/consent-policy";
+import { resolveApprovedPolicy, resolveConsentPolicy } from "../src/lib/consent-policy";
 import { revokeAndSignOut } from "../src/lib/auth/session-control";
+import { deleteBabyData, getBabyDeletion } from "../src/lib/api/baby-deletion";
 
 const scenarios = JSON.parse(readFileSync(resolve(process.cwd(), "../../contracts/목 응답과 시험 사용자 배치.json"), "utf8")) as {
   scenarios: { name: string; response: { status: number; body: unknown } }[];
@@ -51,6 +52,11 @@ describe("A-03 invite, consent and account security boundaries", () => {
     expect(resolveApprovedPolicy(" approved-v1 ", " approved scope ")).toEqual({
       version: "approved-v1", text: "approved scope",
     });
+    expect(resolveConsentPolicy("SHARED_USE", undefined, undefined, false)).toBeNull();
+    expect(resolveConsentPolicy("SHARED_USE", undefined, undefined, true)).toMatchObject({
+      version: "a03-local-synthetic-v1",
+    });
+    expect(resolveConsentPolicy("SHARED_USE", "unmatched-v1", undefined, true)).toBeNull();
   });
 
   it("sends the invite secret only in the accept body with matching idempotency values", async () => {
@@ -126,5 +132,23 @@ describe("A-03 invite, consent and account security boundaries", () => {
     expect(scope.snapshot()).toMatchObject({ userId: null, babyId: null });
     expect(cache.getQueryData(["private", babyId])).toBeUndefined();
     expect(signOut).toHaveBeenCalledOnce();
+  });
+
+  it("requires DELETE_BABY proof and current version, then keeps job status separate from completion", async () => {
+    const requests: Request[] = [];
+    const job = await deleteBabyData(clientFor("deletion_accepted", requests), babyId,
+      "10000000-0000-4000-8000-000000000001", 1, "synthetic-delete-proof", requestId);
+    expect(job.status).toBe("PENDING");
+    expect(job.access_blocked).toBe(true);
+    expect(requests[0]!.headers.get("X-Reauthentication-Proof")).toBe("synthetic-delete-proof");
+    expect(requests[0]!.headers.get("Idempotency-Key")).toBe(requestId);
+    expect(new URL(requests[0]!.url).searchParams.get("confirm")).toBe("DELETE_BABY");
+    expect(new URL(requests[0]!.url).searchParams.get("version")).toBe("1");
+    expect(requests[0]!.body).toBeNull();
+    const statusRequests: Request[] = [];
+    const failed = await getBabyDeletion(clientFor("deletion_failed", statusRequests), job.deletion_job_id,
+      job.requester_user_id);
+    expect(failed.status).toBe("FAILED");
+    expect(failed.access_blocked).toBe(true);
   });
 });
