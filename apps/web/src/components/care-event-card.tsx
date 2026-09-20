@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ScreenSection } from "@/components/screen-state";
 import { SourceBadge } from "@/components/source-badge";
 import type { CareEvent } from "@/lib/api/care-events";
+import type { CareEventValue } from "@/lib/care-events/form";
 
 const feedingModeLabel = {
   BREAST: "모유",
@@ -25,8 +26,8 @@ const sootheActionLabel = {
   OTHER: "기타 돌봄",
 } as const;
 
-export function careEventTitle(event: CareEvent): string {
-  switch (event.event.type) {
+export function careEventValueTitle(value: CareEventValue): string {
+  switch (value.type) {
     case "FEEDING": return "수유";
     case "SLEEP": return "수면";
     case "DIAPER": return "기저귀";
@@ -34,10 +35,14 @@ export function careEventTitle(event: CareEvent): string {
   }
 }
 
-function eventDescription(event: CareEvent): string {
-  switch (event.event.type) {
+export function careEventTitle(event: CareEvent): string {
+  return careEventValueTitle(event.event);
+}
+
+function eventDescription(value: CareEventValue): string {
+  switch (value.type) {
     case "FEEDING": {
-      const { mode, amount_ml: amount, duration_minutes: duration } = event.event.payload;
+      const { mode, amount_ml: amount, duration_minutes: duration } = value.payload;
       return [
         feedingModeLabel[mode],
         amount === null ? "양 모름" : `${amount}mL`,
@@ -45,14 +50,23 @@ function eventDescription(event: CareEvent): string {
       ].join(" · ");
     }
     case "SLEEP":
-      return event.event.ended_at === null
+      return value.ended_at === null
         ? "진행 중 · 종료 시각은 아직 기록되지 않았어요"
-        : `${new Date(event.event.occurred_at).toLocaleString("ko-KR")} ~ ${new Date(event.event.ended_at).toLocaleString("ko-KR")}`;
+        : `${new Date(value.occurred_at).toLocaleString("ko-KR")} ~ ${new Date(value.ended_at).toLocaleString("ko-KR")}`;
     case "DIAPER":
-      return `${diaperOperationLabel[event.event.payload.operation]} · ${diaperConditionLabel[event.event.payload.condition]}`;
+      return `${diaperOperationLabel[value.payload.operation]} · ${diaperConditionLabel[value.payload.condition]}`;
     case "SOOTHE":
-      return sootheActionLabel[event.event.payload.action_kind];
+      return sootheActionLabel[value.payload.action_kind];
   }
+}
+
+export function CareEventValueSummary({ value }: Readonly<{ value: CareEventValue }>) {
+  return (
+    <div className="flex flex-col gap-1 text-sm text-foreground">
+      <p>{careEventValueTitle(value)} · {value.occurred_at === null ? "실제 시각 모름" : new Date(value.occurred_at).toLocaleString("ko-KR")}</p>
+      <p>{eventDescription(value)}</p>
+    </div>
+  );
 }
 
 function personLabel(userId: string, names?: ReadonlyMap<string, string>): string {
@@ -80,7 +94,7 @@ export function CareEventCard({
         </p>
         <SourceBadge dataOrigin={event.data_origin} />
       </div>
-      <p className="text-sm text-foreground">{eventDescription(event)}</p>
+      <p className="text-sm text-foreground">{eventDescription(event.event)}</p>
       <p className="text-xs text-muted-foreground">
         작성자 {personLabel(event.created_by_user_id, memberNames)} · 수정자 {personLabel(event.updated_by_user_id, memberNames)}
       </p>

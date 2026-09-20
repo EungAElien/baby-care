@@ -6,17 +6,22 @@ function validNonNegativeAmount(value: string): boolean {
 }
 
 export function parseLocalDateTime(value: string): Date | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/.exec(value);
   if (!match) return null;
-  const [, year, month, day, hour, minute] = match;
-  const date = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
+  const [, year, month, day, hour, minute, second = "0", millisecond = "0"] = match;
+  const date = new Date(
+    Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute),
+    Number(second), Number(millisecond.padEnd(3, "0")),
+  );
   if (
     Number.isNaN(date.getTime()) ||
     date.getFullYear() !== Number(year) ||
     date.getMonth() + 1 !== Number(month) ||
     date.getDate() !== Number(day) ||
     date.getHours() !== Number(hour) ||
-    date.getMinutes() !== Number(minute)
+    date.getMinutes() !== Number(minute) ||
+    date.getSeconds() !== Number(second) ||
+    date.getMilliseconds() !== Number(millisecond.padEnd(3, "0"))
   ) return null;
   return date;
 }
@@ -59,7 +64,42 @@ export type CareEventValue = components["schemas"]["CareEventValue"];
 
 function localDateTime(date: Date): string {
   const two = (value: number) => String(value).padStart(2, "0");
-  return `${date.getFullYear()}-${two(date.getMonth() + 1)}-${two(date.getDate())}T${two(date.getHours())}:${two(date.getMinutes())}`;
+  const minute = `${date.getFullYear()}-${two(date.getMonth() + 1)}-${two(date.getDate())}T${two(date.getHours())}:${two(date.getMinutes())}`;
+  if (date.getMilliseconds() !== 0) return `${minute}:${two(date.getSeconds())}.${String(date.getMilliseconds()).padStart(3, "0")}`;
+  return date.getSeconds() === 0 ? minute : `${minute}:${two(date.getSeconds())}`;
+}
+
+export function isCareEventValueEditable(value: CareEventValue): boolean {
+  if (value.type === "SLEEP") return value.time_precision === "EXACT" && value.occurred_at !== null;
+  if (value.ended_at !== null) return false;
+  return (value.time_precision === "EXACT" && value.occurred_at !== null) ||
+    (value.time_precision === "UNKNOWN" && value.occurred_at === null);
+}
+
+/** Preserve unknown and zero values, including sub-minute timestamps, when pre-filling an edit. */
+export function careEventValueToFormValues(value: CareEventValue): CareEventFormValues {
+  if (!isCareEventValueEditable(value)) throw new Error("This CareEvent time precision needs a revision draft.");
+  const base = defaultCareEventFormValues();
+  const common = {
+    ...base,
+    type: value.type,
+    timeUnknown: value.occurred_at === null,
+    occurredAt: value.occurred_at === null ? "" : localDateTime(new Date(value.occurred_at)),
+    endedAt: value.ended_at === null ? "" : localDateTime(new Date(value.ended_at)),
+  };
+  switch (value.type) {
+    case "FEEDING": return {
+      ...common, type: "FEEDING", feedingMode: value.payload.mode,
+      amountMl: value.payload.amount_ml === null ? "" : String(value.payload.amount_ml),
+      durationMinutes: value.payload.duration_minutes === null ? "" : String(value.payload.duration_minutes),
+    };
+    case "SLEEP": return { ...common, type: "SLEEP" };
+    case "DIAPER": return {
+      ...common, type: "DIAPER", diaperOperation: value.payload.operation,
+      diaperCondition: value.payload.condition,
+    };
+    case "SOOTHE": return { ...common, type: "SOOTHE", sootheAction: value.payload.action_kind };
+  }
 }
 
 export function defaultCareEventFormValues(now = new Date()): CareEventFormValues {

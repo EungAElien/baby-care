@@ -4,8 +4,10 @@ import { ContractApiError } from "../src/lib/api/errors";
 import { ScopeChangedError } from "../src/lib/private-scope";
 import {
   buildCareEventValue,
+  careEventValueToFormValues,
   careEventFormSchema,
   defaultCareEventFormValues,
+  isCareEventValueEditable,
   parseLocalDateTime,
 } from "../src/lib/care-events/form";
 import { isCareEventOutcomeUnknown } from "../src/lib/care-events/request-outcome";
@@ -93,5 +95,33 @@ describe("A-04 ① structured CareEvent input", () => {
     };
     expect(isCareEventOutcomeUnknown(new ContractApiError(409, envelope, new Headers()))).toBe(false);
     expect(isCareEventOutcomeUnknown(new ContractApiError(503, envelope, new Headers()))).toBe(true);
+  });
+
+  it("prefills edit fields without turning unknown into zero or truncating seconds", () => {
+    const event = {
+      type: "FEEDING" as const,
+      occurred_at: "2026-09-19T09:00:42.250Z",
+      ended_at: null,
+      time_precision: "EXACT" as const,
+      payload: { mode: "FORMULA" as const, amount_ml: 0, duration_minutes: null },
+    };
+    expect(buildCareEventValue(careEventValueToFormValues(event))).toEqual(event);
+    expect(careEventValueToFormValues({ ...event, occurred_at: null, time_precision: "UNKNOWN" }).amountMl).toBe("0");
+    expect(careEventValueToFormValues({
+      ...event, payload: { ...event.payload, amount_ml: null },
+    }).amountMl).toBe("");
+  });
+
+  it("does not silently turn a relative-time confirmed event into an exact-time edit", () => {
+    const relative = {
+      type: "DIAPER" as const,
+      occurred_at: "2026-09-19T09:00:00Z",
+      ended_at: null,
+      time_precision: "RELATIVE" as const,
+      payload: { operation: "CHECK" as const, condition: "UNKNOWN" as const },
+    };
+    expect(isCareEventValueEditable(relative)).toBe(false);
+    expect(() => careEventValueToFormValues(relative)).toThrow("revision draft");
+    expect(isCareEventValueEditable({ ...relative, time_precision: "EXACT", ended_at: "2026-09-19T09:02:00Z" })).toBe(false);
   });
 });
