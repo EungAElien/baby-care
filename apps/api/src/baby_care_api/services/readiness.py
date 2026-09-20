@@ -19,16 +19,24 @@ class ComponentName(StrEnum):
     EXTERNAL_SERVICES = "external_services"
 
 
-_REQUIRED_COMPONENTS = frozenset({ComponentName.AUTHENTICATION, ComponentName.DATABASE})
+_DEFAULT_REQUIRED_COMPONENTS = frozenset({ComponentName.AUTHENTICATION, ComponentName.DATABASE})
 
 
 class ReadinessService:
-    def __init__(self, probes: Mapping[ComponentName, ReadinessProbe] | None = None) -> None:
+    def __init__(
+        self,
+        probes: Mapping[ComponentName, ReadinessProbe] | None = None,
+        *,
+        required_components: frozenset[ComponentName] | None = None,
+    ) -> None:
         self._probes = dict(probes or {})
+        self._required_components = (
+            _DEFAULT_REQUIRED_COMPONENTS if required_components is None else required_components
+        )
 
     async def _component(self, name: ComponentName) -> ComponentReadiness:
         probe = self._probes.get(name)
-        required = name in _REQUIRED_COMPONENTS
+        required = name in self._required_components
         if probe is None:
             return ComponentReadiness(required=required, configured=False, ready=False)
         try:
@@ -49,8 +57,13 @@ class ReadinessService:
             external_services=external_services,
         )
         required_ready = all(
-            component.ready
-            for component in (checks.authentication, checks.database)
+            component.configured and component.ready
+            for component in (
+                checks.authentication,
+                checks.database,
+                checks.model,
+                checks.external_services,
+            )
             if component.required
         )
         return ReadinessResponse(
