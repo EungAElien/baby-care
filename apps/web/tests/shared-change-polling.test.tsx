@@ -45,8 +45,8 @@ function errorStep(status: number, code: string, headers: Record<string, string>
   };
 }
 
-function changes(current: number, entries: Changes["changes"], resync = false): Changes {
-  return { baby_id: babyId, current_revision: current, changes: entries, resync_required: resync, server_time: "2026-09-20T00:00:00Z" };
+function changes(current: number, entries: Changes["changes"], resync = false, forBabyId = babyId): Changes {
+  return { baby_id: forBabyId, current_revision: current, changes: entries, resync_required: resync, server_time: "2026-09-20T00:00:00Z" };
 }
 
 let capturedScope: PrivateScope;
@@ -254,5 +254,72 @@ describe("A-08 ① useSharedChangePolling", () => {
     unmount();
     await flush(20_000);
     expect(state.get).toHaveBeenCalledTimes(2);
+  });
+});
+
+// A-08 ②: checklist bullet 2 (Realtime, SEC30~31) stays blocked — B has not produced the
+// channel-revocation evidence yet, so this slice only closes out bullet 3 (drafts never
+// propagate, and a baby switch or leaving this baby stops the poll and drops its cache).
+// Draft non-propagation is not separately tested: DraftProvider (src/lib/mock/draft.tsx) has
+// no code path into getChanges/applyChange, so there is nothing for the feed to leak.
+describe("A-08 ② baby-switch and leave stop this baby's polling", () => {
+  it("stops immediately when this baby's scope clears (e.g. care-team's self-leave), no 404 required", async () => {
+    state.get
+      .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
+      .mockResolvedValueOnce(jsonStep(changes(8, [])));
+    renderHook(() => useSharedChangePolling(babyId, true), { wrapper: Wrapper });
+    setScope();
+    await flush();
+    await flush();
+    expect(state.get).toHaveBeenCalledTimes(2);
+
+    // Mirrors care-team.tsx's leaveOrAttempt(): the user stays signed in but this baby's
+    // scope is cleared as soon as the leave mutation succeeds, before any navigation.
+    act(() => {
+      capturedScope.set(userId, null);
+    });
+    await flush(30_000);
+    expect(state.get).toHaveBeenCalledTimes(2);
+  });
+
+  it("drops the old baby's poll and bootstraps the new one on a baby switch", async () => {
+    const otherBabyId = "10000000-0000-4000-8000-000000000102";
+    state.get
+      .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
+      .mockResolvedValueOnce(jsonStep(changes(8, [])));
+    const { rerender } = renderHook(
+      ({ id }: { id: string }) => useSharedChangePolling(id, true),
+      { wrapper: Wrapper, initialProps: { id: babyId } },
+    );
+    setScope();
+    await flush();
+    await flush();
+    expect(state.get).toHaveBeenCalledTimes(2);
+
+    state.get
+      .mockResolvedValueOnce(jsonStep(changes(3, [], true, otherBabyId)))
+      .mockResolvedValueOnce(jsonStep(changes(3, [], false, otherBabyId)));
+    act(() => {
+      capturedScope.set(userId, otherBabyId);
+    });
+    rerender({ id: otherBabyId });
+    await flush();
+    await flush();
+
+    expect(state.get).toHaveBeenCalledTimes(4);
+    const calledBabyIds = state.get.mock.calls.map(
+      (call) => (call[1] as { params: { path: { baby_id: string } } }).params.path.baby_id,
+    );
+    expect(calledBabyIds).toEqual([babyId, babyId, otherBabyId, otherBabyId]);
+
+    // Old baby must not resume even though its interval would otherwise still be pending —
+    // every later call (retries included, since nothing is queued past call 4) stays on the
+    // new baby.
+    await flush(30_000);
+    const laterCalls = state.get.mock.calls.slice(4);
+    expect(laterCalls.length).toBeGreaterThan(0);
+    for (const call of laterCalls) {
+      expect((call[1] as { params: { path: { baby_id: string } } }).params.path.baby_id).toBe(otherBabyId);
+    }
   });
 });
