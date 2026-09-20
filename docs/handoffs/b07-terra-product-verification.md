@@ -4,7 +4,9 @@
 
 기준 계약: 1.2.0
 
-기준 `develop`: `5469237b10e2584f141268e135383ba8ff5f1849`
+실제 Terra 호출 기준 `develop`: `1b8611265ffd9389e7ceb35dd8b2fc3a04efc93a`
+
+최종 회귀 기준 `develop`: `e251a247aaa4a67961653f3cc135b0e78cdc266b`
 
 ## 결론
 
@@ -87,9 +89,9 @@ apps/api/.venv/bin/python scripts/verification/b07_live_terra_smoke.py \
 로컬 원본 증거는 Git에서 제외된 `.artifacts/b07-terra-product-smoke/`에 있다. 호출 예산은
 소진됐으므로 이 원장을 지우거나 우회해 같은 검증을 다시 실행하지 않는다.
 
-최신 `develop` 재배치 후 일반 빠른 회귀는 API 단위 221개와 계약·생성물·Ruff·mypy·웹
-타입/테스트/빌드를 통과했다. 격리 통합 회귀는 241개 전체 테스트, 필수 integration
-20/20, coverage 90.66%, pgTAP 96개, Auth/Data API/Storage HTTP 23개를 통과했다. 두
+최신 `develop` 재배치 후 일반 빠른 회귀는 API 단위 234개와 계약·생성물·Ruff·mypy·웹
+타입/테스트/빌드를 통과했다. 격리 통합 회귀는 259개 전체 테스트, 필수 integration
+25/25, coverage 90.52%, pgTAP 97개, Auth/Data API/Storage HTTP 23개를 통과했다. 두
 회귀의 산출물과 B-07 실제 호출 산출물 모두 민감정보 shape scan 결과 0건이었다.
 
 ## 검증 경계

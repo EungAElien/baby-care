@@ -1,7 +1,8 @@
 {
   "schema_version": "baby-care.b07-terra-product-verification.v1",
   "verified_at": "2026-09-20T22:10:59+09:00",
-  "base_commit": "5469237b10e2584f141268e135383ba8ff5f1849",
+  "provider_call_base_commit": "1b8611265ffd9389e7ceb35dd8b2fc3a04efc93a",
+  "final_regression_base_commit": "e251a247aaa4a67961653f3cc135b0e78cdc266b",
   "contract_version": "1.2.0",
   "synthetic_only": true,
   "provider": "openai",
@@ -55,13 +56,13 @@
     "shared_change_feed_omits_raw_and_normalized_content": true
   },
   "regression": {
-    "quick_api_unit_passed": 221,
-    "integration_total_passed": 241,
-    "required_integration_collected": 20,
-    "required_integration_executed": 20,
+    "quick_api_unit_passed": 234,
+    "integration_total_passed": 259,
+    "required_integration_collected": 25,
+    "required_integration_executed": 25,
     "required_integration_skipped": 0,
-    "coverage_percent": 90.66,
-    "pgtap_passed": 96,
+    "coverage_percent": 90.52,
+    "pgtap_passed": 97,
     "auth_data_storage_http_passed": 23,
     "artifact_sensitive_findings": 0
   },
