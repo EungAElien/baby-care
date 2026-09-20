@@ -2,7 +2,7 @@
 
 상태: **실기기 시험 미실행**. 이 표는 직접 재현하고 결과를 기입하기 위한 양식이다. A-02 전체, AC04~AC07, SEC25~26·33·60의 통과 증거가 아니다.
 
-코드 검증(Windows 로컬 Worktree, 2026-09-20): `npm ci` 성공, `npm run typecheck` 성공, `npm test` 13개 파일·45개 테스트 통과, `npm run lint` 경고 없이 성공, `npm run build` 성공. 자동 테스트는 브라우저 오디오 API를 가짜 객체로 대체해 시작 전 권한 요청 없음, 권한 거부/API 미지원, Worklet/Recorder 값 분리, 트랙 종료·범위 전환·이탈 이벤트 정리, 늦은 권한 승인 시 트랙 폐기, 자동 재개 없음만 확인했다. 실제 오디오 프레임·코덱·OS 중단은 검증하지 않았다.
+코드 검증(Windows 로컬 Worktree, 2026-09-20): `npm ci`, `npm run typecheck`, `npm run lint`, `npm run build` 성공, 최신 `develop` 통합 후 `npm test` 23개 파일·95개 테스트 통과. 자동 테스트는 브라우저 오디오 API를 가짜 객체로 대체해 시작 전 권한 요청 없음, 권한 거부/API 미지원, Worklet/Recorder 값 분리, 트랙 종료·범위 전환·이탈 이벤트 정리, 늦은 권한 승인 시 트랙 폐기, 자동 재개 없음과 개발 모드 React Strict Mode의 effect 재설치 후 측정 시작 가능 여부를 확인했다. 개발 서버의 목 사용자 화면에서 초기 `idle` → 시작 클릭 후 `requesting` → 권한 요청 중 중지 후 `stopped`를 확인했지만 마이크 권한을 부여하지 않았다. 실제 오디오 프레임·코덱·OS 중단은 검증하지 않았다.
 
 ## 준비와 공통 절차
 
