@@ -60,7 +60,7 @@ def _create_baby(client: TestClient, owner: AuthSession, label: str) -> dict[str
             "timezone": "Asia/Seoul",
         },
     )
-    assert response.status_code == 201
+    assert response.status_code == 201, response.text
     return response.json()
 
 

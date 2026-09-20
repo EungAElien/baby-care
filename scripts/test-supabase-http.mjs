@@ -7,12 +7,18 @@ import { fileURLToPath } from "node:url";
 const repoDir = fileURLToPath(new URL("..", import.meta.url)).replace(/\/$/, "");
 const dbContainer = process.env.SUPABASE_DB_CONTAINER ?? "supabase_db_baby-care-b03-local";
 const supabaseWorkdir = process.env.SUPABASE_WORKDIR ?? repoDir;
+const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
 
 function localStatus() {
   const output = execFileSync(
-    "npx",
+    npxCommand,
     ["supabase", "--workdir", supabaseWorkdir, "status", "-o", "json"],
-    { cwd: repoDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+    {
+      cwd: repoDir,
+      encoding: "utf8",
+      shell: process.platform === "win32",
+      stdio: ["ignore", "pipe", "ignore"],
+    },
   );
   return JSON.parse(output);
 }

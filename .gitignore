@@ -29,6 +29,7 @@ coverage.xml
 # Local Supabase CLI state
 supabase/.branches/
 supabase/.temp/
+.supabase-home/
 
 # Editor and OS files
 .DS_Store

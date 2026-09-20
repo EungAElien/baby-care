@@ -16,6 +16,8 @@ type DraftContextValue = Readonly<{
   getSavedDraft: (babyId: string) => string | null;
   saveLiveAsDraft: (babyId: string) => void;
   discardLive: (babyId: string) => void;
+  hasCareEventDirty: (babyId: string) => boolean;
+  setCareEventDirty: (babyId: string, dirty: boolean) => void;
   clearBaby: (babyId: string) => void;
 }>;
 
@@ -40,10 +42,22 @@ export function DraftProvider({ children }: Readonly<{ children: React.ReactNode
 function DraftStore({ children }: Readonly<{ children: React.ReactNode }>) {
   const [live, setLive] = useState<Readonly<Record<string, string>>>({});
   const [saved, setSaved] = useState<Readonly<Record<string, string>>>({});
+  const [careEventDirty, setCareEventDirtyState] = useState<ReadonlySet<string>>(new Set());
 
   const getLiveText = useCallback((babyId: string) => live[babyId] ?? "", [live]);
   const hasLiveText = useCallback((babyId: string) => (live[babyId]?.trim().length ?? 0) > 0, [live]);
   const getSavedDraft = useCallback((babyId: string) => saved[babyId] ?? null, [saved]);
+  const hasCareEventDirty = useCallback((babyId: string) => careEventDirty.has(babyId), [careEventDirty]);
+
+  const setCareEventDirty = useCallback((babyId: string, dirty: boolean) => {
+    setCareEventDirtyState((previous) => {
+      if (previous.has(babyId) === dirty) return previous;
+      const next = new Set(previous);
+      if (dirty) next.add(babyId);
+      else next.delete(babyId);
+      return next;
+    });
+  }, []);
 
   const setLiveText = useCallback((babyId: string, text: string) => {
     setLive((prev) => ({ ...prev, [babyId]: text }));
@@ -77,11 +91,16 @@ function DraftStore({ children }: Readonly<{ children: React.ReactNode }>) {
       delete next[babyId];
       return next;
     });
-  }, []);
+    setCareEventDirty(babyId, false);
+  }, [setCareEventDirty]);
 
   const value = useMemo<DraftContextValue>(
-    () => ({ getLiveText, setLiveText, hasLiveText, getSavedDraft, saveLiveAsDraft, discardLive, clearBaby }),
-    [getLiveText, setLiveText, hasLiveText, getSavedDraft, saveLiveAsDraft, discardLive, clearBaby],
+    () => ({
+      getLiveText, setLiveText, hasLiveText, getSavedDraft, saveLiveAsDraft, discardLive,
+      hasCareEventDirty, setCareEventDirty, clearBaby,
+    }),
+    [getLiveText, setLiveText, hasLiveText, getSavedDraft, saveLiveAsDraft, discardLive,
+      hasCareEventDirty, setCareEventDirty, clearBaby],
   );
 
   return <DraftContext.Provider value={value}>{children}</DraftContext.Provider>;

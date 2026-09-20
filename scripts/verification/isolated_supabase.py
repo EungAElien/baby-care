@@ -9,6 +9,8 @@ import tempfile
 from pathlib import Path
 from uuid import uuid4
 
+from common import npx_command
+
 
 class IsolatedSupabase:
     """Prepare a unique local Supabase project without touching another checkout's stack."""
@@ -60,7 +62,7 @@ class IsolatedSupabase:
         path.write_text(config, encoding="utf-8", newline="\n")
 
     def cli(self, *arguments: str) -> list[str]:
-        return ["npx", "supabase", "--workdir", str(self.workdir), *arguments]
+        return [npx_command(), "supabase", "--workdir", str(self.workdir), *arguments]
 
     def assert_unused(self) -> None:
         inspected = subprocess.run(
