@@ -22,6 +22,8 @@
 | [B-03 Supabase 구현·검증](../supabase/README.md) | 현재 로컬 migration, RLS, Storage 정책, 재현 명령과 부분/미실행 인수 범위 |
 | [B-04 → A-03·A-04 연동 인계](handoffs/b04-account-shared-care-records.md) | 구현 operationId, 실행 주소, 합성 계정 배치, 초대·재인증·기록·오류·삭제 UI 연결 순서 |
 | [B-05 → A-02·A-05·B-06 음원 인계](handoffs/b05-audio-intake.md) | STANDARD/TUS 순서, 실제 형식→PCM→V1 경계, 품질·보관·정리, 기기별 검증 상태 |
+| [B-06 → A-06 분석 파이프라인 인계](handoffs/b06-m2d-analysis.md) | 요청 내 실행·응답 유실 복구·attempt/lease fencing, 고정 V1 미검증으로 `product_ready=false`인 현재 제품 게이트 상태 |
+| [A-06 ① 분석 요청·결과·복구 검증표](handoffs/a06-analysis-request-recovery.md) | 웹 합성 자동 시험 범위, 목 미리보기와 실제 경로 분리, 격리 로컬 연동 미실행 사유, 남은 A-06 ② |
 | [B-07 → A-07·A-12 사건 없는 정규화 인계](handoffs/b07-eventless-normalization.md) | LLM/RULE/MANUAL 흐름, 원자 확인 저장, 상태 표현·복구·오류 예시와 사건 연결 잔여 범위 |
 | [B-07 제품 API 실제 Terra 검증](handoffs/b07-terra-product-verification.md) | 합성 3사례·외부 요청 6회 안의 실제 Terra 연결, 제품 HTTP 확인 저장·권한·복구 결과와 재현 경계 |
 | [B-09 → A-08 변경 조회 인계](handoffs/b09-shared-change-feed.md) | 폴링 복구 계약, 쓰기별 재조회, revision 경계와 남은 Realtime 인수 |
