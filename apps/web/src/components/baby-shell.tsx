@@ -38,7 +38,7 @@ export function BabyShell({
   babyLabel: string;
   role: "OWNER" | "CAREGIVER";
   otherBabies: readonly OtherBaby[];
-  onSignOut: () => void;
+  onSignOut: () => void | Promise<void>;
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
@@ -46,6 +46,21 @@ export function BabyShell({
   const draft = useDraft();
   const items = navItems(babyId);
   const [pendingSwitch, setPendingSwitch] = useState<string | null>(null);
+  const [signOutPending, setSignOutPending] = useState(false);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
+
+  async function handleSignOut() {
+    draft.clearBaby(babyId);
+    setSignOutPending(true);
+    setSignOutError(null);
+    try {
+      await onSignOut();
+    } catch {
+      setSignOutError("이 기기의 로그아웃을 확인하지 못했어요. 다시 시도해 주세요.");
+    } finally {
+      setSignOutPending(false);
+    }
+  }
 
   function requestSwitch(nextBabyId: string) {
     if (nextBabyId === babyId) return;
@@ -89,13 +104,15 @@ export function BabyShell({
           )}
           <button
             type="button"
-            onClick={onSignOut}
-            className="h-11 rounded-md px-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+            onClick={handleSignOut}
+            disabled={signOutPending}
+            className="h-11 rounded-md px-3 text-sm font-medium text-muted-foreground hover:bg-muted disabled:opacity-50"
           >
-            로그아웃
+            {signOutPending ? "로그아웃 중…" : "로그아웃"}
           </button>
         </div>
       </header>
+      {signOutError && <p role="alert" className="px-4 py-2 text-sm text-destructive">{signOutError}</p>}
 
       {pendingSwitch && (
         <div
@@ -156,7 +173,9 @@ export function BabyShell({
         </div>
       )}
 
-      <main className="flex-1 px-4 py-4 pb-24">{children}</main>
+      <main className="flex-1 px-4 py-4 pb-24">
+        {signOutPending ? <p role="status" className="text-sm">로그아웃하고 있어요.</p> : children}
+      </main>
 
       <nav
         aria-label="주요 화면 이동"

@@ -9,6 +9,8 @@ import { isForBaby, mockBabyLabel, mockDeletionJob, mockErrorEnvelope } from "@/
 import { useMockSessionOptional } from "@/lib/mock/session";
 import { useRealSession } from "@/lib/auth/real-session";
 import { ScreenSection, ErrorState, LoadingState, PermissionState } from "@/components/screen-state";
+import { ConsentPanel } from "@/components/consent-panel";
+import { findBabyAccess, useBabiesQuery } from "@/lib/api/babies";
 
 const consentScopes = ["SERVICE_PROCESSING", "AUDIO_RETENTION", "BABY_TRAINING"] as const;
 const consentLabel: Record<(typeof consentScopes)[number], string> = {
@@ -34,17 +36,22 @@ export default function SettingsPage() {
 }
 
 function RealSettings({ babyId }: Readonly<{ babyId: string }>) {
+  const babies = useBabiesQuery(true);
+  const access = findBabyAccess(babies.data, babyId);
+  if (babies.isLoading) return <LoadingState label="설정을 불러오고 있어요" />;
+  if (babies.isError || !access) return <ErrorState label="설정을 불러오지 못했어요." retryable />;
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-lg font-semibold text-foreground">설정</h1>
       <ScreenSection title="아기 설정">
         <p className="text-sm text-muted-foreground">
-          프로필 변경·아기 동의·삭제 작업 화면은 아직 실제 API와 연결되지 않았어요.
+          프로필 변경·아기 삭제 작업 화면은 아직 실제 API와 연결되지 않았어요.
         </p>
         <Link href={`/babies/${babyId}/care-team`} className="text-sm font-medium text-primary">
           공동양육 관리로 이동
         </Link>
       </ScreenSection>
+      <ConsentPanel babyId={babyId} isOwner={access.membership.role === "OWNER"} />
       <Link href="/account" className="text-sm font-medium text-primary">
         내 계정으로 이동
       </Link>

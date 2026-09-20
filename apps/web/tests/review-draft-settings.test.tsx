@@ -26,6 +26,13 @@ vi.mock("next/navigation", () => ({
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) => createElement("a", { href }, children),
 }));
+vi.mock("@/lib/api/babies", () => ({
+  useBabiesQuery: () => ({ isLoading: false, isError: false, data: { items: [] } }),
+  findBabyAccess: () => ({ membership: { role: "OWNER" } }),
+}));
+vi.mock("@/components/consent-panel", () => ({
+  ConsentPanel: () => createElement("p", null, "실제 동의 패널"),
+}));
 
 let draft: ReturnType<typeof useDraft>;
 function DraftProbe() {
