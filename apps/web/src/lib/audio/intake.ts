@@ -186,6 +186,9 @@ export class AudioIntake {
       await this.refresh();
     } catch (error) {
       if (this.disposed) return;
+      // B-05 marks a known transient verification failure as retryable with a NEW
+      // key. A lost response keeps the original key until its outcome is found.
+      if (error instanceof ContractApiError && error.status === 503) this.ids.complete = newClientRequestId();
       this.set({ stage: "uncertain", message: `${errorText(error)} 같은 사건의 최종 상태를 조회해 주세요.` });
     }
   }

@@ -5,6 +5,7 @@ import { AudioIntake, audioStatusMessage } from "../src/lib/audio/intake";
 import { DirectRecording, TUS_CHUNK_BYTES } from "../src/lib/audio/recording";
 import { clearAudioResume, StorageUpload, validateUploadEndpoint } from "../src/lib/audio/storage-upload";
 import { PrivateScope } from "../src/lib/private-scope";
+import { ContractApiError } from "../src/lib/api/errors";
 import type { RealApiClient } from "../src/lib/api/real-client";
 import type { PublicConfig } from "../src/lib/public-config";
 
@@ -164,6 +165,35 @@ describe("capture and intake", () => {
     expect(completeIds[0]).toBe(completeIds[1]);
     expect(views.at(-1)?.stage).toBe("ready");
     expect(views.at(-1)?.message).toContain("분석은 아직 시작되지 않았어요");
+    session.dispose();
+  });
+
+  it("uses a fresh complete key only after a known transient 503", async () => {
+    const scope = new PrivateScope(new QueryClient());
+    scope.set("user", "baby");
+    const audio = asset();
+    const ids: string[] = [];
+    let completeCount = 0;
+    const api = {
+      POST: vi.fn(async (path: string, options: { body: Record<string, unknown> }) => {
+        if (path === "/episodes") return { data: { episode_id: "episode" }, response: { ok: true } };
+        if (path === "/episodes/{episode_id}/uploads") return { data: { audio, upload: grant("STANDARD") }, response: { ok: true } };
+        ids.push(String(options.body.client_request_id));
+        completeCount++;
+        if (completeCount === 1) throw new ContractApiError(503, {
+          code: "SERVICE_UNAVAILABLE", message: "Temporary decoder failure", retryable: true, request_id: "request", field_errors: [], details: {},
+        }, new Headers());
+        return { data: { ...audio, status: "READY" }, response: { ok: true } };
+      }),
+      GET: vi.fn(async () => ({ data: { audio_assets: [{ ...audio, status: completeCount > 1 ? "READY" : "ALLOCATED" }] }, response: { ok: true } })),
+    } as unknown as RealApiClient;
+    vi.spyOn(StorageUpload.prototype, "send").mockResolvedValue();
+    const session = new AudioIntake("baby", api, config, auth, scope, () => {});
+    session.select("FILE", new Blob(["x"], { type: "audio/webm" }), 2, false);
+    await session.start();
+    await session.retry();
+    expect(ids).toHaveLength(2);
+    expect(ids[0]).not.toBe(ids[1]);
     session.dispose();
   });
 

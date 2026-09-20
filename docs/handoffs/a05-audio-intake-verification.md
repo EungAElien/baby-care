@@ -11,7 +11,7 @@
 | A-05와 B-05 실연동 | 실제 브라우저 → 로컬 B-05 서버 → 로컬 Storage 전송·완료·재생 | 미실행. 이 작업 PC에 Docker CLI가 없고 WSL 배포 열거가 접근 거부되어 로컬 Supabase를 시작하지 못함 |
 | 실제 브라우저·기기 | 아래 네 대상에서 직접 녹음·파일·권한·연결 중단 | 미실행 |
 
-웹 자동 게이트는 최신 `develop` 재적용 후 `typecheck`, 전체 ESLint, Vitest 25파일 115건, `NEXT_PUBLIC_ENABLE_MOCK_NAV=true/false` 각각의 Next 생산 빌드가 통과했다. 실제 브라우저와 서버 통합 경로의 통과로 해석하지 않는다.
+웹 자동 게이트는 최신 `develop` 재적용 후 `typecheck`, 전체 ESLint, Vitest 25파일 116건, `NEXT_PUBLIC_ENABLE_MOCK_NAV=true/false` 각각의 Next 생산 빌드가 통과했다. 실제 브라우저와 서버 통합 경로의 통과로 해석하지 않는다.
 
 ## 재현 준비
 
