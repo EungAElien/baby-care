@@ -1,0 +1,2754 @@
+[
+  {
+    "snapshot": "calm-author-layers",
+    "note": "Creator authoring snapshot; holding is a source draft, not an exported animation",
+    "scene": {
+      "id": "fkTexdcYd7",
+      "name": "file_1",
+      "size": {
+        "w": 270,
+        "h": 334
+      },
+      "framerate": 24,
+      "duration_seconds": 4,
+      "duration_frames": 96,
+      "layer_order_note": "layers are returned in render stack order: index 0 is top/front.",
+      "summary": {
+        "total": 21,
+        "off_canvas": 0,
+        "clipped": 0,
+        "empty_text": 0,
+        "hidden": 0
+      },
+      "layout_warnings": [
+        "4 items are misaligned — their left/right edges vary by up to 22px. Align them to a shared edge.",
+        "4 items have uneven vertical gaps: 33.5/15.1/31px — distribute them evenly (equal gap)."
+      ],
+      "aesthetic_warnings": [
+        "\"curl\" (rrQFoLWfj8) sits in the outer 10% of the canvas (outside the safe zone) — nudge it inward so it isn't cramped against the edge or cropped on rounded/over-scanned displays.",
+        "\"leg.R\" (ONHX0MqfjC) sits in the outer 10% of the canvas (outside the safe zone) — nudge it inward so it isn't cramped against the edge or cropped on rounded/over-scanned displays.",
+        "\"leg.L\" (CY7gcgXQfi) sits in the outer 10% of the canvas (outside the safe zone) — nudge it inward so it isn't cramped against the edge or cropped on rounded/over-scanned displays."
+      ],
+      "layout_status": {
+        "pass": true,
+        "hard_failures": [],
+        "soft_warnings": [
+          "\"curl\" (rrQFoLWfj8) sits in the outer 10% of the canvas (outside the safe zone) — nudge it inward so it isn't cramped against the edge or cropped on rounded/over-scanned displays.",
+          "\"leg.R\" (ONHX0MqfjC) sits in the outer 10% of the canvas (outside the safe zone) — nudge it inward so it isn't cramped against the edge or cropped on rounded/over-scanned displays.",
+          "\"leg.L\" (CY7gcgXQfi) sits in the outer 10% of the canvas (outside the safe zone) — nudge it inward so it isn't cramped against the edge or cropped on rounded/over-scanned displays.",
+          "4 items are misaligned — their left/right edges vary by up to 22px. Align them to a shared edge.",
+          "4 items have uneven vertical gaps: 33.5/15.1/31px — distribute them evenly (equal gap)."
+        ]
+      }
+    },
+    "layers": [
+      {
+        "id": "rYdxXzo4cU",
+        "name": "leg.R.crease",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 0,
+          "draw_order": 0,
+          "below_layer_id": "VBw0kJP70Z",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 213.61,
+            "y": 268.37,
+            "width": 12.73,
+            "height": 12.23
+          },
+          "visual_center": {
+            "x": 219.98,
+            "y": 274.48
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 84.98,
+            "y": 107.48
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "VBw0kJP70Z",
+        "name": "leg.L.crease",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 1,
+          "draw_order": 1,
+          "above_layer_id": "rYdxXzo4cU",
+          "below_layer_id": "Ytvkpuoq-8",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 47.25,
+            "y": 267.5,
+            "width": 13.58,
+            "height": 13.09
+          },
+          "visual_center": {
+            "x": 54.05,
+            "y": 274.04
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": -80.95,
+            "y": 107.04
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "Ytvkpuoq-8",
+        "name": "ear.R.detail",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 2,
+          "draw_order": 2,
+          "above_layer_id": "VBw0kJP70Z",
+          "below_layer_id": "UYC3PkBi08",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 222.74,
+            "y": 128.85,
+            "width": 12.21,
+            "height": 16.93
+          },
+          "visual_center": {
+            "x": 228.84,
+            "y": 137.31
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 93.84,
+            "y": -29.69
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "UYC3PkBi08",
+        "name": "ear.L.detail",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 3,
+          "draw_order": 3,
+          "above_layer_id": "Ytvkpuoq-8",
+          "below_layer_id": "Khw-hRmPZp",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 42.67,
+            "y": 120.45,
+            "width": 10.09,
+            "height": 17.73
+          },
+          "visual_center": {
+            "x": 47.71,
+            "y": 129.31
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": -87.29,
+            "y": -37.69
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "Khw-hRmPZp",
+        "name": "nose",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 4,
+          "draw_order": 4,
+          "above_layer_id": "UYC3PkBi08",
+          "below_layer_id": "4TbecJ1dOO",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 129.4,
+            "y": 124.98,
+            "width": 11.56,
+            "height": 6.94
+          },
+          "visual_center": {
+            "x": 135.18,
+            "y": 128.45
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 0.18,
+            "y": -38.55
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "4TbecJ1dOO",
+        "name": "mouth",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 5,
+          "draw_order": 5,
+          "above_layer_id": "Khw-hRmPZp",
+          "below_layer_id": "Rm3Bg3c4v3",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 124.49,
+            "y": 143.83,
+            "width": 22.39,
+            "height": 7.21
+          },
+          "visual_center": {
+            "x": 135.68,
+            "y": 147.43
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 0.68,
+            "y": -19.57
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "Rm3Bg3c4v3",
+        "name": "brow.R",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 6,
+          "draw_order": 6,
+          "above_layer_id": "4TbecJ1dOO",
+          "below_layer_id": "4Z9WkrxFl4",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 171.71,
+            "y": 82.89,
+            "width": 13.21,
+            "height": 9.03
+          },
+          "visual_center": {
+            "x": 178.32,
+            "y": 87.4
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 43.32,
+            "y": -79.6
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "4Z9WkrxFl4",
+        "name": "brow.L",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 7,
+          "draw_order": 7,
+          "above_layer_id": "Rm3Bg3c4v3",
+          "below_layer_id": "vNyRrMsm6y",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 91.86,
+            "y": 81.49,
+            "width": 12.93,
+            "height": 8.14
+          },
+          "visual_center": {
+            "x": 98.33,
+            "y": 85.57
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": -36.67,
+            "y": -81.43
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "vNyRrMsm6y",
+        "name": "eye.R",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 8,
+          "draw_order": 8,
+          "above_layer_id": "4Z9WkrxFl4",
+          "below_layer_id": "dJoLvMdjUe",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 163.53,
+            "y": 109.5,
+            "width": 17.47,
+            "height": 23.44
+          },
+          "visual_center": {
+            "x": 172.27,
+            "y": 121.22
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 37.27,
+            "y": -45.78
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "dJoLvMdjUe",
+        "name": "eye.L",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 9,
+          "draw_order": 9,
+          "above_layer_id": "vNyRrMsm6y",
+          "below_layer_id": "rrQFoLWfj8",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 91.72,
+            "y": 106.98,
+            "width": 17.32,
+            "height": 24
+          },
+          "visual_center": {
+            "x": 100.38,
+            "y": 118.98
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": -34.62,
+            "y": -48.02
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "rrQFoLWfj8",
+        "name": "curl",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 10,
+          "draw_order": 10,
+          "above_layer_id": "dJoLvMdjUe",
+          "below_layer_id": "LWTcNUN0D5",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 141.77,
+            "y": 12,
+            "width": 35.36,
+            "height": 36.03
+          },
+          "visual_center": {
+            "x": 159.45,
+            "y": 30.02
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 24.45,
+            "y": -136.98
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": false
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "LWTcNUN0D5",
+        "name": "hand.R",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 11,
+          "draw_order": 11,
+          "above_layer_id": "rrQFoLWfj8",
+          "below_layer_id": "eZoBwFBGig",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 153.28,
+            "y": 219.9,
+            "width": 41.08,
+            "height": 39.54
+          },
+          "visual_center": {
+            "x": 173.82,
+            "y": 239.67
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 38.82,
+            "y": 72.67
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "eZoBwFBGig",
+        "name": "hand.L",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 12,
+          "draw_order": 12,
+          "above_layer_id": "LWTcNUN0D5",
+          "below_layer_id": "jXFxwdUI6V",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 80,
+            "y": 219.46,
+            "width": 38,
+            "height": 39.82
+          },
+          "visual_center": {
+            "x": 99,
+            "y": 239.37
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": -36,
+            "y": 72.37
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "jXFxwdUI6V",
+        "name": "forearm.R",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 13,
+          "draw_order": 13,
+          "above_layer_id": "eZoBwFBGig",
+          "below_layer_id": "6KZqgkUSDb",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 179.12,
+            "y": 222,
+            "width": 45.66,
+            "height": 37.18
+          },
+          "visual_center": {
+            "x": 201.95,
+            "y": 240.59
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 66.95,
+            "y": 73.59
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "6KZqgkUSDb",
+        "name": "forearm.L",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 14,
+          "draw_order": 14,
+          "above_layer_id": "jXFxwdUI6V",
+          "below_layer_id": "hYrLdXtxKX",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 48.15,
+            "y": 221.86,
+            "width": 45.73,
+            "height": 36.31
+          },
+          "visual_center": {
+            "x": 71.01,
+            "y": 240.02
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": -63.99,
+            "y": 73.02
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "hYrLdXtxKX",
+        "name": "head",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 15,
+          "draw_order": 15,
+          "above_layer_id": "6KZqgkUSDb",
+          "below_layer_id": "FO4D2y3VNI",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 33,
+            "y": 11.63,
+            "width": 211.09,
+            "height": 183.12
+          },
+          "visual_center": {
+            "x": 138.55,
+            "y": 103.19
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 3.55,
+            "y": -63.81
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": false
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "FO4D2y3VNI",
+        "name": "upper-arm.R",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 16,
+          "draw_order": 16,
+          "above_layer_id": "hYrLdXtxKX",
+          "below_layer_id": "u70KRM9e2J",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 187.89,
+            "y": 183,
+            "width": 37.27,
+            "height": 71
+          },
+          "visual_center": {
+            "x": 206.53,
+            "y": 218.5
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 71.53,
+            "y": 51.5
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "u70KRM9e2J",
+        "name": "upper-arm.L",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 17,
+          "draw_order": 17,
+          "above_layer_id": "FO4D2y3VNI",
+          "below_layer_id": "ONHX0MqfjC",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 51,
+            "y": 182,
+            "width": 37,
+            "height": 68.44
+          },
+          "visual_center": {
+            "x": 69.5,
+            "y": 216.22
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": -65.5,
+            "y": 49.22
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "ONHX0MqfjC",
+        "name": "leg.R",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 18,
+          "draw_order": 18,
+          "above_layer_id": "u70KRM9e2J",
+          "below_layer_id": "CY7gcgXQfi",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 175.33,
+            "y": 260.98,
+            "width": 77.82,
+            "height": 66.12
+          },
+          "visual_center": {
+            "x": 214.24,
+            "y": 294.04
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 79.24,
+            "y": 127.04
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": false
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "CY7gcgXQfi",
+        "name": "leg.L",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 19,
+          "draw_order": 19,
+          "above_layer_id": "ONHX0MqfjC",
+          "below_layer_id": "pyug4VVSEY",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 20.99,
+            "y": 258.95,
+            "width": 76.93,
+            "height": 68.08
+          },
+          "visual_center": {
+            "x": 59.45,
+            "y": 292.99
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": -75.55,
+            "y": 125.99
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": false
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "pyug4VVSEY",
+        "name": "torso",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 20,
+          "draw_order": 20,
+          "above_layer_id": "CY7gcgXQfi",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 55,
+            "y": 182,
+            "width": 164,
+            "height": 137.13
+          },
+          "visual_center": {
+            "x": 137,
+            "y": 250.56
+          },
+          "scene_center": {
+            "x": 135,
+            "y": 167
+          },
+          "center_delta": {
+            "x": 2,
+            "y": 83.56
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": false
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      }
+    ]
+  },
+  {
+    "snapshot": "holding-final-layers",
+    "note": "Creator authoring snapshot; holding is a source draft, not an exported animation",
+    "scene": {
+      "id": "iuyJyMQhmV",
+      "name": "file_2",
+      "size": {
+        "w": 342,
+        "h": 371
+      },
+      "framerate": 24,
+      "duration_seconds": 2.21,
+      "duration_frames": 53,
+      "layer_order_note": "layers are returned in render stack order: index 0 is top/front.",
+      "summary": {
+        "total": 25,
+        "off_canvas": 0,
+        "clipped": 0,
+        "empty_text": 0,
+        "hidden": 0
+      },
+      "layout_warnings": [
+        "6 items are misaligned — their left/right edges vary by up to 22px. Align them to a shared edge.",
+        "6 items have uneven vertical gaps: 1.5/8.1/2.9/5.1/23px — distribute them evenly (equal gap)."
+      ],
+      "aesthetic_warnings": [
+        "\"caregiver.ankle\" (8NeY554cK8) sits in the outer 10% of the canvas (outside the safe zone) — nudge it inward so it isn't cramped against the edge or cropped on rounded/over-scanned displays.",
+        "\"caregiver.trousers\" (8pRH6Chtp5) sits in the outer 10% of the canvas (outside the safe zone) — nudge it inward so it isn't cramped against the edge or cropped on rounded/over-scanned displays."
+      ],
+      "layout_status": {
+        "pass": true,
+        "hard_failures": [],
+        "soft_warnings": [
+          "\"caregiver.ankle\" (8NeY554cK8) sits in the outer 10% of the canvas (outside the safe zone) — nudge it inward so it isn't cramped against the edge or cropped on rounded/over-scanned displays.",
+          "\"caregiver.trousers\" (8pRH6Chtp5) sits in the outer 10% of the canvas (outside the safe zone) — nudge it inward so it isn't cramped against the edge or cropped on rounded/over-scanned displays.",
+          "6 items are misaligned — their left/right edges vary by up to 22px. Align them to a shared edge.",
+          "6 items have uneven vertical gaps: 1.5/8.1/2.9/5.1/23px — distribute them evenly (equal gap)."
+        ]
+      }
+    },
+    "layers": [
+      {
+        "id": "Qdz4CkknM-",
+        "name": "caregiver.mouth",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 0,
+          "draw_order": 0,
+          "below_layer_id": "bdLPBtBRQv",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 168.99,
+            "y": 112.98,
+            "width": 16.87,
+            "height": 11.77
+          },
+          "visual_center": {
+            "x": 177.43,
+            "y": 118.86
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 6.43,
+            "y": -66.64
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "bdLPBtBRQv",
+        "name": "caregiver.nose",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 1,
+          "draw_order": 1,
+          "above_layer_id": "Qdz4CkknM-",
+          "below_layer_id": "0J2gLkdSwZ",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 180.49,
+            "y": 93.9,
+            "width": 12.35,
+            "height": 23.12
+          },
+          "visual_center": {
+            "x": 186.67,
+            "y": 105.46
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 15.67,
+            "y": -80.04
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "0J2gLkdSwZ",
+        "name": "baby.eye.R",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 2,
+          "draw_order": 2,
+          "above_layer_id": "bdLPBtBRQv",
+          "below_layer_id": "mzv7NdAiRr",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 189.73,
+            "y": 181.65,
+            "width": 9.02,
+            "height": 10.25
+          },
+          "visual_center": {
+            "x": 194.24,
+            "y": 186.78
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 23.24,
+            "y": 1.28
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "mzv7NdAiRr",
+        "name": "baby.eye.L",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 3,
+          "draw_order": 3,
+          "above_layer_id": "0J2gLkdSwZ",
+          "below_layer_id": "uAQ8yPmxc1",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 166.73,
+            "y": 168.96,
+            "width": 8.23,
+            "height": 9.83
+          },
+          "visual_center": {
+            "x": 170.85,
+            "y": 173.87
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": -0.15,
+            "y": -11.63
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "uAQ8yPmxc1",
+        "name": "caregiver.brow.R",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 4,
+          "draw_order": 4,
+          "above_layer_id": "mzv7NdAiRr",
+          "below_layer_id": "lqnsdTLKMk",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 201.57,
+            "y": 75.96,
+            "width": 15.36,
+            "height": 13.55
+          },
+          "visual_center": {
+            "x": 209.24,
+            "y": 82.73
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 38.24,
+            "y": -102.77
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "lqnsdTLKMk",
+        "name": "caregiver.brow.L",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 5,
+          "draw_order": 5,
+          "above_layer_id": "uAQ8yPmxc1",
+          "below_layer_id": "HYZYb07qyw",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 168.81,
+            "y": 75.84,
+            "width": 12.07,
+            "height": 4.92
+          },
+          "visual_center": {
+            "x": 174.85,
+            "y": 78.3
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 3.85,
+            "y": -107.2
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "HYZYb07qyw",
+        "name": "caregiver.eye.R",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 6,
+          "draw_order": 6,
+          "above_layer_id": "lqnsdTLKMk",
+          "below_layer_id": "JlyPld7Bo9",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 199,
+            "y": 97.8,
+            "width": 4.85,
+            "height": 7.96
+          },
+          "visual_center": {
+            "x": 201.43,
+            "y": 101.78
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 30.43,
+            "y": -83.72
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "JlyPld7Bo9",
+        "name": "caregiver.eye.L",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 7,
+          "draw_order": 7,
+          "above_layer_id": "HYZYb07qyw",
+          "below_layer_id": "azJkZRNd-h",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 170,
+            "y": 90.98,
+            "width": 5.91,
+            "height": 7.78
+          },
+          "visual_center": {
+            "x": 172.96,
+            "y": 94.87
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 1.96,
+            "y": -90.63
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "azJkZRNd-h",
+        "name": "baby.mouth",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 8,
+          "draw_order": 8,
+          "above_layer_id": "JlyPld7Bo9",
+          "below_layer_id": "KiyyCvZAtF",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 170.7,
+            "y": 186.87,
+            "width": 7.65,
+            "height": 5.74
+          },
+          "visual_center": {
+            "x": 174.52,
+            "y": 189.74
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 3.52,
+            "y": 4.24
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "KiyyCvZAtF",
+        "name": "baby.ear.detail",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 9,
+          "draw_order": 9,
+          "above_layer_id": "azJkZRNd-h",
+          "below_layer_id": "Sfcp7p_GYP",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 216.42,
+            "y": 197.67,
+            "width": 17.73,
+            "height": 18.09
+          },
+          "visual_center": {
+            "x": 225.29,
+            "y": 206.72
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 54.29,
+            "y": 21.22
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "Sfcp7p_GYP",
+        "name": "caregiver.neck.detail",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 10,
+          "draw_order": 10,
+          "above_layer_id": "KiyyCvZAtF",
+          "below_layer_id": "3hM3iBCWYN",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 127,
+            "y": 101,
+            "width": 47,
+            "height": 45.2
+          },
+          "visual_center": {
+            "x": 150.5,
+            "y": 123.6
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": -20.5,
+            "y": -61.9
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "3hM3iBCWYN",
+        "name": "caregiver.hand.support.creases",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 11,
+          "draw_order": 11,
+          "above_layer_id": "Sfcp7p_GYP",
+          "below_layer_id": "fc0HMx4L8U",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 112.91,
+            "y": 286.96,
+            "width": 48.05,
+            "height": 26.8
+          },
+          "visual_center": {
+            "x": 136.94,
+            "y": 300.37
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": -34.06,
+            "y": 114.87
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "fc0HMx4L8U",
+        "name": "caregiver.hand.front.creases",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 12,
+          "draw_order": 12,
+          "above_layer_id": "3hM3iBCWYN",
+          "below_layer_id": "Fhi6j51Xzd",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 150.81,
+            "y": 210.82,
+            "width": 81.85,
+            "height": 80.03
+          },
+          "visual_center": {
+            "x": 191.74,
+            "y": 250.83
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 20.74,
+            "y": 65.33
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "Fhi6j51Xzd",
+        "name": "caregiver.arm.front",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 13,
+          "draw_order": 13,
+          "above_layer_id": "fc0HMx4L8U",
+          "below_layer_id": "YpbJLpKQVU",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 41.49,
+            "y": 213.68,
+            "width": 204.01,
+            "height": 81.07
+          },
+          "visual_center": {
+            "x": 143.49,
+            "y": 254.21
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": -27.51,
+            "y": 68.71
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "YpbJLpKQVU",
+        "name": "baby.arm.near",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 14,
+          "draw_order": 14,
+          "above_layer_id": "Fhi6j51Xzd",
+          "below_layer_id": "RpTcnenKMP",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 200.6,
+            "y": 211.82,
+            "width": 38.18,
+            "height": 40.18
+          },
+          "visual_center": {
+            "x": 219.69,
+            "y": 231.91
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 48.69,
+            "y": 46.41
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "RpTcnenKMP",
+        "name": "baby.arm.free",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 15,
+          "draw_order": 15,
+          "above_layer_id": "YpbJLpKQVU",
+          "below_layer_id": "QI_fSoWl9Y",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 117.76,
+            "y": 203,
+            "width": 30.99,
+            "height": 26.25
+          },
+          "visual_center": {
+            "x": 133.26,
+            "y": 216.13
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": -37.74,
+            "y": 30.63
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "QI_fSoWl9Y",
+        "name": "baby.curl",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 16,
+          "draw_order": 16,
+          "above_layer_id": "RpTcnenKMP",
+          "below_layer_id": "xzK28dX-6P",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 207.99,
+            "y": 138.68,
+            "width": 22.84,
+            "height": 22.23
+          },
+          "visual_center": {
+            "x": 219.42,
+            "y": 149.8
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 48.42,
+            "y": -35.7
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "xzK28dX-6P",
+        "name": "baby.head",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 17,
+          "draw_order": 17,
+          "above_layer_id": "QI_fSoWl9Y",
+          "below_layer_id": "iSIUFrM0iH",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 152.3,
+            "y": 139.78,
+            "width": 95.23,
+            "height": 83.77
+          },
+          "visual_center": {
+            "x": 199.91,
+            "y": 181.67
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 28.91,
+            "y": -3.83
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "iSIUFrM0iH",
+        "name": "baby.torso",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 18,
+          "draw_order": 18,
+          "above_layer_id": "xzK28dX-6P",
+          "below_layer_id": "m4WBiLbF-k",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 110.91,
+            "y": 202.9,
+            "width": 104.68,
+            "height": 45.71
+          },
+          "visual_center": {
+            "x": 163.24,
+            "y": 225.75
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": -7.76,
+            "y": 40.25
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "m4WBiLbF-k",
+        "name": "caregiver.arm.support",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 19,
+          "draw_order": 19,
+          "above_layer_id": "iSIUFrM0iH",
+          "below_layer_id": "sWtNGvTkMo",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 105.4,
+            "y": 226.51,
+            "width": 181.38,
+            "height": 93.53
+          },
+          "visual_center": {
+            "x": 196.1,
+            "y": 273.27
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 25.1,
+            "y": 87.77
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "sWtNGvTkMo",
+        "name": "caregiver.hair",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 20,
+          "draw_order": 20,
+          "above_layer_id": "m4WBiLbF-k",
+          "below_layer_id": "vPJTehc2cM",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 109.65,
+            "y": 9.99,
+            "width": 132.1,
+            "height": 95.77
+          },
+          "visual_center": {
+            "x": 175.7,
+            "y": 57.87
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 4.7,
+            "y": -127.63
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": false
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "vPJTehc2cM",
+        "name": "caregiver.neck-head",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 21,
+          "draw_order": 21,
+          "above_layer_id": "sWtNGvTkMo",
+          "below_layer_id": "8NeY554cK8",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 109.95,
+            "y": 9.99,
+            "width": 131.8,
+            "height": 144.85
+          },
+          "visual_center": {
+            "x": 175.85,
+            "y": 82.41
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 4.85,
+            "y": -103.09
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": false
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "8NeY554cK8",
+        "name": "caregiver.ankle",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 22,
+          "draw_order": 22,
+          "above_layer_id": "vPJTehc2cM",
+          "below_layer_id": "QggLrWgnj6",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 206.84,
+            "y": 331.45,
+            "width": 40.27,
+            "height": 35.1
+          },
+          "visual_center": {
+            "x": 226.97,
+            "y": 349
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": 55.97,
+            "y": 163.5
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": false
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "QggLrWgnj6",
+        "name": "caregiver.torso",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 23,
+          "draw_order": 23,
+          "above_layer_id": "8NeY554cK8",
+          "below_layer_id": "8pRH6Chtp5",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 34.22,
+            "y": 108.86,
+            "width": 250.94,
+            "height": 170.04
+          },
+          "visual_center": {
+            "x": 159.69,
+            "y": 193.88
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": -11.31,
+            "y": 8.38
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": true
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      },
+      {
+        "id": "8pRH6Chtp5",
+        "name": "caregiver.trousers",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": {
+          "x": 100,
+          "y": 100
+        },
+        "rotation": 0,
+        "ordering": {
+          "stack_index": 24,
+          "draw_order": 24,
+          "above_layer_id": "QggLrWgnj6",
+          "note": "Lower stack_index/draw_order renders above higher values."
+        },
+        "layout": {
+          "visual_bounds": {
+            "x": 10.86,
+            "y": 275,
+            "width": 319.18,
+            "height": 92
+          },
+          "visual_center": {
+            "x": 170.45,
+            "y": 321
+          },
+          "scene_center": {
+            "x": 171,
+            "y": 185.5
+          },
+          "center_delta": {
+            "x": -0.55,
+            "y": 135.5
+          },
+          "scene_fit": {
+            "fully_inside_scene": true,
+            "clipped": false,
+            "off_canvas": false,
+            "overflow": {
+              "left": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "inside_safe_zone": false
+          }
+        },
+        "isAnimated": {
+          "position": false,
+          "scale": false,
+          "rotation": false,
+          "opacity": false
+        }
+      }
+    ]
+  }
+]
