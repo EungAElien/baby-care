@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     external_normalization_enabled: bool = False
     audio_ffmpeg_path: Path = Path("/usr/local/bin/ffmpeg")
     audio_ffprobe_path: Path = Path("/usr/local/bin/ffprobe")
-    audio_ffmpeg_version_prefix: str = "ffmpeg version 7.1.1-static"
+    audio_ffmpeg_version_prefix: str = "ffmpeg version 7.1.1"
     audio_decode_concurrency: int = Field(default=2, ge=1, le=8)
 
     # The normal API profile stays lightweight. The dedicated V1 B profile enables

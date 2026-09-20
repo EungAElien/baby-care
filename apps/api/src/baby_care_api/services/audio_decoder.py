@@ -148,7 +148,7 @@ class FfmpegAudioDecoder:
         *,
         ffmpeg_path: Path,
         ffprobe_path: Path,
-        expected_version_prefix: str = "ffmpeg version 7.1.1-static",
+        expected_version_prefix: str = "ffmpeg version 7.1.1",
         max_concurrency: int = 2,
         runner: CommandRunner = subprocess.run,
     ) -> None:
