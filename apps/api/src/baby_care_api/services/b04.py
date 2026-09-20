@@ -128,9 +128,12 @@ class PostgresBabyCareService:
         principal: AuthenticatedPrincipal,
         *,
         require_live_session: bool = True,
+        consistent_read: bool = False,
     ) -> AsyncIterator[DatabaseConnection]:
         try:
             async with self._pool.connection() as connection, connection.transaction():
+                if consistent_read:
+                    await connection.execute("set transaction isolation level repeatable read")
                 await connection.execute("set local role baby_app")
                 await connection.execute(
                     """
@@ -2530,9 +2533,9 @@ class PostgresBabyCareService:
     ) -> DailySummary:
         if day == date.max:
             raise ApiException(ErrorCode.VALIDATION_ERROR, "The requested date is out of range.")
-        async with self.transaction(principal) as connection:
-            # Record writers advance babies.context_revision. Holding a share lock
-            # keeps the revision and source rows consistent for this response.
+        async with self.transaction(principal, consistent_read=True) as connection:
+            # One snapshot keeps the revision and source rows consistent. A row
+            # lock would apply babies_update RLS and hide the baby from caregivers.
             cursor = await connection.execute(
                 """
                 select b.timezone, b.context_revision, b.version,
@@ -2541,7 +2544,6 @@ class PostgresBabyCareService:
                   join baby_data.baby_memberships m on m.baby_id = b.baby_id
                  where b.baby_id = %s and b.status = 'ACTIVE'
                    and m.user_id = %s and m.status = 'ACTIVE'
-                 for share of b, m
                 """,
                 (baby_id, principal.user_id),
             )

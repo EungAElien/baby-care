@@ -685,12 +685,9 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
         assert owner_edit.status_code == 200
         assert owner_edit.json()["created_by_user_id"] == str(caregiver.user_id)
         assert owner_edit.json()["updated_by_user_id"] == str(owner.user_id)
-        assert (
-            client.get(summary_url, headers=_headers(caregiver)).json()["feeding"][
-                "total_recorded_ml"
-            ]
-            == 100
-        )
+        caregiver_summary = client.get(summary_url, headers=_headers(caregiver))
+        assert caregiver_summary.status_code == 200, caregiver_summary.json()
+        assert caregiver_summary.json()["feeding"]["total_recorded_ml"] == 100
         stale_event_id = uuid4()
         stale_event = client.patch(
             f"/v1/care-events/{event_id}",
