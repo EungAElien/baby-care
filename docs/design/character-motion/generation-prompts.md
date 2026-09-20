@@ -3,6 +3,8 @@
 작성일: 2026-09-20
 도구: 내장 image_gen. 세 시트는 검토용 PNG 초안이며 부위별 리그나 모션 파일이 아니다.
 
+현재 AI 추정 시안에는 마지막의 2-2 수정 프롬프트를 적용했다. 아래 원시안의 말풍선 지시는 수정 전 이력으로만 보존한다.
+
 ## 1. 관찰 상태 원시안
 
 Use case: stylized-concept.
@@ -70,12 +72,52 @@ Each cell has ample whitespace, big figures and a clear silhouette at thumbnail 
 
 ## 2-1. AI 판단 어려움의 표정과 옷 통일
 
-undefined
+이전 수정 프롬프트의 전문은 이 파일에 보존되지 않았다. 수정 의도는 판단 어려움의 얼굴을 중립으로 만들고 아기 옷을 다른 시트와 통일하는 것이었다. 원문 프롬프트로 간주하지 않는다.
 
 ## 3-1. 조치와 아기 상태의 독립성 보정
 
-undefined
+이전 수정 프롬프트의 전문은 이 파일에 보존되지 않았다. 수정 의도는 환경 변경·옷 갈아입히기 장면의 아기를 깨어 있는 중립 상태로 바꾸는 것이었다. 원문 프롬프트로 간주하지 않는다.
 
 ## 4. 안아줌 대표 장면
 
-undefined
+이전 생성 프롬프트의 전문은 이 파일에 보존되지 않았다. 결과물은 같은 아기와 파란 옷의 보호자가 큰 곡선으로 구성된 포옹 자세를 만드는 대표 장면이다.
+
+## 2-2. AI 추정을 아기의 표정·손동작·자세로 직접 표현
+
+수정일: 2026-09-20. 실행 방식: 내장 image_gen 편집. 아래는 실제 사용한 프롬프트 전문이다.
+
+- 편집 대상: 커밋 452afc5의 concepts/02-ai-inferences.png. 말풍선을 쓰던 이전 시트.
+- 스타일·캐릭터 참조: concepts/01-observation-states.png.
+- 결과: concepts/02-ai-inferences.png를 수정본으로 교체. 원본 위치와 해시는 image-provenance.json에 기록.
+
+Use case: precise-object-edit.
+Asset type: a revised illustrated character pose sheet for a Korean baby-care product.
+
+Input image 1 is the EDIT TARGET: the six-cell board titled “울음에서 추정한 다섯 가지 가능성”. Input image 2 is a STYLE AND CHARACTER reference only: “아기의 여덟 가지 모습”.
+Revise image 1 so EVERY state is embodied by the BABY'S OWN face, hands, posture, and silhouette. REMOVE ALL thought bubbles, speech bubbles, dots, floating icons, pictograms, question marks, arrows, moons, milk symbols, spirals and abstract emotion marks. Each cell must be a single self-contained illustration of the baby experiencing that state. No explanatory props. The infant itself, not a separate symbol, carries the meaning.
+
+Preserve the landscape 1536x1024 format, warm ivory background, elegant spacious 3-column by 2-row arrangement, Korean title and subtitle, and caption-plus-small-navy-badge structure of image 1. Center each full-body infant over its caption, at similar visual scale, using the space freed by removing the bubbles. Maintain abundant separation; do not crop body parts.
+Match the exact character design and simplified flat shape language of image 2: warm apricot skin, round pear-shaped large infant head, ONE small navy comma curl, small ears, simple navy eyes and expressive eyebrows, simple mouth, short rounded arms and legs, mustard sleeveless one-piece romper. Same proportions and identity in all six cells. Soft clean flat-color vector-like editorial illustration, negligible shading, no gradients, no texture, no 3D. Keep facial gestures bold and readable like image 2.
+
+Draw SIX CLEARLY DIFFERENT POSES, left to right then top to bottom:
+1 HUNGRY: alert eyes with pleading inward-raised brows, head turning slightly to the side as if searching for a feed, partly open searching mouth, one tiny fist pressed to the lips and the other hand resting on the belly. Leaning forward slightly. Hungry seeking expression, not yawning and not happily eating. Entire figure shown.
+2 SLEEPY / TIRED: slumped shoulders, drooping half-closed eyelids, a clear soft open-mouth yawn, one hand rubbing the eye, other arm hanging loosely, relaxed low seated posture. Still awake; no closed sleeping pose.
+3 NEEDS TO BURP: upright three-quarter view with chest lifted and small backward torso arch, chin slightly raised, brows tense, lips a SMALL pursed O (much smaller than tired yawn), one hand over UPPER chest just below the throat and the other at the side. Show upper-body pressure/discomfort through the pose only, with legs relatively open. No emitted breath, bubbles or completed-burp celebration.
+4 BELLY DISCOMFORT: visibly hunched curled-forward torso, knees drawn toward tummy, BOTH hands holding LOWER abdomen, furrowed eyebrows, squeezed eyes, tight grimacing small mouth. Compact curled silhouette distinctly different from upright chest posture in cell 3. No localized red target or medical markings, no extreme agony.
+5 GENERAL DISCOMFORT: restless squirming asymmetrical seated pose, torso twisting sideways, one leg extending outward and the other tucked in, both arms held OUT away from belly as tense bent arms, scrunched dissatisfied eyebrows, downturned small open complaining mouth. Restless body-wide discomfort, no specific abdominal gesture. Distinct from the inward-curled belly pose and from hunger.
+6 UNCERTAIN: calm neutral front-facing upright sitting pose, open level eyes, straight tiny mouth, relaxed arms resting beside knees. No smile, no sadness, no symbols. This is the neutral fallback, not a sixth physical condition.
+
+Exact Korean text to preserve:
+Title: 울음에서 추정한 다섯 가지 가능성
+Subtitle: AI 추정 · 관찰 기록과 별도
+Top row captions:
+01 배고픔 가능성
+02 졸림·피곤함 가능성
+03 트림 필요 가능성
+Bottom row captions:
+04 배 불편함 가능성
+05 일반적인 불편함 가능성
+06 판단 어려움
+A small navy pill reading “AI 추정” under each caption. The badges and title are OUTSIDE the illustrations. No other text.
+
+Priority: make the baby visibly EXPERIENCE each of the five states through a purposeful distinct whole-body pose. Do not repeat an identical sad seated baby. Preserve the same original infant and the visual language of the other concept sheets.

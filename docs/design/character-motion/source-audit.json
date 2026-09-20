@@ -107,5 +107,48 @@
     "existing_scope": "observation 8, AI causes 5 + abstention, completed care 8",
     "contract_modified": false,
     "product_code_modified": false
+  },
+  "web_component_review": {
+    "checked_at": "2026-09-20",
+    "repository_files": [
+      "apps/web/package.json"
+    ],
+    "finding": "Next.js and React are declared; no dedicated animation runtime in the inspected dependency list",
+    "recommendation": "Inline SVG in React plus CSS; browser Web Animations API for controlled one-shot sequences; dedicated authoring tools only for scenes requiring complex deformation or timeline editing",
+    "sources": [
+      {
+        "url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorials/SVG_from_scratch/SVG_and_CSS",
+        "role": "Applying CSS to SVG elements"
+      },
+      {
+        "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Animations/Using",
+        "role": "CSS keyframe animation"
+      },
+      {
+        "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/transform-box",
+        "role": "SVG transform reference box and origin"
+      },
+      {
+        "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Using_the_Web_Animations_API",
+        "role": "Playback control, cancellation and completion"
+      },
+      {
+        "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion",
+        "role": "Reduced motion preference"
+      },
+      {
+        "url": "https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilitychange_event",
+        "role": "Page visibility lifecycle"
+      }
+    ],
+    "runtime_prototype_implemented": false,
+    "verified_scope": "Documentation and package manifest inspection only",
+    "not_verified": [
+      "Layered SVG reconstruction",
+      "Browser motion rendering",
+      "Mobile accessibility and small-size comprehension",
+      "Performance with microphone detection",
+      "Production API integration"
+    ]
   }
 }
