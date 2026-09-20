@@ -28,7 +28,7 @@
 
 계약 1.1.0과 B-04 인계로 A-03·A-04의 실제 API 연결 코드는 작성됐고, B-09 계약 1.1.1로 A-08 폴링 코드도 작성됐다. A-12는 합성 장면으로 시작할 수 있다. A-13 상담 경로와 아직 계약에 없는 보관 기간·초안 만료 오류는 화면에서 먼저 임의로 확정하지 않는다.
 
-**현재 진행 현황(2026-09-20, `origin/develop=342f21c` 기준):** A-01 ①·②, A-02 ①([#22](https://github.com/EungAElien/baby-care/pull/22))와 Mac 포커스 정리·부분 기기 검증(`342f21c`), A-03 후속 초대·동의·재인증·세션 회수(`f5545b6`), A-04 ①·②와 A-08 전경 폴링·전환 정리([#21](https://github.com/EungAElien/baby-care/pull/21)), A-08 변경 재조회 실패 복구(`64faaed`), B-05 서버 구현(`efa2d18`), A-05 웹 코드([#31](https://github.com/EungAElien/baby-care/pull/31))가 병합됐다. A-05 병합은 이번 Windows 인수 도중 일어났으며 실제 OTP 브라우저 시험은 그 이전 기준에서 수행했다. B-11 API는 열린 [#28](https://github.com/EungAElien/baby-care/pull/28) 작업이며 완료가 아니다. Realtime은 SEC30·SEC31 회수 증거가 없어 꺼져 있다. 아래 구분은 [이번 격리 인수 기록](./verification/a-acceptance-local-2026-09-20.md)과 [A-02 기기 표](./a02-audio-device-check.md)의 관측 범위만 반영한다.
+**현재 진행 현황(2026-09-20, `origin/develop=5469237` 기준):** A-01 ①·②, A-02 ①([#22](https://github.com/EungAElien/baby-care/pull/22))와 Mac 포커스 정리·부분 기기 검증(`342f21c`), A-03 후속 초대·동의·재인증·세션 회수(`f5545b6`), A-04 ①·②와 A-08 전경 폴링·전환 정리([#21](https://github.com/EungAElien/baby-care/pull/21)), A-08 변경 재조회 실패 복구(`64faaed`), B-05 서버 구현(`efa2d18`), A-05 웹 코드([#31](https://github.com/EungAElien/baby-care/pull/31))가 병합됐다. A-05 병합은 이번 Windows 인수 도중 일어났으며 실제 OTP 브라우저 시험은 그 이전 기준에서 수행했다. B-11 API도 [#28](https://github.com/EungAElien/baby-care/pull/28)로 코드 병합됐지만 A-09 화면 인수나 운영 검증 완료를 뜻하지 않는다. Realtime은 SEC30·SEC31 회수 증거가 없어 꺼져 있다. 아래 구분은 [이번 격리 인수 기록](./verification/a-acceptance-local-2026-09-20.md)과 [A-02 기기 표](./a02-audio-device-check.md)의 관측 범위만 반영한다.
 
 | 항목 | 코드 병합 | 합성 자동 검사 | 격리 로컬 API 검사 | 실제 OTP 브라우저 인수 | 실기기 인수 |
 | --- | --- | --- | --- | --- | --- |
@@ -336,7 +336,7 @@ B-04 인계(`docs/handoffs/b04-account-shared-care-records.md`, `feature/b04-acc
 
 ## A-09. 맥락 안내·이전 사례·오늘 요약
 
-선행: B-08·B-11의 안내·요약·알림 계약 확보. 실제 계산·알림 API는 구현 후 연동한다.
+선행: B-08·B-11의 안내·요약·알림 계약 확보. B-11 날짜별 집계·준비 알림 API 코드는 PR #28로 병합됐다. A-09 화면 연동과 실제 계정·기기 인수는 별도다.
 
 - [ ] **[Codex → 직접 확인]** 현재 맥락과 확인 행동 안내, 근거·유보·긴급 도움 안내를 구분해 보여주고 A가 표현의 안전성·이해 가능성을 확인한다. (F07·F08)
 - [ ] **[Codex → 직접 확인]** 같은 아기의 적격 이전 사례만 보여주고, 사례가 없거나 삭제된 경우도 처리한다. A는 타 아기 자료가 섞이지 않는지 확인한다. (F11)
