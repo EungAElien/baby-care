@@ -1,4 +1,5 @@
 "use client";
+import { ActionButton } from "@/components/seed-design/ui/action-button";
 
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -129,18 +130,18 @@ export function CareEventEdit({
         <p className="text-xs text-muted-foreground">읽은 version {baseVersion}을 기준으로 저장해요. 다른 보호자의 변경을 자동으로 합치지 않아요.</p>
         <form onSubmit={submit} className="mt-3 flex flex-col gap-4" noValidate>
           <CareEventFields form={form} disabled={mutation.isPending || pendingRequest !== null || conflict !== null} />
-          <button
+          <ActionButton
             type="submit"
             disabled={!form.formState.isDirty || mutation.isPending || pendingRequest !== null || conflict !== null}
             className="min-h-11 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
             {mutation.isPending ? "수정 확인 중" : "수정 저장"}
-          </button>
+          </ActionButton>
         </form>
         {!pendingRequest && !conflict && (
-          <button type="button" onClick={onCancel} className="mt-3 min-h-11 rounded-md border border-border px-4 text-sm">
+          <ActionButton variant="neutralWeak" type="button" onClick={onCancel} className="mt-3 min-h-11 rounded-md border border-border px-4 text-sm">
             수정안 버리기
-          </button>
+          </ActionButton>
         )}
       </ScreenSection>
 
@@ -148,14 +149,14 @@ export function CareEventEdit({
         <div className="flex flex-col gap-2">
           <ErrorState label={editErrorMessage(saveError)} retryable={pendingRequest !== null} />
           {pendingRequest && (
-            <button
+            <ActionButton variant="neutralWeak"
               type="button"
               onClick={() => void send(pendingRequest)}
               disabled={mutation.isPending}
               className="min-h-11 rounded-md border border-border px-4 text-sm disabled:opacity-50"
             >
               같은 수정 요청으로 결과 다시 확인
-            </button>
+            </ActionButton>
           )}
         </div>
       )}
@@ -170,7 +171,7 @@ export function CareEventEdit({
             <>
               <p className="text-sm font-medium text-foreground">현재 조회 권한으로 다시 확인한 최신 서버 기록</p>
               <CareEventCard event={conflict.latest} babyId={babyId} memberNames={memberNames} />
-              <button
+              <ActionButton variant="neutralWeak"
                 type="button"
                 onClick={() => {
                   if (!conflict.latest) return;
@@ -182,8 +183,8 @@ export function CareEventEdit({
                 className="min-h-11 rounded-md border border-border px-4 text-sm"
               >
                 최신 기록부터 다시 편집
-              </button>
-              <button
+              </ActionButton>
+              <ActionButton variant="neutralWeak"
                 type="button"
                 onClick={() => {
                   if (!conflict.latest) return;
@@ -196,7 +197,7 @@ export function CareEventEdit({
                 className="min-h-11 rounded-md border border-destructive/40 px-4 text-sm text-destructive disabled:opacity-50"
               >
                 최신 version으로 내 수정안을 다시 저장
-              </button>
+              </ActionButton>
               <p className="text-xs text-muted-foreground">마지막 선택은 최신 기록을 내 수정안으로 대체합니다. 두 입력을 합치지는 않아요.</p>
             </>
           ) : (
@@ -205,13 +206,13 @@ export function CareEventEdit({
                 {conflict.readFailed ? "최신 기록을 다시 조회하지 못했어요. 409 응답에 담긴 값은 표시하지 않습니다." : "현재 권한으로 최신 기록을 다시 확인하고 있어요."}
               </p>
               {conflict.readFailed && (
-                <button
+                <ActionButton variant="neutralWeak"
                   type="button"
                   onClick={() => void readLatest(conflict.draft, conflict.attemptedVersion)}
                   className="min-h-11 rounded-md border border-border px-4 text-sm"
                 >
                   최신 기록 다시 조회
-                </button>
+                </ActionButton>
               )}
             </div>
           )}

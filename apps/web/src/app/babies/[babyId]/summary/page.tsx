@@ -1,68 +1,30 @@
-// SC07 요약과 준비 — 기록 합계·표본 수·범위·준비 알림. `state` 쿼리로
-// 기록 없음/양 모름 두 목 화면을 오갈 수 있다. 실제 계산은 B-08·B-11 연동 후.
 import Link from "next/link";
 import { isForBaby, mockDailySummary, mockPatterns } from "@/lib/mock/fixtures";
-import { EmptyState, ScreenSection } from "@/components/screen-state";
+import { ScreenSection } from "@/components/screen-state";
+import { PageHeading } from "@/components/page-heading";
+import { SummaryOverview } from "@/components/summary-overview";
+import { DemoOnly } from "@/components/demo-only";
+import { ActionButton } from "@/components/seed-design/ui/action-button";
+import { Callout } from "@/components/seed-design/ui/callout";
 
-export default async function SummaryPage({
-  params,
-  searchParams,
-}: Readonly<{ params: Promise<{ babyId: string }>; searchParams: Promise<{ state?: string }> }>) {
+export default async function SummaryPage({ params, searchParams }: Readonly<{ params: Promise<{ babyId: string }>; searchParams: Promise<{ state?: string }> }>) {
   const { babyId } = await params;
   const { state } = await searchParams;
-  const summaryFixture = mockDailySummary(state === "unknown-amount" ? "summary_unknown_amount" : "summary_empty");
-  const summary = isForBaby(babyId, summaryFixture) ? summaryFixture : null;
-  const patternsFixture = mockPatterns();
-  const patterns = isForBaby(babyId, patternsFixture) ? patternsFixture : null;
-
-  return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold text-foreground">오늘 요약</h1>
-
-      {!summary || !summary.has_records ? (
-        <EmptyState
-          label="기록이 없어요"
-          action={
-            <Link
-              href={`/babies/${babyId}/quick-record`}
-              className="flex min-h-11 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
-            >
-              지금 기록하기
-            </Link>
-          }
-        />
-      ) : (
-        <ScreenSection title="수유">
-          <p className="text-sm text-foreground">{summary.feeding.record_count}회</p>
-          {summary.feeding.unknown_amount_count > 0 && (
-            <p className="text-xs text-muted-foreground">양을 모르는 기록 {summary.feeding.unknown_amount_count}회</p>
-          )}
-        </ScreenSection>
-      )}
-
-      <ScreenSection title="준비 패턴">
-        {patterns ? (
-          patterns.items.map((item) => (
-            <p key={item.kind} className="text-sm text-muted-foreground">
-              {item.status === "ON_HOLD"
-                ? `유효 기록이 부족해 보류 중이에요 (${item.valid_days}일, ${item.interval_count}개 간격)`
-                : "준비 시점을 안내할 수 있어요"}
-            </p>
-          ))
-        ) : (
-          <p className="text-sm text-muted-foreground">이 아기의 패턴 자료가 아직 없어요.</p>
-        )}
-        <p className="text-xs text-muted-foreground">준비 알림은 기본 꺼짐이며 개인별로 설정합니다.</p>
+  const fixture = mockDailySummary(state === "unknown-amount" ? "summary_unknown_amount" : "summary_empty");
+  const summary = isForBaby(babyId, fixture) ? fixture : null;
+  const patternFixture = mockPatterns();
+  const patterns = isForBaby(babyId, patternFixture) ? patternFixture : null;
+  return <div className="flex flex-col gap-6">
+    <PageHeading title="기록으로 보는 하루" description="남긴 만큼만 살펴봐요. 빈 기록을 0으로 계산하지 않아요." />
+    <DemoOnly fallback={<ScreenSection title="요약 연결 준비 중"><p>아직 이 화면에서 실제 요약을 조회할 수 없어요. 확인한 기록은 타임라인에서 볼 수 있어요.</p><ActionButton asChild><Link href={`/babies/${babyId}/timeline`}>타임라인 보기</Link></ActionButton></ScreenSection>}>
+      <SummaryOverview summary={summary} babyId={babyId} />
+      <ScreenSection title="다음 돌봄 준비">
+        {patterns?.items.map((item) => <div key={item.kind} className="status-note"><p className="font-semibold">{item.status === "ON_HOLD" ? "패턴을 살펴볼 기록이 더 필요해요" : "준비 시점을 참고할 수 있어요"}</p><p className="text-sm text-muted-foreground">유효 기록 {item.valid_days}일 · {item.interval_count}개 간격</p></div>) ?? <p>이 아기의 패턴 자료가 아직 없어요.</p>}
+        <p className="text-sm text-muted-foreground">준비 알림은 기본 꺼짐이에요. 예측을 확정된 일정으로 해석하지 마세요.</p>
       </ScreenSection>
-
-      <div className="flex gap-2 text-xs">
-        <Link href={`/babies/${babyId}/summary`} className="underline text-muted-foreground">
-          기록 없음 보기
-        </Link>
-        <Link href={`/babies/${babyId}/summary?state=unknown-amount`} className="underline text-muted-foreground">
-          양 모름 보기
-        </Link>
-      </div>
-    </div>
-  );
+      <details className="preview-tools"><summary>DEMO · 요약 상태 살펴보기</summary><div className="flex flex-wrap gap-2"><ActionButton variant="neutralWeak" size="small" asChild><Link href={`/babies/${babyId}/summary`}>기록 없음</Link></ActionButton><ActionButton variant="neutralWeak" size="small" asChild><Link href={`/babies/${babyId}/summary?state=unknown-amount`}>양 정보 부족</Link></ActionButton></div></details>
+    </DemoOnly>
+    <Callout title="기록 없음 · 정보 부족 · 실제 0" description="기록이 없으면 ‘기록 없음’, 값이 빠지면 ‘정보 부족’으로 표시해요. 확인한 값이 0일 때만 숫자 0을 보여줘요." />
+  </div>;
 }
+

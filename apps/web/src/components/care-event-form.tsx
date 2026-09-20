@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ActionButton } from "./seed-design/ui/action-button";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -47,6 +48,7 @@ function activeSleepId(error: unknown, babyId: string): string | null {
 export function CareEventForm({ babyId, canSave }: Readonly<{ babyId: string; canSave: boolean }>) {
   const draft = useDraft();
   const mutation = useCreateCareEventMutation();
+  const submissionLock = useRef(false);
   const [savedEvent, setSavedEvent] = useState<CareEvent | null>(null);
   const [pendingRequest, setPendingRequest] = useState<CreateCareEventRequest | null>(null);
   const [saveError, setSaveError] = useState<unknown>(null);
@@ -63,6 +65,8 @@ export function CareEventForm({ babyId, canSave }: Readonly<{ babyId: string; ca
   useEffect(() => () => setCareEventDirty(babyId, false), [babyId, setCareEventDirty]);
 
   async function send(request: CreateCareEventRequest) {
+    if (submissionLock.current) return;
+    submissionLock.current = true;
     setSaveError(null);
     try {
       const { event } = await mutation.mutateAsync(request);
@@ -72,10 +76,13 @@ export function CareEventForm({ babyId, canSave }: Readonly<{ babyId: string; ca
     } catch (error) {
       setSaveError(error);
       setPendingRequest(isCareEventOutcomeUnknown(error) ? request : null);
+    } finally {
+      submissionLock.current = false;
     }
   }
 
-  const submit = handleSubmit(async (values) => {
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    await handleSubmit(async (values) => {
     if (!canSave || pendingRequest) return;
     setSavedEvent(null);
     const request: CreateCareEventRequest = {
@@ -84,7 +91,8 @@ export function CareEventForm({ babyId, canSave }: Readonly<{ babyId: string; ca
       event: buildCareEventValue(values),
     };
     await send(request);
-  });
+    })(event);
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -93,13 +101,13 @@ export function CareEventForm({ babyId, canSave }: Readonly<{ babyId: string; ca
           <CareEventFields form={form} disabled={mutation.isPending || pendingRequest !== null} />
 
           <p className="text-xs text-muted-foreground">실제로 한 일만 저장해 주세요. 선택한 종류와 값 외의 정보를 자동으로 추정하지 않아요.</p>
-          <button
+          <ActionButton
             type="submit"
             disabled={!canSave || mutation.isPending || pendingRequest !== null}
-            className="min-h-11 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
+            loading={mutation.isPending}
           >
             {mutation.isPending ? "저장 확인 중" : "기록 저장"}
-          </button>
+          </ActionButton>
           {!canSave && <p className="text-xs text-muted-foreground">이 화면은 계약 예시 미리보기예요. 실제 저장은 로그인한 API 환경에서만 할 수 있어요.</p>}
         </form>
       </ScreenSection>

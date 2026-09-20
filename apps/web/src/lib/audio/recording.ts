@@ -24,6 +24,11 @@ export class DirectRecording {
   private fail: ((reason: Error) => void) | null = null;
   private cancelled = false;
   private stopRequested = false;
+  private failureMessage = "녹음을 취소했어요.";
+  private removeListeners: (() => void) | null = null;
+  private cancelPermission: ((reason: Error) => void) | null = null;
+
+  constructor(private readonly onState?: (state: "requesting" | "recording") => void) {}
 
   async start(): Promise<FinishedRecording> {
     if (this.recorder || typeof MediaRecorder === "undefined" || !navigator.mediaDevices?.getUserMedia) {
@@ -31,7 +36,36 @@ export class DirectRecording {
     }
     const supported = supportedRecorderTypes();
     if (supported.length === 0) throw new Error("지원되는 녹음 형식을 찾지 못했어요.");
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (document.hidden) throw new Error("이 화면을 다시 연 뒤 녹음을 시작해 주세요.");
+    if (navigator.onLine === false) throw new Error("연결을 확인한 뒤 녹음을 시작해 주세요.");
+    this.onState?.("requesting");
+    const hidden = () => { if (document.hidden) this.abort("화면이 숨겨져 녹음을 중단했어요. 화면을 연 뒤 다시 녹음해 주세요."); };
+    const offline = () => this.abort("연결이 끊겨 녹음을 중단했어요. 연결을 확인한 뒤 다시 녹음해 주세요.");
+    const pageHide = () => this.abort("화면을 떠나 녹음을 중단했어요. 다시 녹음하려면 직접 시작해 주세요.");
+    document.addEventListener("visibilitychange", hidden);
+    window.addEventListener("offline", offline);
+    window.addEventListener("pagehide", pageHide);
+    this.removeListeners = () => {
+      document.removeEventListener("visibilitychange", hidden);
+      window.removeEventListener("offline", offline);
+      window.removeEventListener("pagehide", pageHide);
+    };
+    let stream: MediaStream;
+    try {
+      stream = await new Promise<MediaStream>((resolve, reject) => {
+        this.cancelPermission = reject;
+        void navigator.mediaDevices.getUserMedia({ audio: true }).then((result) => {
+          if (this.cancelled || this.stopRequested) {
+            result.getTracks().forEach((track) => track.stop());
+            reject(new Error(this.failureMessage));
+          } else resolve(result);
+        }, reject);
+      });
+    } catch (error) {
+      this.removeListeners?.();
+      if (error instanceof DOMException && error.name === "NotAllowedError") throw new Error("마이크 권한이 거부됐어요. 브라우저의 사이트 권한에서 마이크를 허용한 뒤 다시 시작하거나 파일을 선택해 주세요.");
+      throw error;
+    } finally { this.cancelPermission = null; }
     if (this.cancelled || this.stopRequested) {
       stream.getTracks().forEach((track) => track.stop());
       throw new Error("녹음을 취소했어요.");
@@ -42,9 +76,14 @@ export class DirectRecording {
       this.recorder = recorder;
       this.pieces = [];
       recorder.ondataavailable = (event) => { if (event.data.size > 0) this.pieces.push(event.data); };
-      recorder.onerror = () => this.abort();
+      recorder.onerror = () => this.abort("마이크 오류로 녹음을 중단했어요. 장치를 확인한 뒤 다시 녹음해 주세요.");
+      for (const track of stream.getTracks()) {
+        track.onended = () => this.abort("마이크 연결이 끝났어요. 장치를 연결한 뒤 다시 녹음해 주세요.");
+        track.onmute = () => this.abort("마이크 입력이 중단됐어요. 장치를 확인한 뒤 다시 녹음해 주세요.");
+      }
       recorder.onstop = () => {
         this.clearTimer();
+        this.removeListeners?.();
         this.stopTracks();
         if (!this.cancelled) {
           // Use the recorder's actual MIME. Never label bytes as a different codec.
@@ -52,7 +91,7 @@ export class DirectRecording {
           const blob = new Blob(this.pieces, { type: mimeType });
           this.finish?.({ blob, mimeType, durationSeconds: (performance.now() - this.startedAt) / 1000, startedAt: this.startedAtWallClock });
         } else {
-          this.fail?.(new Error("녹음을 취소했어요."));
+          this.fail?.(new Error(this.failureMessage));
         }
         this.finish = null;
         this.fail = null;
@@ -66,10 +105,12 @@ export class DirectRecording {
       this.startedAt = performance.now();
       this.startedAtWallClock = new Date().toISOString();
       recorder.start();
+      this.onState?.("recording");
       this.timer = setTimeout(() => this.stop(), MANUAL_MAX_SECONDS * 1000);
       return completion;
     } catch (error) {
       this.stopTracks();
+      this.removeListeners?.();
       this.recorder = null;
       throw error;
     }
@@ -77,12 +118,15 @@ export class DirectRecording {
 
   stop(): void {
     if (this.recorder?.state === "recording") this.recorder.stop();
-    else this.stopRequested = true;
+    else { this.stopRequested = true; this.abort(); }
   }
 
-  abort(): void {
+  abort(message = "녹음을 취소했어요."): void {
     this.cancelled = true;
+    this.failureMessage = message;
+    this.cancelPermission?.(new Error(message));
     this.clearTimer();
+    this.removeListeners?.();
     if (this.recorder?.state === "recording") this.recorder.stop();
     else this.stopTracks();
   }
@@ -93,7 +137,7 @@ export class DirectRecording {
   }
 
   private stopTracks(): void {
-    this.stream?.getTracks().forEach((track) => track.stop());
+    this.stream?.getTracks().forEach((track) => { track.onended = null; track.onmute = null; track.stop(); });
     this.stream = null;
   }
 }

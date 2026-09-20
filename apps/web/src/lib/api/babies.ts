@@ -5,7 +5,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePrivateScope } from "@/components/app-providers";
 import { useApiClient } from "@/lib/api/real-client";
-import { newClientRequestId, idempotencyHeaders } from "@/lib/api/client";
+import { newClientRequestId, idempotencyHeaders, ContractRequestError } from "@/lib/api/client";
+import type { RealApiClient } from "@/lib/api/real-client";
 import { requireData } from "@/lib/api/errors";
 import type { components } from "@/lib/api/generated";
 
@@ -15,6 +16,14 @@ export type CreateBabyInput = Readonly<{
   feeding_mode: components["schemas"]["CreateBaby"]["feeding_mode"];
   timezone: string;
 }>;
+
+export async function patchBaby(client: RealApiClient, babyId: string, body: components["schemas"]["PatchBaby"]) {
+  const result = requireData(await client.PATCH("/babies/{baby_id}", {
+    params: { path: { baby_id: babyId }, header: idempotencyHeaders(body.client_request_id) }, body,
+  }));
+  if (result.baby_id !== babyId) throw new ContractRequestError("Updated baby is outside the requested scope.");
+  return result;
+}
 
 export function babiesKey(userId: string | null) {
   return ["real", userId, "babies"] as const;

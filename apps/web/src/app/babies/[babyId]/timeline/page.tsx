@@ -10,6 +10,10 @@ import { ContractApiError } from "@/lib/api/errors";
 import { useMembersQuery } from "@/lib/api/members";
 import { useRealSession } from "@/lib/auth/real-session";
 import { isForBaby, mockCareEvent } from "@/lib/mock/fixtures";
+import { PageHeading } from "@/components/page-heading";
+import { ActionButton } from "@/components/seed-design/ui/action-button";
+import { SourceBadge } from "@/components/source-badge";
+import { observationLabel } from "@/components/home-observation";
 
 function TimelineRecord({
   item,
@@ -25,7 +29,9 @@ function TimelineRecord({
       <p className="text-sm text-muted-foreground">
         {item.occurred_at === null ? "실제 시각 모름" : new Date(item.occurred_at).toLocaleString("ko-KR")}
       </p>
-      <p className="text-xs text-muted-foreground">상세 화면은 해당 기능에서 연결해요.</p>
+      {"visual_state_code" in item.resource && <p className="text-lg font-semibold">{observationLabel[item.resource.visual_state_code]}</p>}
+      <p className="text-sm text-muted-foreground">작성자 {names.get(item.resource.created_by_user_id) ?? "이름 미확인"}</p>
+      <SourceBadge dataOrigin={item.resource.data_origin} />
     </ScreenSection>
   );
 }
@@ -54,7 +60,6 @@ function RealTimeline({ babyId }: Readonly<{ babyId: string }>) {
   const items = timeline.data?.pages.flatMap((page) => page.items) ?? [];
   return (
     <div className="flex flex-col gap-3">
-      <h1 className="text-lg font-semibold text-foreground">타임라인</h1>
       {items.length === 0 ? (
         <EmptyState label="이 아기의 확정 기록이 아직 없어요" action={<Link href={`/babies/${babyId}/quick-record`} className="text-sm text-primary">기록하러 가기</Link>} />
       ) : items.map((item) => (
@@ -78,8 +83,6 @@ function MockTimeline({ babyId }: Readonly<{ babyId: string }>) {
   const example = mockCareEvent();
   return (
     <div className="flex flex-col gap-3">
-      <h1 className="text-lg font-semibold text-foreground">타임라인</h1>
-      <p className="text-xs text-muted-foreground">계약의 합성 예시입니다. 서버에서 조회한 타임라인이 아니에요.</p>
       {isForBaby(babyId, example) ? (
         <CareEventCard event={example} babyId={babyId} linkToDetail />
       ) : (
@@ -92,5 +95,5 @@ function MockTimeline({ babyId }: Readonly<{ babyId: string }>) {
 export default function TimelinePage() {
   const { babyId } = useParams<{ babyId: string }>();
   const real = useRealSession();
-  return real.status === "signed-in" ? <RealTimeline babyId={babyId} /> : <MockTimeline babyId={babyId} />;
+  return <div className="flex flex-col gap-6"><div className="flex flex-wrap items-end justify-between gap-4"><PageHeading title="함께 이어온 하루" description="돌봄과 관찰, 누가 언제 남겼는지 한눈에 확인해요." /><ActionButton asChild><Link href={`/babies/${babyId}/quick-record`}>기록 추가</Link></ActionButton></div>{real.status === "signed-in" ? <RealTimeline babyId={babyId} /> : <MockTimeline babyId={babyId} />}</div>;
 }

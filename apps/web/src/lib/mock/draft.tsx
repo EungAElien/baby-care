@@ -5,7 +5,8 @@
 // user/baby-scope change). Baby switching, sign-out, and switching mock
 // accounts all discard it, matching "로그아웃·다른 계정 로그인·권한 해제 때는
 // 해당 캐시와 미전송 내용을 지우고 자동 저장·재전송하지 않는다."
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { usePrivateScopeOptional } from "@/components/app-providers";
 import { useMockSessionOptional } from "@/lib/mock/session";
 import { useRealSession } from "@/lib/auth/real-session";
 
@@ -40,6 +41,7 @@ export function DraftProvider({ children }: Readonly<{ children: React.ReactNode
 }
 
 function DraftStore({ children }: Readonly<{ children: React.ReactNode }>) {
+  const scope = usePrivateScopeOptional();
   const [live, setLive] = useState<Readonly<Record<string, string>>>({});
   const [saved, setSaved] = useState<Readonly<Record<string, string>>>({});
   const [careEventDirty, setCareEventDirtyState] = useState<ReadonlySet<string>>(new Set());
@@ -93,6 +95,16 @@ function DraftStore({ children }: Readonly<{ children: React.ReactNode }>) {
     });
     setCareEventDirty(babyId, false);
   }, [setCareEventDirty]);
+
+  useEffect(() => {
+    if (!scope) return;
+    let previous = scope.snapshot();
+    return scope.subscribe(() => {
+      const next = scope.snapshot();
+      if (previous.babyId && (previous.babyId !== next.babyId || previous.userId !== next.userId)) clearBaby(previous.babyId);
+      previous = next;
+    });
+  }, [scope, clearBaby]);
 
   const value = useMemo<DraftContextValue>(
     () => ({

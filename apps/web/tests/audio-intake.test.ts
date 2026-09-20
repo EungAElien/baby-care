@@ -94,10 +94,13 @@ describe("capture and intake", () => {
       stop() { this.ondataavailable?.({ data: new Blob(["last"]) }); this.state = "inactive"; this.onstop?.(); }
     }
     vi.stubGlobal("MediaRecorder", Recorder);
+    vi.stubGlobal("document", Object.assign(new EventTarget(), { hidden: false }));
+    vi.stubGlobal("window", new EventTarget());
     vi.stubGlobal("navigator", { mediaDevices: { getUserMedia: async () => ({ getTracks: () => [{ stop: vi.fn() }] }) } });
-    const capture = new DirectRecording();
+    const state = vi.fn();
+    const capture = new DirectRecording(state);
     const finished = capture.start();
-    await Promise.resolve();
+    await vi.waitFor(() => expect(state).toHaveBeenCalledWith("recording"));
     capture.stop();
     const result = await finished;
     expect(await result.blob.text()).toBe("firstlast");

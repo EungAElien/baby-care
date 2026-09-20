@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { AppProviders } from "@/components/app-providers";
 import { RealSessionProvider } from "@/lib/auth/real-session";
 import { MockSessionProvider } from "@/lib/mock/session";
@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   title: "아기 돌봄 도우미",
   description: "아기 돌봄 기록을 위한 웹 앱",
 };
+
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#FF9398" };
 
 // 목 세션이 꺼진 빌드에서는 /login·/babies/*를 정적으로 미리 생성하지
 // 않는다 — provider 없이 프리렌더하면 실패하고, 프리렌더된 HTML에 목
@@ -24,7 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   const body = isMockNavEnabled() ? <MockSessionProvider>{children}</MockSessionProvider> : children;
 
   return (
-    <html lang="ko">
+    <html lang="ko" data-seed data-seed-color-mode="light-only">
       <body>
         <AppProviders>
           <RealSessionProvider>{body}</RealSessionProvider>

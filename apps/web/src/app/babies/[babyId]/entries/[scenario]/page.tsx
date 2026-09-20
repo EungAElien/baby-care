@@ -8,6 +8,9 @@ import { notFound, useParams } from "next/navigation";
 import { isForBaby, mockCareEntry, mockErrorEnvelope, mockNormalizationRun } from "@/lib/mock/fixtures";
 import { useMockSessionOptional } from "@/lib/mock/session";
 import { ScreenSection, LoadingState, ErrorState } from "@/components/screen-state";
+import { PageHeading } from "@/components/page-heading";
+import { DemoOnly } from "@/components/demo-only";
+import { Callout } from "@/components/seed-design/ui/callout";
 
 const unresolvedLabel: Record<string, string> = {
   CONFLICT: "선택과 문장이 서로 달라요",
@@ -28,8 +31,9 @@ export default function EntryConfirmPage() {
   const { babyId, scenario } = useParams<{ babyId: string; scenario: string }>();
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold text-foreground">내용 확인</h1>
+    <DemoOnly fallback={<ErrorState label="실제 문장 기록은 연결 준비 중이에요." />}><div className="flex flex-col gap-6">
+      <PageHeading title="저장 전에 확인해요" description="보호자의 행동과 관찰을 나누어 읽고, 잘못 정리된 부분을 확인해 주세요." />
+      <Callout title="확인 전 초안 · DEMO" description="정규화 결과의 예시예요. 이 화면의 내용은 공동 기록으로 저장되지 않아요." />
 
       {scenario === "review" && <ReviewReady babyId={babyId} />}
       {scenario === "running" && <LoadingState label="문장을 정리하고 있어요" />}
@@ -37,7 +41,7 @@ export default function EntryConfirmPage() {
       {scenario === "failure" && <Failure babyId={babyId} />}
       {!["review", "running", "stale", "failure"].includes(scenario) && notFound()}
 
-      <ScreenSection title="다른 상태 미리보기">
+      <details className="preview-tools"><summary>DEMO · 다른 상태 살펴보기</summary>
         <ul className="flex flex-col gap-2">
           {previewLinks.map((link) => (
             <li key={link.scenario}>
@@ -50,8 +54,8 @@ export default function EntryConfirmPage() {
             </li>
           ))}
         </ul>
-      </ScreenSection>
-    </div>
+      </details>
+    </div></DemoOnly>
   );
 }
 
@@ -100,7 +104,7 @@ function ReviewReady({ babyId }: Readonly<{ babyId: string }>) {
         href={`/babies/${babyId}`}
         className="flex min-h-11 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
       >
-        확인 저장 (예시) 후 홈으로
+        예시 확인 마치고 홈으로
       </Link>
     </ScreenSection>
   );

@@ -113,6 +113,7 @@ function HybridBabyLayout({ babyId, children }: Readonly<{ babyId: string; child
     <BabyShell
       babyId={babyId}
       babyLabel={mockBabyLabel(babyId)}
+      demo
       role={membership.role}
       otherBabies={otherBabies}
       onSignOut={() => {

@@ -1,4 +1,5 @@
 "use client";
+import { ActionButton } from "@/components/seed-design/ui/action-button";
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -104,9 +105,9 @@ export function ConsentPanel({ babyId, isOwner, canGrant = true }: Readonly<{
     <ScreenSection title="동의와 보관">
       {query.isLoading && <p className="text-sm text-muted-foreground">동의 상태를 불러오고 있어요.</p>}
       {query.isError && (
-        <button type="button" onClick={() => void query.refetch()} className="min-h-11 text-sm text-destructive">
+        <ActionButton variant="neutralWeak" type="button" onClick={() => void query.refetch()} className="min-h-11 text-sm text-destructive">
           동의 상태를 불러오지 못했어요. 다시 조회
-        </button>
+        </ActionButton>
       )}
       {query.isSuccess && (
         <>
@@ -117,11 +118,11 @@ export function ConsentPanel({ babyId, isOwner, canGrant = true }: Readonly<{
                 <span className="font-medium text-foreground">{labels[scope]}</span>
                 <span className="text-muted-foreground">{current?.status ?? "NOT_GRANTED"}</span>
                 {isOwner && current?.status === "GRANTED" && (
-                  <button type="button" disabled={busy} onClick={() => void revoke({
+                  <ActionButton variant="neutralWeak" type="button" disabled={busy} onClick={() => void revoke({
                     scope, version: current.version, policyVersion: current.policy_version, requestId: newClientRequestId(),
                   })} className="min-h-11 w-fit rounded-md border border-border px-3 text-sm disabled:opacity-50">
                     이 동의 철회
-                  </button>
+                  </ActionButton>
                 )}
                 {isOwner && canGrant && current?.status !== "GRANTED" && scope !== "BABY_TRAINING" && (
                   <GrantControl scope={scope} disabled={busy} onGrant={(policyVersion, requestId) =>
@@ -144,12 +145,12 @@ export function ConsentPanel({ babyId, isOwner, canGrant = true }: Readonly<{
             <span className="font-medium text-foreground">{labels.CONTRIBUTOR_TRAINING}</span>
             <span className="text-muted-foreground">{personal?.status ?? "NOT_GRANTED"}</span>
             {personal?.status === "GRANTED" && (
-              <button type="button" disabled={busy} onClick={() => void revoke({
+              <ActionButton variant="neutralWeak" type="button" disabled={busy} onClick={() => void revoke({
                 scope: "CONTRIBUTOR_TRAINING", version: personal.version,
                 policyVersion: personal.policy_version, requestId: newClientRequestId(),
               })} className="min-h-11 w-fit rounded-md border border-border px-3 text-sm disabled:opacity-50">
                 내 학습 참여 철회
-              </button>
+              </ActionButton>
             )}
             {canGrant && personal?.status !== "GRANTED" && (
               <GrantControl scope="CONTRIBUTOR_TRAINING" disabled={busy}
@@ -163,10 +164,10 @@ export function ConsentPanel({ babyId, isOwner, canGrant = true }: Readonly<{
         </>
       )}
       {pending && (
-        <button type="button" disabled={busy} onClick={() => void revoke(pending)}
+        <ActionButton variant="neutralWeak" type="button" disabled={busy} onClick={() => void revoke(pending)}
           className="min-h-11 rounded-md border border-border px-3 text-sm disabled:opacity-50">
           같은 철회 요청 다시 확인
-        </button>
+        </ActionButton>
       )}
       {trainingRequest && (
         <ReauthenticationPanel key={trainingRequest.requestId} babyId={babyId} operation="ENABLE_BABY_TRAINING"
@@ -197,12 +198,12 @@ function GrantControl({ scope, disabled, onGrant }: Readonly<{
       <p className="whitespace-pre-wrap text-sm text-foreground">{policy.text}</p>
       <p className="text-xs text-muted-foreground">정책 버전: {policy.version}</p>
       <label className="flex gap-2 text-sm"><input type="checkbox" checked={checked} onChange={(event) => setChecked(event.target.checked)} />이 범위에 동의합니다.</label>
-      <button type="button" disabled={disabled || !checked} onClick={() => {
+      <ActionButton variant="neutralWeak" type="button" disabled={disabled || !checked} onClick={() => {
         void onGrant(policy.version, requestId).then(() => setRetry(false), () => setRetry(true));
       }} className="min-h-11 w-fit rounded-md border border-border px-3 text-sm disabled:opacity-50">
         {retry ? "같은 요청 다시 확인" : "동의하기"}
-      </button>
-      {retry && <button type="button" onClick={() => { setRequestId(newClientRequestId()); setRetry(false); }} className="min-h-11 w-fit text-xs">새 요청으로 시작</button>}
+      </ActionButton>
+      {retry && <ActionButton variant="neutralWeak" type="button" onClick={() => { setRequestId(newClientRequestId()); setRetry(false); }} className="min-h-11 w-fit text-xs">새 요청으로 시작</ActionButton>}
     </div>
   );
 }

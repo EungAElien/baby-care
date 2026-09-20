@@ -3,6 +3,15 @@
 import { useWatch } from "react-hook-form";
 import type { UseFormReturn } from "react-hook-form";
 import type { CareEventFormValues } from "@/lib/care-events/form";
+import { Milk, Moon, Baby, HeartHandshake } from "lucide-react";
+import { TextField, TextFieldInput } from "./seed-design/ui/text-field";
+
+const recordKinds = [
+  { value: "FEEDING", label: "수유", icon: Milk },
+  { value: "SLEEP", label: "수면", icon: Moon },
+  { value: "DIAPER", label: "기저귀", icon: Baby },
+  { value: "SOOTHE", label: "달래기", icon: HeartHandshake },
+] as const;
 
 export function CareEventFields({ form, disabled = false }: Readonly<{
   form: UseFormReturn<CareEventFormValues>;
@@ -14,15 +23,7 @@ export function CareEventFields({ form, disabled = false }: Readonly<{
 
   return (
     <fieldset disabled={disabled} className="flex flex-col gap-4 disabled:opacity-60">
-      <label className="flex flex-col gap-1 text-sm text-foreground">
-        기록 종류
-        <select {...register("type")} className="min-h-11 rounded-md border border-border bg-background px-3">
-          <option value="FEEDING">수유</option>
-          <option value="SLEEP">수면</option>
-          <option value="DIAPER">기저귀</option>
-          <option value="SOOTHE">달래기·기타 돌봄</option>
-        </select>
-      </label>
+      <fieldset><legend className="mb-3 font-semibold">기록 종류</legend><div className="care-kind-choices">{recordKinds.map(({ value, label, icon: Icon }) => <label key={value}><input className="sr-only" type="radio" value={value} {...register("type")} /><span><Icon aria-hidden="true" size={22} />{label}</span></label>)}</div></fieldset>
 
       {type !== "SLEEP" && (
         <label className="flex min-h-11 items-center gap-2 text-sm text-foreground">
@@ -55,16 +56,8 @@ export function CareEventFields({ form, disabled = false }: Readonly<{
               <option value="MIXED">혼합</option>
             </select>
           </label>
-          <label className="flex flex-col gap-1 text-sm text-foreground">
-            양 (mL, 모르면 비워두기)
-            <input type="number" min="0" step="any" {...register("amountMl")} aria-invalid={Boolean(formState.errors.amountMl)} className="min-h-11 rounded-md border border-border bg-background px-3" />
-            {formState.errors.amountMl && <span role="alert" className="text-xs text-destructive">{formState.errors.amountMl.message}</span>}
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-foreground">
-            걸린 시간 (분, 모르면 비워두기)
-            <input type="number" min="0" step="any" {...register("durationMinutes")} aria-invalid={Boolean(formState.errors.durationMinutes)} className="min-h-11 rounded-md border border-border bg-background px-3" />
-            {formState.errors.durationMinutes && <span role="alert" className="text-xs text-destructive">{formState.errors.durationMinutes.message}</span>}
-          </label>
+          <TextField label="양 (mL, 모르면 비워두기)" invalid={Boolean(formState.errors.amountMl)} errorMessage={formState.errors.amountMl?.message} description="빈 값은 ‘모름’으로 저장해요. 실제 양이 0일 때만 0을 입력해 주세요."><TextFieldInput type="number" inputMode="decimal" min="0" step="any" {...register("amountMl")} /></TextField>
+          <TextField label="걸린 시간 (분, 모르면 비워두기)" invalid={Boolean(formState.errors.durationMinutes)} errorMessage={formState.errors.durationMinutes?.message}><TextFieldInput type="number" inputMode="decimal" min="0" step="any" {...register("durationMinutes")} /></TextField>
         </>
       )}
 

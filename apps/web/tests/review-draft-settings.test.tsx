@@ -36,6 +36,9 @@ vi.mock("@/components/consent-panel", () => ({
 vi.mock("@/components/delete-baby-panel", () => ({
   DeleteBabyPanel: () => createElement("p", null, "실제 전체 삭제 패널"),
 }));
+vi.mock("@/components/baby-profile", () => ({
+  BabyProfile: () => createElement("p", null, "실제 아기 프로필 편집"),
+}));
 
 let draft: ReturnType<typeof useDraft>;
 function DraftProbe() {
@@ -80,9 +83,9 @@ describe("A-03 draft identity and settings", () => {
 
   it("renders real settings without a mock provider or fixture-only controls", () => {
     render(<SettingsPage />);
-    expect(screen.getByRole("link", { name: "공동양육 관리로 이동" }).getAttribute("href"))
+    expect(screen.getByRole("link", { name: /^공동양육 관리로 이동/ }).getAttribute("href"))
       .toBe("/babies/baby-a/care-team");
-    expect(screen.getByText(/아직 실제 API와 연결되지 않았어요/)).toBeTruthy();
+    expect(screen.getByText("실제 아기 프로필 편집")).toBeTruthy();
     expect(screen.queryByText("별칭 저장 시도 (예시)")).toBeNull();
   });
 });

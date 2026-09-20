@@ -55,6 +55,10 @@ export function usePrivateScope(): PrivateScope {
   return scope;
 }
 
+export function usePrivateScopeOptional(): PrivateScope | null {
+  return useContext(PrivateScopeContext);
+}
+
 /** A baby view must not start private queries until the previous scope has been cleared. */
 export function useSyncPrivateScopeForBaby(userId: string | null, babyId: string): boolean {
   const scope = usePrivateScope();

@@ -69,6 +69,7 @@ export class AudioIntake {
   private ids = { episode: newClientRequestId(), grant: newClientRequestId(), complete: newClientRequestId(), renew: newClientRequestId(), cancel: newClientRequestId() };
   private snapshot: PrivateScopeSnapshot;
   private disposed = false;
+  private operationRevision = 0;
   private playbackElement: HTMLAudioElement | null = null;
   private playbackTimer: ReturnType<typeof setTimeout> | null = null;
   private playbackObjectUrl: string | null = null;
@@ -120,6 +121,7 @@ export class AudioIntake {
   }
 
   async start(): Promise<void> {
+    const revision = this.operationRevision;
     const userId = this.assertCurrent();
     const source = this.view.source;
     if (!this.blob || !source) return;
@@ -135,6 +137,7 @@ export class AudioIntake {
             started_at: source === "FILE" ? null : this.startedAt, observation_session_id: null, data_origin: "USER" },
         }));
         this.assertCurrent();
+        if (revision !== this.operationRevision) return;
         this.set({ episode, message: source === "FILE" ? "파일의 시각을 알 수 없어 현재 맥락 결합이 제한돼요. 음질 실패는 아닙니다." : "사건을 만들었어요." });
       }
       let grant = this.view.grant;
@@ -148,6 +151,7 @@ export class AudioIntake {
             prefer_resumable: this.preferResumable || this.blob.size > TUS_CHUNK_BYTES },
         }));
         this.assertCurrent();
+        if (revision !== this.operationRevision) return;
         if (allocated.audio.baby_id !== this.babyId || allocated.audio.episode_id !== episode.episode_id || allocated.upload.audio_id !== allocated.audio.audio_id ||
             allocated.audio.bytes !== this.blob.size || allocated.audio.mime_type !== this.blob.type ||
             (this.blob.size > TUS_CHUNK_BYTES && allocated.upload.method !== "TUS")) throw new Error("서버 업로드 승인이 원본과 일치하지 않아요.");
@@ -160,11 +164,12 @@ export class AudioIntake {
       const audio = this.view.audio;
       if (!audio) throw new Error("서버 음원 ID가 없어요.");
       this.transfer = new StorageUpload(grant, { userId, babyId: this.babyId, audioId: audio.audio_id, uploadId: grant.upload_id }, this.config, this.auth);
-      await this.transfer.send(this.blob, (uploaded, total) => this.set({ progress: Math.round(uploaded / total * 100) }));
+      await this.transfer.send(this.blob, (uploaded, total) => { if (revision === this.operationRevision) this.set({ progress: Math.round(uploaded / total * 100) }); });
       this.assertCurrent();
+      if (revision !== this.operationRevision) return;
       await this.complete();
     } catch (error) {
-      if (this.disposed || this.view.stage === "cancelling" || this.view.stage === "cancelled") return;
+      if (this.disposed || revision !== this.operationRevision || this.view.stage === "cancelling" || this.view.stage === "cancelled") return;
       const expired = this.view.grant && Date.now() >= Date.parse(this.view.grant.expires_at);
       this.set({ stage: expired ? "expired" : this.view.stage === "transferring" ? "interrupted" : "uncertain", message: errorText(error) });
     } finally {
@@ -173,6 +178,7 @@ export class AudioIntake {
   }
 
   async complete(): Promise<void> {
+    const revision = this.operationRevision;
     this.assertCurrent();
     const grant = this.view.grant;
     if (!grant) return;
@@ -183,9 +189,9 @@ export class AudioIntake {
         params: { path: { upload_id: grant.upload_id }, header: idempotencyHeaders(this.ids.complete) },
         body: { client_request_id: this.ids.complete, checksum_sha256: null },
       }));
-      await this.refresh();
+      if (revision === this.operationRevision) await this.refresh();
     } catch (error) {
-      if (this.disposed) return;
+      if (this.disposed || revision !== this.operationRevision) return;
       // B-05 marks a known transient verification failure as retryable with a NEW
       // key. A lost response keeps the original key until its outcome is found.
       if (error instanceof ContractApiError && error.status === 503) this.ids.complete = newClientRequestId();
@@ -201,17 +207,20 @@ export class AudioIntake {
   }
 
   async refresh(): Promise<void> {
+    const revision = this.operationRevision;
     this.assertCurrent();
     const episode = this.view.episode;
     if (!episode) { await this.start(); return; }
     try {
       const detail = requireData(await this.client.GET("/episodes/{episode_id}", { params: { path: { episode_id: episode.episode_id } } }));
       this.assertCurrent();
+      if (revision !== this.operationRevision) return;
       const audio = detail.audio_assets.find((item) => item.audio_id === this.view.audio?.audio_id) ?? null;
       if (!audio) { this.set({ stage: "uncertain", message: "서버 음원 상태가 아직 보이지 않아요. 같은 요청으로 다시 확인해 주세요." }); return; }
       this.set({ audio, stage: audio.status === "READY" ? "ready" : audio.status === "REJECTED" ? "rejected" : "uncertain", message: audioStatusMessage(audio) });
       if (audio.status === "READY" || audio.status === "REJECTED") this.blob = null;
     } catch (error) {
+      if (revision !== this.operationRevision) return;
       this.set({ stage: "uncertain", message: errorText(error) });
     }
   }
@@ -234,6 +243,7 @@ export class AudioIntake {
   }
 
   async cancel(): Promise<void> {
+    this.operationRevision += 1;
     this.transfer?.abort();
     this.assertCurrent();
     this.lastStep = "cancel";

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ScreenSection } from "@/components/screen-state";
+import { Milk, Moon, Baby, HeartHandshake, ArrowUpRight } from "lucide-react";
 import { SourceBadge } from "@/components/source-badge";
 import type { CareEvent } from "@/lib/api/care-events";
 import type { CareEventValue } from "@/lib/care-events/form";
@@ -84,8 +84,12 @@ export function CareEventCard({
   memberNames?: ReadonlyMap<string, string>;
   linkToDetail?: boolean;
 }>) {
+  const Icon = { FEEDING: Milk, SLEEP: Moon, DIAPER: Baby, SOOTHE: HeartHandshake }[event.event.type];
   return (
-    <ScreenSection title={careEventTitle(event)}>
+    <article className="timeline-record">
+      <div className="timeline-record-icon"><Icon aria-hidden="true" size={22} /></div>
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+      <h2 className="text-lg font-bold">{careEventTitle(event)}</h2>
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm text-foreground">
           {event.event.occurred_at === null
@@ -94,18 +98,17 @@ export function CareEventCard({
         </p>
         <SourceBadge dataOrigin={event.data_origin} />
       </div>
-      <p className="text-sm text-foreground">{eventDescription(event.event)}</p>
+      <p className="font-medium">{eventDescription(event.event)}</p>
       <p className="text-xs text-muted-foreground">
         작성자 {personLabel(event.created_by_user_id, memberNames)} · 수정자 {personLabel(event.updated_by_user_id, memberNames)}
       </p>
-      <p className="text-xs text-muted-foreground">
-        입력 {new Date(event.recorded_at).toLocaleString("ko-KR")} · version {event.version}
-      </p>
+      <details className="text-sm text-muted-foreground"><summary className="min-h-11 cursor-pointer py-2">기록 정보</summary><p>입력 {new Date(event.recorded_at).toLocaleString("ko-KR")} · version {event.version}</p><p>보호자가 확인한 돌봄 기록이에요. 모델의 원인 추정과 구분해요.</p></details>
       {linkToDetail && (
-        <Link href={`/babies/${babyId}/care-events/${event.care_event_id}`} className="text-sm font-medium text-primary">
-          기록 자세히 보기
+        <Link href={`/babies/${babyId}/care-events/${event.care_event_id}`} className="flex min-h-11 items-center gap-2 text-sm font-semibold text-primary">
+          기록 자세히 보기 <ArrowUpRight size={18} aria-hidden="true" />
         </Link>
       )}
-    </ScreenSection>
+      </div>
+    </article>
   );
 }

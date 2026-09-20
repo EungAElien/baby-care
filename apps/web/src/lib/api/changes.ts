@@ -47,10 +47,8 @@ export async function getChanges(
 }
 
 /**
- * Applies one coalesced Change to the local query cache. Only BABY, MEMBERSHIP, and CARE_EVENT
- * are wired to a real A-side query today (B-09 handoff §의미 연결표); the remaining enum values
- * (EPISODE/ANALYSIS/RECOMMENDATION/STATE_OBSERVATION/OUTCOME/DELETION) have no cached resource
- * to invalidate yet and are left for the slice that adds them.
+ * Refresh only implemented query resources. Observation/episode changes also affect the
+ * timeline and the home's latest-confirmed-observation view.
  */
 async function applyChange(
   queryClient: QueryClient,
@@ -59,6 +57,11 @@ async function applyChange(
   change: SharedChange,
 ): Promise<void> {
   switch (change.resource_type) {
+    case "STATE_OBSERVATION":
+    case "EPISODE": {
+      await queryClient.invalidateQueries({ queryKey: timelineKey(scope, babyId) }, { throwOnError: true });
+      return;
+    }
     case "CARE_EVENT": {
       const key = careEventKey(scope, babyId, change.resource_id);
       if (change.deleted) {
