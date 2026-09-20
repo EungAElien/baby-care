@@ -245,7 +245,7 @@ action_id는 수행 장면의 동일성을, version은 수정본의 유효성을
 
 ## 10. 현재 계약과 연결하기 전에 남은 일
 
-제작 시 origin/develop 4307e1a까지 반영했다. 실제 API 연결은 하지 않았으며 아래 계약 차이는 애니메이션 자산 제작과 별도로 남긴다.
+최종 검토 시 origin/develop ed87d29까지 반영했다(OpenAPI 1.2.0). 실제 API 연결은 하지 않았으며 아래 계약 차이는 애니메이션 자산 제작과 별도로 남긴다.
 
 - 관찰 8종과 visual_state_code는 현재 계약에 있다.
 - DraftAction/RecommendedAction에는 DIAPER_CHECK·SLEEP_PREPARATION이 있고, 완료 조치 범주와 일대일 대응하지 않는다. 계약에 없는 행동 enum을 프런트엔드에서 새로 보내지 않는다.

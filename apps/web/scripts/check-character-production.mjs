@@ -11,6 +11,10 @@ assert.equal(new Set(manifest.assets.map((asset) => asset.id)).size, 22);
 assert.deepEqual(manifest, await read(new URL('manifest.json', sourceRoot)));
 let exported = 0;
 for (const asset of manifest.assets) {
+  if (asset.source) {
+    const source = await readFile(new URL(asset.source, sourceRoot));
+    assert.equal(createHash('sha256').update(source).digest('hex'), asset.sourceSha256);
+  }
   if (asset.poster) {
     await access(new URL(asset.poster, publicRoot));
     for (const size of asset.logSizes) await access(new URL(`log/${asset.file}-${size}.png`, publicRoot));

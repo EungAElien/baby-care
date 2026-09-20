@@ -41,7 +41,7 @@ export function CharacterLab() {
   };
   return <main className="character-lab">
     <header><span className="character-wordmark">아기 곁에</span><span className="eyebrow">Character studies / 01</span><span className="character-badge">DEMO · STUB · 합성 입력</span></header>
-    <div style={{ paddingTop: 34 }}><p className="eyebrow">작은 표정, 함께하는 돌봄</p><h1>돌봄의 순간을<br />눈에 보이는 이야기로.</h1><p className="intro">관찰한 모습, AI가 추정한 가능성, 보호자가 완료한 돌봄을 각각 표현합니다. 아래 버튼은 디자인 검토용입니다. 실제 기록을 저장하거나 울음을 분석하지 않습니다.</p></div>
+    <div style={{ paddingTop: 34 }}><p className="eyebrow">작은 표정, 함께하는 돌봄</p><h1>돌봄의 순간을<br />눈에 보이는 이야기로.</h1><p className="intro">관찰한 모습, AI가 추정한 가능성, 보호자가 완료한 돌봄을 각각 표현합니다. 아래 버튼은 디자인 검토용입니다. 실제 기록을 저장하거나 울음을 분석하지 않습니다. 실제 Lottie는 편안함·배고픔 2종이며, 안아주기는 정지 원본만 표시합니다. 나머지 범주는 제작 중입니다.</p><a href="/design/character-motion/production">시안·원본·실제 Lottie 비교 화면</a></div>
     <div className="character-workbench">
       <div className="character-preview"><CharacterScene state={state} dispatch={dispatch} /></div>
       <div className="character-controls">
@@ -51,13 +51,13 @@ export function CharacterLab() {
         <div className="buttons"><button className="character-button" onClick={() => analyze("COMPLETE", "hungry")}>배고픔 추정</button><button className="character-button" onClick={() => analyze("COMPLETE", "tired")}>졸림 추정</button><button className="character-button" onClick={() => analyze("COMPLETE", "belly_pain")}>배 불편함 추정</button><button className="character-button primary" onClick={() => save(true)}>안기 → 토닥임 확인 저장</button></div>
         <h3>03 / 흐름과 예외 확인하기</h3>
         <div className="buttons"><button className="character-button" onClick={() => save(false)}>저장 실패</button><button className="character-button" onClick={() => save(true, true)}>같은 응답 재수신</button><button className="character-button" onClick={() => dispatch({ type: "analysis-start", scope: state.scope, id: crypto.randomUUID(), at: Date.now() })}>새 울음 사건</button><button className="character-button" onClick={() => analyze("ABSTAIN")}>판단 어려움</button><button className="character-button" onClick={() => analyze("FAILED")}>처리 실패</button><button className="character-button" onClick={() => analyze("NO_CRY")}>울음 확인 안 됨</button><button className="character-button" onClick={() => dispatch({ type: "reset", scope: crypto.randomUUID(), now: Date.now() })}>아기 전환</button><button className="character-button" onClick={() => dispatch({ type: "invalidate", scope: state.scope })}>삭제·권한 회수</button></div>
-        <p>순서대로 한 번 재생하며, 저장과 다음 입력은 기다리지 않습니다. 동작 줄이기는 운영체제 설정을 따릅니다.</p>
+        <p>조치 순서와 중단을 합성 입력으로 시험합니다. 현재 완료 조치 모션은 미완료여서 정지 원본 또는 제작 중 안내를 표시합니다. 저장과 다음 입력은 기다리지 않습니다.</p>
       </div>
     </div>
-    <section className="character-gallery"><p className="eyebrow">Pose library / 22 studies</p><h2>같은 캐릭터, 서로 다른 의미</h2>
+    <section className="character-gallery"><p className="eyebrow">Pose library / 22 categories · 제작 상태</p><h2>같은 캐릭터, 서로 다른 의미</h2>
       <div className="character-tabs">{(["observation", "inference", "action"] as const).map((kind) => <button className="character-button" key={kind} aria-pressed={tab === kind} onClick={() => setTab(kind)}>{kind === "observation" ? "관찰 8종" : kind === "inference" ? "AI 추정 5종 + 판단 어려움" : "완료 조치 8종"}</button>)}</div>
       <div className="character-grid">{poseCatalog.filter((pose) => pose.kind === tab).map((pose) => <article className="character-tile" key={poseId(pose)}><div className="art"><CharacterPoster pose={pose} size={220} /></div><p>{poseLabel(pose)}</p><div style={{ width: 64, margin: "auto" }}><CharacterPoster pose={pose} /></div><small>원본별 제작 상태 · 로그 64px</small></article>)}</div>
-      {tab === "action" && <p className="intro">수유는 방식 미상의 공통 안김 포즈, 환경 변경은 조명 변형, 기타는 중립 돌봄 포즈입니다. 구체적인 동작·소품은 확인된 세부 기록에 맞춰 추가해야 합니다.</p>}
+      {tab === "action" && <p className="intro">안아주기 정지 원본을 준비했습니다. 완료 조치 8종의 실제 Lottie 제작·접촉 검수는 미완료입니다.</p>}
     </section>
     <section className="character-log"><p className="eyebrow">Still moments / example episode</p><h2>돌봄 뒤에도 관찰은 별도로</h2><p className="intro">최근 기록부터 표시한 합성 예시입니다. 가지의 합류는 후속 관찰의 연결을 뜻합니다.</p><ol>{log.map((row) => <li className={row.pose.kind === "observation" ? "" : "branch"} key={row.time}><time>{row.time}</time><CharacterPoster pose={row.pose} /><div><p>{poseLabel(row.pose)}</p><small>{row.detail}</small></div></li>)}</ol></section>
   </main>;
