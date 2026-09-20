@@ -483,3 +483,7 @@ A-03~A-08을 B의 대응 작업과 합쳐 **두 보호자 로그인 → 녹음 �
 - [Supabase 재개 업로드](https://supabase.com/docs/guides/storage/uploads/resumable-uploads): TUS 업로드 구현 시 최신 조건 확인.
 - [Supabase Realtime 권한](https://supabase.com/docs/guides/realtime/authorization)과 [Next.js CSP](https://nextjs.org/docs/app/guides/content-security-policy): 채널 권한 캐시 및 운영 CSP/nonce 구현 시 최신 조건 확인.
 - [OpenAI Codex 장기 작업 운영 안내](https://developers.openai.com/blog/run-long-horizon-tasks-with-codex): 작은 마일스톤, 명확한 완료 기준, 검증 결과와 사용자 확인 지점에 관한 참고.
+
+## 2026-09-20 브랜드 UI 재구성 인계
+
+홈·감지·기록·결과·타임라인·요약·설정의 새 UI와 A 작업표 추가 반영 범위는 [설계·남은 범위](./design/web-brand-interface.md), 실제 검사와 미검증 조건은 [검증 기록](./verification/web-brand-interface-2026-09-20.md)에 정리했다. A-06/A-07의 최신 병합 로직을 통합했으며 A-09의 실제 summary/patterns 조회, OWNER 프로필 수정, A-11 보안 헤더 및 접근성 검사를 추가했다. 체크박스가 요구하는 실제 계정·기기 인수를 코드/합성 검사로 대체해 완료 표시하지 않았다.

@@ -1,0 +1,53 @@
+# 웹 UI 검증 기록 — 2026-09-20
+
+환경: Windows, 격리 worktree `baby-care-web-brand-interface`, Next.js 16.3.5 / React 19.3.0, Codex Chromium in-app browser. 기준 develop `ed87d29`. 개인 환경 파일·실제 로그인·음원은 가져오지 않았다. 화면 시험은 계약의 합성 owner_a/아기 A·B만 사용했다.
+
+## 실제 실행한 화면 검사
+
+| 화면 | 320 | 390 | 430 | 1280 |
+| --- | --- | --- | --- | --- |
+| 홈 | 통과 | 통과 | 통과 | 통과 |
+| 타임라인 | 통과 | 통과 | 통과 | 통과 |
+| 요약 | 통과 | 통과 | 통과 | 통과 |
+| 설정 | 통과 | 통과 | 통과 | 통과 |
+
+각 페이지의 `scrollWidth <= clientWidth`를 DOM으로 측정했다. 스크롤바가 있는 320/390/430 화면의 clientWidth는 305/375/415였다. 모바일 홈·입력·결과와 데스크톱 설정은 스크린샷으로도 확인했다. 페이지 h1, 현재 위치 aria-current, 아이콘의 장식 처리, 입력 레이블은 접근성 트리로 확인했다. 합성 기록 입력 화면도 320px에서 넘침이 없었다.
+
+- 390px 감지: 로그인 없는 DEMO에서 마이크·파일 전송이 비활성이고 지원 전 자동 감지를 정상 실행처럼 보이지 않음. 가짜 파형·진행률 없음.
+- 390px 결과: 완료/판단 유보/처리 실패가 별도 제목·설명·행동을 제공함. STUB/DEMO 출처 표시와 확률이 아닌 후보 순위를 확인함. 긴 출처 배지가 SEED 기본 최대 폭에 잘리는 문제를 수정함.
+- 320px 아기 전환: 작성 중 문장에 확인창 → Tab 순환이 창 안에 머묾 → Escape로 아기 선택기에 포커스 복귀 → 버리고 전환 → 다시 돌아오면 개인 입력이 비어 있음. 흰색 모달과 헤더/하단 탐색 위의 backdrop을 확인함.
+- `/design/interface-check`: 개발 목 설정에서만 열리는 합성 검사 화면. 루트 글자를 16px→32px(200%)로 키워 시트 입력·긴 설명·스크롤·포커스 복귀를 확인함. 확대 시 본문이 넘치던 문제와 SEED 글꼴/행간 불일치를 수정함. 390×844, 200%에서 내부 본문 clientHeight 415 / scrollHeight 968, overflow auto; 하단 행동 bottom 844로 화면 안에 있음.
+- 390×420, 100% 시트: 작은 가시 영역을 가정한 검사. 본문 218 / scrollHeight 447, 하단 행동 340~420. 닫은 뒤 시트 실행 버튼으로 초점이 복귀함. 실제 소프트 키보드를 실행한 검사는 아님.
+- 네비게이션은 최소 44px, 주요 ActionButton은 기본 52px. 컴포넌트 포커스 3px 표시, 한글 keep-all, safe-area CSS와 모션 감소 CSS를 확인함.
+
+브라우저 자체의 Ctrl+plus 확대는 이 in-app 환경에서 배율을 변경하지 않았다. 따라서 **200% 루트 글자 확대는 검증했지만 네이티브 브라우저 200% 줌은 미검증**이다. VoiceOver/TalkBack/NVDA 실제 낭독·시각적 안전 영역·기기 키보드·모션 감소 OS 설정도 별도 실기기 인수 항목이다.
+
+## 자동 검사와 동작 범위
+
+- `npm.cmd run typecheck`, `npm.cmd run lint`, `npm.cmd test`, `npm.cmd run build`.
+- Vitest 36개 파일, 212개 사례: 기존 Auth/범위 전환/권한/버전/업로드/분석/정규화 회귀와 새 녹음 중단·프로필 중복 제출/같은 키 복구/충돌/늦은 응답, 대비·0/null·출처, 시간대 경계, CSP 검사.
+- 분석 start와 FAILED retry에 React 렌더 이전의 연속 호출을 추가 시험하고 동기 가드를 보강함. 네트워크 오류 복구는 기존 동일 analysis_id 경로를 유지함.
+- 녹음 시험: 권한 거절, 늦은 권한 허용 후 트랙 정리, 숨김/offline/mute/ended에서 중단. 이 결과는 실제 브라우저 권한 대화상자/마이크 기기 시험을 대신하지 않음.
+- 프로필 저장 시험: 빠른 중복 제출, 응답 유실 후 동일 key/body 재시도, 최신 version 확인 후 재작성, 아기 전환 후 늦은 결과 무시. 실제 FastAPI 통합 시험은 아님.
+- 색 대비 시험은 일반 텍스트 4.5:1과 포커스 3:1을 확인함. 브릭 위 흰 소형 글자는 사용하지 않음. 소스에서 금지한 아이보리/크림/베이지/amber/yellow 표면을 검색함. 서드파티의 사용하지 않는 원시 팔레트 전체 제거를 의미하지 않음.
+- 프로덕션 HTTP 응답 두 건에서 nonce가 다름, 일반 unsafe-eval 없음, `Cache-Control: private, no-store, max-age=0`, `Referrer-Policy: no-referrer`, `Permissions-Policy: microphone=(self), camera=(), geolocation=()` 확인. style-src의 unsafe-inline은 SEED·React의 동적 style 속성을 위해 남겼고 script-src에는 적용하지 않음.
+
+## 미검증·미완료
+
+실제 두 계정 OTP와 공동 기록 전달, 실제 Storage/TUS/권한 회수, 실제 음원 모델·GPT 실행, 서버 감지 세션/ONNX/30분 연속 감지, 개인 준비 알림과 이전 사례, 실제 기기/보조기술, CDN/RSC 두 계정 교차 인수, 운영 WASM·AudioWorklet, 배포는 완료로 보고하지 않는다. 코드·합성 시험·실제 연결·실기기 인수는 서로 다른 상태다. A 작업별 남은 범위는 [설계 및 범위 표](../design/web-brand-interface.md)에 기록했다.
+
+## 협업 검토
+
+- 원래 체크아웃의 미커밋 변경과 진행 중 worktree를 보존하고 최신 develop에서 격리 branch를 만들었다.
+- 작업 중 A-06/A-07 병합을 반영했다. conflicts 세 파일(quick-record, timeline, audio-intake)은 실제 로직과 새 UI를 결합했다.
+- #32 `feature/web-character-motion`: AGENTS/CLAUDE 내용은 동일, package.json 캐릭터 스크립트 추가는 SEED 의존성 추가와 역할이 다르다. 자산·모션 작업을 임의로 병합하지 않는다.
+- #39 `chore/deploy-submission-setup`: 환경/배포 파일 추가이며 이번 UI·보안 헤더와 직접 변경 파일 중복이 없다. 이 UI PR의 병합은 배포 승인을 의미하지 않는다.
+- 최종 PR 생성 전에 merge-tree 및 GitHub mergeable 상태를 따로 확인한다.
+
+## 최종 실행 결과
+
+최종 구현 커밋 `0c2f365`에서 타입 검사·린트·36개 파일 212개 테스트·프로덕션 빌드가 모두 통과했다. production `/login`에서 콘솔 오류/경고가 없고, 미인증 상태의 DEMO 결과 직접 접근은 로그인으로 이동했다. 개발 검사 경로 `/design/interface-check`는 목 설정 없는 운영 빌드에서 HTTP 404였다. 아기 하위 경로의 최초 스트리밍 응답은 HTTP 200일 수 있으므로 이를 404라고 보고하지 않는다.
+
+최종 운영 빌드의 JS 45개 파일에서 OpenAI key, Supabase secret, private key, JWT 형태를 검사해 발견 0건이었다. 이는 실제 키를 넣은 운영 환경의 종합 누출 인수를 대신하지 않는다. 저장소 공식 scan_sensitive.py로 이번 설계/검증/대비 자료 3개를 검사해 발견 0건을 확인했다. [대비 수치](./web-brand-contrast.json): 검정/핑크 9.88, 검정/브릭 4.69, 흰색/검정 21.0, 흰색/눌림 13.08, 보조 글자/흰색 7.81, 포커스/핑크 3.15.
+
+`git merge-tree --write-tree`로 구현 커밋과 develop `ed87d29`, #32 `4ceed6f`, #39 `a546bd8`를 각각 검사해 exit 0을 확인했다. 실제로 다른 PR을 병합하지 않았다. 최종 문서 커밋 후에도 같은 검사를 반복한다.
