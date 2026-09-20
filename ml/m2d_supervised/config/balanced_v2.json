@@ -1,0 +1,40 @@
+{
+  "experiment_version": "m2d-balanced-development-v2.0.0",
+  "base_config_sha256": "b05c45828a39d00c925d6fc384b49a6635372b151902ff149a0a628523bcadd0",
+  "initialization": "B",
+  "seeds": [42, 43, 44],
+  "folds": [0, 1, 2],
+  "variants": ["natural_head", "balanced_head", "balanced_finetune"],
+  "sanity": {
+    "seed": 42,
+    "fold": 0,
+    "examples_per_label": 2,
+    "maximum_updates": 500,
+    "head_lr": 0.001,
+    "maximum_cross_entropy": 0.1,
+    "required_accuracy": 1.0
+  },
+  "training": {
+    "warmup_epochs": 3,
+    "maximum_total_epochs": 20,
+    "effective_batch": 16,
+    "patience": 5,
+    "minimum_absolute_improvement": 0.001,
+    "head_lr": 0.001,
+    "encoder_lr": 0.00001,
+    "minimum_free_gib": 8,
+    "checkpoint_every_updates": 25
+  },
+  "balanced_sampler": "label_then_group_cycle_then_clip_cycle",
+  "balanced_loss": "unweighted_cross_entropy",
+  "natural_loss": "inverse_sqrt_frequency_expected_mean_one",
+  "exposures_per_epoch": "number_of_training_clips",
+  "bootstrap_repetitions": 2000,
+  "bootstrap_seed": 42,
+  "checkpoint_selection": "development_macro_f1_earliest_with_minimum_improvement",
+  "test_access": "FORBIDDEN",
+  "final_retraining": false,
+  "service_export": false,
+  "release_ready": false,
+  "calibration_status": "NOT_VALIDATED"
+}
