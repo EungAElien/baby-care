@@ -13,7 +13,12 @@ function localStatus() {
   const output = execFileSync(
     npxCommand,
     ["supabase", "--workdir", supabaseWorkdir, "status", "-o", "json"],
-    { cwd: repoDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+    {
+      cwd: repoDir,
+      encoding: "utf8",
+      shell: process.platform === "win32",
+      stdio: ["ignore", "pipe", "ignore"],
+    },
   );
   return JSON.parse(output);
 }
