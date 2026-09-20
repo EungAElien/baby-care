@@ -1,12 +1,21 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createContext, useCallback, useContext, useEffect, useState, useSyncExternalStore } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { PrivateScope } from "@/lib/private-scope";
 
 const PrivateScopeContext = createContext<PrivateScope | null>(null);
 
-export function AppProviders({ children }: Readonly<{ children: React.ReactNode }>) {
+export function AppProviders({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   const [browserState] = useState(() => {
     const queryClient = new QueryClient({
       defaultOptions: {
@@ -44,14 +53,17 @@ export function AppProviders({ children }: Readonly<{ children: React.ReactNode 
 
   return (
     <QueryClientProvider client={browserState.queryClient}>
-      <PrivateScopeContext.Provider value={browserState.scope}>{children}</PrivateScopeContext.Provider>
+      <PrivateScopeContext.Provider value={browserState.scope}>
+        {children}
+      </PrivateScopeContext.Provider>
     </QueryClientProvider>
   );
 }
 
 export function usePrivateScope(): PrivateScope {
   const scope = useContext(PrivateScopeContext);
-  if (!scope) throw new Error("usePrivateScope must be called below AppProviders.");
+  if (!scope)
+    throw new Error("usePrivateScope must be called below AppProviders.");
   return scope;
 }
 
@@ -60,9 +72,15 @@ export function usePrivateScopeOptional(): PrivateScope | null {
 }
 
 /** A baby view must not start private queries until the previous scope has been cleared. */
-export function useSyncPrivateScopeForBaby(userId: string | null, babyId: string): boolean {
+export function useSyncPrivateScopeForBaby(
+  userId: string | null,
+  babyId: string,
+): boolean {
   const scope = usePrivateScope();
-  const subscribe = useCallback((listener: () => void) => scope.subscribe(listener), [scope]);
+  const subscribe = useCallback(
+    (listener: () => void) => scope.subscribe(listener),
+    [scope],
+  );
   const getSnapshot = useCallback(() => scope.snapshot(), [scope]);
   const snapshot = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
@@ -70,5 +88,7 @@ export function useSyncPrivateScopeForBaby(userId: string | null, babyId: string
     if (userId) scope.set(userId, babyId);
   }, [userId, babyId, scope]);
 
-  return userId !== null && snapshot.userId === userId && snapshot.babyId === babyId;
+  return (
+    userId !== null && snapshot.userId === userId && snapshot.babyId === babyId
+  );
 }

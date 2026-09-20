@@ -27,7 +27,10 @@ export type ListProps = SeedList.RootProps;
 export const List = SeedList.Root;
 
 export interface ListItemProps
-  extends Omit<SeedList.ItemProps, "title" | "prefix" | "asChild" | "children"> {
+  extends Omit<
+    SeedList.ItemProps,
+    "title" | "prefix" | "asChild" | "children"
+  > {
   title: React.ReactNode;
   detail?: React.ReactNode;
   prefix?: React.ReactNode;
@@ -53,7 +56,10 @@ export const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
 );
 ListItem.displayName = "ListItem";
 
-type ListItemBaseProps = Omit<SeedList.ItemProps, keyof React.HTMLAttributes<HTMLLIElement>>;
+type ListItemBaseProps = Omit<
+  SeedList.ItemProps,
+  keyof React.HTMLAttributes<HTMLLIElement>
+>;
 
 export interface ListButtonItemProps
   extends Omit<
@@ -72,8 +78,14 @@ export interface ListButtonItemProps
 /**
  * @see https://seed-design.io/react/components/list
  */
-export const ListButtonItem = React.forwardRef<HTMLButtonElement, ListButtonItemProps>(
-  ({ title, detail, prefix, suffix, alignItems, rootRef, rootProps, ...props }, ref) => {
+export const ListButtonItem = React.forwardRef<
+  HTMLButtonElement,
+  ListButtonItemProps
+>(
+  (
+    { title, detail, prefix, suffix, alignItems, rootRef, rootProps, ...props },
+    ref,
+  ) => {
     const [variantProps, otherProps] = listItem.splitVariantProps(props);
 
     const stateProps = React.useMemo(
@@ -82,12 +94,19 @@ export const ListButtonItem = React.forwardRef<HTMLButtonElement, ListButtonItem
     );
 
     return (
-      <SeedList.Item ref={rootRef} alignItems={alignItems} {...variantProps} {...rootProps}>
+      <SeedList.Item
+        ref={rootRef}
+        alignItems={alignItems}
+        {...variantProps}
+        {...rootProps}
+      >
         {prefix && <SeedList.Prefix {...stateProps}>{prefix}</SeedList.Prefix>}
         <SeedList.Content asChild>
           <button type="button" ref={ref} {...otherProps}>
             <SeedList.Title {...stateProps}>{title}</SeedList.Title>
-            {detail && <SeedList.Detail {...stateProps}>{detail}</SeedList.Detail>}
+            {detail && (
+              <SeedList.Detail {...stateProps}>{detail}</SeedList.Detail>
+            )}
           </button>
         </SeedList.Content>
         {suffix && <SeedList.Suffix {...stateProps}>{suffix}</SeedList.Suffix>}
@@ -114,12 +133,23 @@ export interface ListLinkItemProps
 /**
  * @see https://seed-design.io/react/components/list
  */
-export const ListLinkItem = React.forwardRef<HTMLAnchorElement, ListLinkItemProps>(
-  ({ title, detail, prefix, suffix, alignItems, rootRef, rootProps, ...props }, ref) => {
+export const ListLinkItem = React.forwardRef<
+  HTMLAnchorElement,
+  ListLinkItemProps
+>(
+  (
+    { title, detail, prefix, suffix, alignItems, rootRef, rootProps, ...props },
+    ref,
+  ) => {
     const [variantProps, otherProps] = listItem.splitVariantProps(props);
 
     return (
-      <SeedList.Item ref={rootRef} alignItems={alignItems} {...variantProps} {...rootProps}>
+      <SeedList.Item
+        ref={rootRef}
+        alignItems={alignItems}
+        {...variantProps}
+        {...rootProps}
+      >
         {prefix && <SeedList.Prefix>{prefix}</SeedList.Prefix>}
         <SeedList.Content asChild>
           <a ref={ref} {...otherProps}>
@@ -152,8 +182,23 @@ export interface ListSwitchItemProps
 /**
  * @see https://seed-design.io/react/components/list
  */
-export const ListSwitchItem = React.forwardRef<HTMLInputElement, ListSwitchItemProps>(
-  ({ title, detail, prefix, suffix, inputProps, alignItems, rootRef, ...props }, ref) => {
+export const ListSwitchItem = React.forwardRef<
+  HTMLInputElement,
+  ListSwitchItemProps
+>(
+  (
+    {
+      title,
+      detail,
+      prefix,
+      suffix,
+      inputProps,
+      alignItems,
+      rootRef,
+      ...props
+    },
+    ref,
+  ) => {
     const [variantProps, otherProps] = listItem.splitVariantProps(props);
 
     return (
@@ -191,8 +236,23 @@ export interface ListCheckItemProps
 /**
  * @see https://seed-design.io/react/components/list
  */
-export const ListCheckItem = React.forwardRef<HTMLInputElement, ListCheckItemProps>(
-  ({ title, detail, prefix, suffix, inputProps, alignItems, rootRef, ...props }, ref) => {
+export const ListCheckItem = React.forwardRef<
+  HTMLInputElement,
+  ListCheckItemProps
+>(
+  (
+    {
+      title,
+      detail,
+      prefix,
+      suffix,
+      inputProps,
+      alignItems,
+      rootRef,
+      ...props
+    },
+    ref,
+  ) => {
     const [variantProps, otherProps] = listItem.splitVariantProps(props);
 
     return (
@@ -230,8 +290,23 @@ export interface ListRadioItemProps
 /**
  * @see https://seed-design.io/react/components/list
  */
-export const ListRadioItem = React.forwardRef<HTMLInputElement, ListRadioItemProps>(
-  ({ title, detail, prefix, suffix, inputProps, alignItems, rootRef, ...props }, ref) => {
+export const ListRadioItem = React.forwardRef<
+  HTMLInputElement,
+  ListRadioItemProps
+>(
+  (
+    {
+      title,
+      detail,
+      prefix,
+      suffix,
+      inputProps,
+      alignItems,
+      rootRef,
+      ...props
+    },
+    ref,
+  ) => {
     const [variantProps, otherProps] = listItem.splitVariantProps(props);
 
     return (

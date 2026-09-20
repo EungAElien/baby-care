@@ -22,13 +22,34 @@ export type ActionButtonProps = SeedActionButtonProps;
 export const ActionButton = React.forwardRef<
   React.ElementRef<typeof SeedActionButton>,
   ActionButtonProps
->(({ loading = false, variant = "neutralSolid", size = "large", children, ...otherProps }, ref) => {
-  return (
-    <SeedActionButton ref={ref} variant={variant} size={size} loading={loading} {...otherProps}>
-      {loading && !otherProps.asChild ? <LoadingIndicator>{children}</LoadingIndicator> : children}
-    </SeedActionButton>
-  );
-});
+>(
+  (
+    {
+      loading = false,
+      variant = "neutralSolid",
+      size = "large",
+      children,
+      ...otherProps
+    },
+    ref,
+  ) => {
+    return (
+      <SeedActionButton
+        ref={ref}
+        variant={variant}
+        size={size}
+        loading={loading}
+        {...otherProps}
+      >
+        {loading && !otherProps.asChild ? (
+          <LoadingIndicator>{children}</LoadingIndicator>
+        ) : (
+          children
+        )}
+      </SeedActionButton>
+    );
+  },
+);
 ActionButton.displayName = "ActionButton";
 
 /**

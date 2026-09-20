@@ -7,7 +7,12 @@
 "use client";
 
 import * as React from "react";
-import { Text, VStack, type TextProps, type VStackProps } from "@seed-design/react";
+import {
+  Text,
+  VStack,
+  type TextProps,
+  type VStackProps,
+} from "@seed-design/react";
 import { ActionButton, type ActionButtonProps } from "./action-button";
 
 export interface ResultSectionProps
@@ -36,7 +41,10 @@ const textStyles = {
   },
 } as const satisfies Record<
   string,
-  Record<NonNullable<ResultSectionProps["size"]>, NonNullable<TextProps["textStyle"]>>
+  Record<
+    NonNullable<ResultSectionProps["size"]>,
+    NonNullable<TextProps["textStyle"]>
+  >
 >;
 
 const textContainerProperties = {
@@ -48,12 +56,18 @@ const textContainerProperties = {
     gap: "x2",
     pb: "x6",
   },
-} as const satisfies Record<NonNullable<ResultSectionProps["size"]>, VStackProps>;
+} as const satisfies Record<
+  NonNullable<ResultSectionProps["size"]>,
+  VStackProps
+>;
 
 /**
  * @see https://seed-design.io/react/components/result-section
  */
-export const ResultSection = React.forwardRef<HTMLDivElement, ResultSectionProps>((props, ref) => {
+export const ResultSection = React.forwardRef<
+  HTMLDivElement,
+  ResultSectionProps
+>((props, ref) => {
   const {
     size = "large",
     asset,
@@ -64,7 +78,15 @@ export const ResultSection = React.forwardRef<HTMLDivElement, ResultSectionProps
     ...otherProps
   } = props;
   return (
-    <VStack ref={ref} justify="center" align="center" px="x12" py="x4" grow {...otherProps}>
+    <VStack
+      ref={ref}
+      justify="center"
+      align="center"
+      px="x12"
+      py="x4"
+      grow
+      {...otherProps}
+    >
       {asset}
       <VStack {...textContainerProperties[size]}>
         <Text
@@ -87,7 +109,11 @@ export const ResultSection = React.forwardRef<HTMLDivElement, ResultSectionProps
       {(primaryActionProps || secondaryActionProps) && (
         <VStack align="center" gap="x5">
           {primaryActionProps && (
-            <ActionButton variant="neutralWeak" size="medium" {...primaryActionProps} />
+            <ActionButton
+              variant="neutralWeak"
+              size="medium"
+              {...primaryActionProps}
+            />
           )}
           {secondaryActionProps && (
             <ActionButton

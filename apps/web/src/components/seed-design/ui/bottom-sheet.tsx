@@ -7,7 +7,11 @@
 "use client";
 
 import IconXmarkLine from "@karrotmarket/react-monochrome-icon/IconXmarkLine";
-import { Icon, BottomSheet as SeedBottomSheet, VisuallyHidden } from "@seed-design/react";
+import {
+  Icon,
+  BottomSheet as SeedBottomSheet,
+  VisuallyHidden,
+} from "@seed-design/react";
 import type * as React from "react";
 import { forwardRef } from "react";
 
@@ -18,14 +22,19 @@ export type BottomSheetRootProps = SeedBottomSheet.RootProps;
  */
 export const BottomSheetRoot = (props: BottomSheetRootProps) => {
   const { children, ...otherProps } = props;
-  return <SeedBottomSheet.Root unmountOnExit {...otherProps}>{children}</SeedBottomSheet.Root>;
+  return (
+    <SeedBottomSheet.Root unmountOnExit {...otherProps}>
+      {children}
+    </SeedBottomSheet.Root>
+  );
 };
 
 export type BottomSheetTriggerProps = SeedBottomSheet.TriggerProps;
 
 export const BottomSheetTrigger = SeedBottomSheet.Trigger;
 
-export interface BottomSheetContentProps extends Omit<SeedBottomSheet.ContentProps, "title"> {
+export interface BottomSheetContentProps
+  extends Omit<SeedBottomSheet.ContentProps, "title"> {
   title?: React.ReactNode;
 
   description?: React.ReactNode;
@@ -43,7 +52,10 @@ export interface BottomSheetContentProps extends Omit<SeedBottomSheet.ContentPro
   showHandle?: boolean;
 }
 
-export const BottomSheetContent = forwardRef<HTMLDivElement, BottomSheetContentProps>(
+export const BottomSheetContent = forwardRef<
+  HTMLDivElement,
+  BottomSheetContentProps
+>(
   (
     {
       children,
@@ -70,7 +82,9 @@ export const BottomSheetContent = forwardRef<HTMLDivElement, BottomSheetContentP
     const shouldRenderHeader = title || description;
 
     return (
-      <SeedBottomSheet.Positioner style={{ "--layer-index": layerIndex } as React.CSSProperties}>
+      <SeedBottomSheet.Positioner
+        style={{ "--layer-index": layerIndex } as React.CSSProperties}
+      >
         <SeedBottomSheet.Backdrop />
         <SeedBottomSheet.Content ref={ref} {...otherProps}>
           {showHandle && <SeedBottomSheet.Handle />}
@@ -80,11 +94,15 @@ export const BottomSheetContent = forwardRef<HTMLDivElement, BottomSheetContentP
                 <SeedBottomSheet.Title>{title}</SeedBottomSheet.Title>
               ) : (
                 <VisuallyHidden asChild>
-                  <SeedBottomSheet.Title>{otherProps["aria-label"] || ""}</SeedBottomSheet.Title>
+                  <SeedBottomSheet.Title>
+                    {otherProps["aria-label"] || ""}
+                  </SeedBottomSheet.Title>
                 </VisuallyHidden>
               )}
               {description && (
-                <SeedBottomSheet.Description>{description}</SeedBottomSheet.Description>
+                <SeedBottomSheet.Description>
+                  {description}
+                </SeedBottomSheet.Description>
               )}
             </SeedBottomSheet.Header>
           )}

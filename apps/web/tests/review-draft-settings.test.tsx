@@ -13,21 +13,34 @@ const identity = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/auth/real-session", () => ({
-  useRealSession: () => ({ status: identity.realStatus, userId: identity.realUserId }),
+  useRealSession: () => ({
+    status: identity.realStatus,
+    userId: identity.realUserId,
+  }),
 }));
 vi.mock("@/lib/mock/session", () => ({
-  useMockSessionOptional: () => identity.mockAlias ? { alias: identity.mockAlias, membershipFor: () => null } : null,
-  useMockSession: () => { throw new Error("MockSessionProvider is absent"); },
+  useMockSessionOptional: () =>
+    identity.mockAlias
+      ? { alias: identity.mockAlias, membershipFor: () => null }
+      : null,
+  useMockSession: () => {
+    throw new Error("MockSessionProvider is absent");
+  },
 }));
 vi.mock("next/navigation", () => ({
   useParams: () => ({ babyId: "baby-a" }),
   useSearchParams: () => new URLSearchParams(),
 }));
 vi.mock("next/link", () => ({
-  default: ({ href, children }: { href: string; children: ReactNode }) => createElement("a", { href }, children),
+  default: ({ href, children }: { href: string; children: ReactNode }) =>
+    createElement("a", { href }, children),
 }));
 vi.mock("@/lib/api/babies", () => ({
-  useBabiesQuery: () => ({ isLoading: false, isError: false, data: { items: [] } }),
+  useBabiesQuery: () => ({
+    isLoading: false,
+    isError: false,
+    data: { items: [] },
+  }),
   findBabyAccess: () => ({ membership: { role: "OWNER" } }),
 }));
 vi.mock("@/components/consent-panel", () => ({
@@ -43,7 +56,9 @@ vi.mock("@/components/baby-profile", () => ({
 let draft: ReturnType<typeof useDraft>;
 function DraftProbe() {
   const currentDraft = useDraft();
-  useEffect(() => { draft = currentDraft; }, [currentDraft]);
+  useEffect(() => {
+    draft = currentDraft;
+  }, [currentDraft]);
   return <p data-testid="draft-text">{currentDraft.getLiveText("baby-a")}</p>;
 }
 
@@ -56,7 +71,11 @@ afterEach(cleanup);
 
 describe("A-03 draft identity and settings", () => {
   it("prefers the real account over a stale mock alias and drops live and saved text on every owner change", () => {
-    const view = render(<DraftProvider><DraftProbe /></DraftProvider>);
+    const view = render(
+      <DraftProvider>
+        <DraftProbe />
+      </DraftProvider>,
+    );
     act(() => draft.setLiveText("baby-a", "A의 비공개 원문"));
     act(() => draft.saveLiveAsDraft("baby-a"));
     act(() => draft.setLiveText("baby-a", "A의 미전송 입력"));
@@ -64,7 +83,11 @@ describe("A-03 draft identity and settings", () => {
     expect(draft.getSavedDraft("baby-a")).toBe("A의 비공개 원문");
 
     identity.realUserId = "real-b";
-    view.rerender(<DraftProvider><DraftProbe /></DraftProvider>);
+    view.rerender(
+      <DraftProvider>
+        <DraftProbe />
+      </DraftProvider>,
+    );
     expect(draft.getLiveText("baby-a")).toBe("");
     expect(draft.getSavedDraft("baby-a")).toBeNull();
     expect(screen.getByTestId("draft-text").textContent).toBe("");
@@ -72,19 +95,30 @@ describe("A-03 draft identity and settings", () => {
     act(() => draft.setLiveText("baby-a", "B의 입력"));
     identity.realStatus = "signed-out";
     identity.realUserId = null;
-    view.rerender(<DraftProvider><DraftProbe /></DraftProvider>);
+    view.rerender(
+      <DraftProvider>
+        <DraftProbe />
+      </DraftProvider>,
+    );
     expect(draft.getLiveText("baby-a")).toBe("");
 
     act(() => draft.setLiveText("baby-a", "목 계정 입력"));
     identity.mockAlias = "owner_b";
-    view.rerender(<DraftProvider><DraftProbe /></DraftProvider>);
+    view.rerender(
+      <DraftProvider>
+        <DraftProbe />
+      </DraftProvider>,
+    );
     expect(draft.getLiveText("baby-a")).toBe("");
   });
 
   it("renders real settings without a mock provider or fixture-only controls", () => {
     render(<SettingsPage />);
-    expect(screen.getByRole("link", { name: /^공동양육 관리로 이동/ }).getAttribute("href"))
-      .toBe("/babies/baby-a/care-team");
+    expect(
+      screen
+        .getByRole("link", { name: /^공동양육 관리로 이동/ })
+        .getAttribute("href"),
+    ).toBe("/babies/baby-a/care-team");
     expect(screen.getByText("실제 아기 프로필 편집")).toBeTruthy();
     expect(screen.queryByText("별칭 저장 시도 (예시)")).toBeNull();
   });

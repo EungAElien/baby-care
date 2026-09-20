@@ -16,12 +16,19 @@ import {
   type CreateBabyInput,
 } from "@/lib/api/babies";
 import { ContractApiError } from "@/lib/api/errors";
-import { LoadingState, ErrorState, ScreenSection } from "@/components/screen-state";
+import {
+  LoadingState,
+  ErrorState,
+  ScreenSection,
+} from "@/components/screen-state";
 import type { components } from "@/lib/api/generated";
 
 type Step = "email" | "otp";
 
-const feedingModeLabel: Record<components["schemas"]["CreateBaby"]["feeding_mode"], string> = {
+const feedingModeLabel: Record<
+  components["schemas"]["CreateBaby"]["feeding_mode"],
+  string
+> = {
   BREAST: "모유",
   FORMULA: "분유",
   MIXED: "혼합",
@@ -75,7 +82,9 @@ export function EmailOtpForm() {
   }
 
   return (
-    <ScreenSection title={step === "email" ? "이메일로 로그인" : "인증코드 확인"}>
+    <ScreenSection
+      title={step === "email" ? "이메일로 로그인" : "인증코드 확인"}
+    >
       {step === "email" ? (
         <form onSubmit={sendOtp} className="flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-sm text-foreground">
@@ -100,7 +109,9 @@ export function EmailOtpForm() {
         </form>
       ) : (
         <form onSubmit={verify} className="flex flex-col gap-3">
-          <p className="text-sm text-muted-foreground">{email}로 보낸 인증코드를 입력하세요.</p>
+          <p className="text-sm text-muted-foreground">
+            {email}로 보낸 인증코드를 입력하세요.
+          </p>
           <label className="flex flex-col gap-1 text-sm text-foreground">
             인증코드
             <input
@@ -115,7 +126,8 @@ export function EmailOtpForm() {
           </label>
           {error && <ErrorState label={error} />}
           <div className="flex gap-2">
-            <ActionButton variant="neutralWeak"
+            <ActionButton
+              variant="neutralWeak"
               type="button"
               onClick={() => {
                 setStep("email");
@@ -161,8 +173,10 @@ function BabySelection() {
     router.push(`/babies/${babyId}`);
   }
 
-  if (babies.isLoading) return <LoadingState label="아기 정보를 불러오고 있어요" />;
-  if (babies.isError) return <ErrorState label={errorMessage(babies.error)} retryable />;
+  if (babies.isLoading)
+    return <LoadingState label="아기 정보를 불러오고 있어요" />;
+  if (babies.isError)
+    return <ErrorState label={errorMessage(babies.error)} retryable />;
 
   if (items.length === 0) {
     return (
@@ -176,7 +190,8 @@ function BabySelection() {
       </>
     );
   }
-  if (items.length === 1) return <LoadingState label="아기 홈으로 이동하고 있어요" />;
+  if (items.length === 1)
+    return <LoadingState label="아기 홈으로 이동하고 있어요" />;
 
   const suggested = activeBaby.data?.baby_id ?? null;
 
@@ -185,7 +200,8 @@ function BabySelection() {
       <ul className="flex flex-col gap-2">
         {items.map((item) => (
           <li key={item.baby.baby_id}>
-            <ActionButton variant="neutralWeak"
+            <ActionButton
+              variant="neutralWeak"
               type="button"
               onClick={() => choose(item.baby.baby_id)}
               className="flex min-h-11 w-full flex-col items-start gap-0.5 rounded-md border border-border bg-background px-3 py-2 text-left hover:border-primary"
@@ -195,7 +211,9 @@ function BabySelection() {
                 {suggested === item.baby.baby_id && " (마지막 선택)"}
               </span>
               <span className="text-xs text-muted-foreground">
-                {item.membership.role === "OWNER" ? "관리 보호자" : "공동 보호자"}
+                {item.membership.role === "OWNER"
+                  ? "관리 보호자"
+                  : "공동 보호자"}
               </span>
             </ActionButton>
           </li>
@@ -232,7 +250,9 @@ function CreateBabyForm() {
             type="text"
             required
             value={form.alias}
-            onChange={(event) => setForm((prev) => ({ ...prev, alias: event.target.value }))}
+            onChange={(event) =>
+              setForm((prev) => ({ ...prev, alias: event.target.value }))
+            }
             className="min-h-11 rounded-md border border-border bg-background px-3 text-sm text-foreground"
           />
         </label>
@@ -243,7 +263,9 @@ function CreateBabyForm() {
             required
             max={new Date().toISOString().slice(0, 10)}
             value={form.birth_date}
-            onChange={(event) => setForm((prev) => ({ ...prev, birth_date: event.target.value }))}
+            onChange={(event) =>
+              setForm((prev) => ({ ...prev, birth_date: event.target.value }))
+            }
             className="min-h-11 rounded-md border border-border bg-background px-3 text-sm text-foreground"
           />
         </label>
@@ -254,7 +276,8 @@ function CreateBabyForm() {
             onChange={(event) =>
               setForm((prev) => ({
                 ...prev,
-                feeding_mode: event.target.value as CreateBabyInput["feeding_mode"],
+                feeding_mode: event.target
+                  .value as CreateBabyInput["feeding_mode"],
               }))
             }
             className="min-h-11 rounded-md border border-border bg-background px-3 text-sm text-foreground"
@@ -266,7 +289,9 @@ function CreateBabyForm() {
             ))}
           </select>
         </label>
-        {createBaby.isError && <ErrorState label={errorMessage(createBaby.error)} />}
+        {createBaby.isError && (
+          <ErrorState label={errorMessage(createBaby.error)} />
+        )}
         <ActionButton
           type="submit"
           disabled={createBaby.isPending || !form.alias || !form.birth_date}

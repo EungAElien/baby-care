@@ -14,7 +14,10 @@ export type ProgressCircleProps = SeedProgressCircle.RootProps;
 /**
  * @see https://seed-design.io/react/components/progress-circle
  */
-export const ProgressCircle = React.forwardRef<SVGSVGElement, ProgressCircleProps>((props, ref) => {
+export const ProgressCircle = React.forwardRef<
+  SVGSVGElement,
+  ProgressCircleProps
+>((props, ref) => {
   return (
     <SeedProgressCircle.Root ref={ref} {...props}>
       <SeedProgressCircle.Track />

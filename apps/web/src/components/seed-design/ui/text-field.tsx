@@ -19,7 +19,10 @@ import type { FieldLabelVariantProps } from "@seed-design/css/recipes/field-labe
 import { IconExclamationmarkCircleFill } from "@karrotmarket/react-monochrome-icon";
 
 export interface TextFieldProps
-  extends Omit<SeedTextField.RootProps, "prefix" | "onValueChange" | "asChild"> {
+  extends Omit<
+    SeedTextField.RootProps,
+    "prefix" | "onValueChange" | "asChild"
+  > {
   label?: React.ReactNode;
   /**
    * @default "medium"
@@ -94,8 +97,10 @@ export const TextField = React.forwardRef<HTMLDivElement, TextFieldProps>(
     const renderHeader = label || indicator;
     const renderDescription = !!description;
     const renderErrorMessage = errorMessage && invalid;
-    const renderGraphemeCount = !hideCharacterCount && maxGraphemeCount !== undefined;
-    const renderFooter = renderDescription || renderErrorMessage || renderGraphemeCount;
+    const renderGraphemeCount =
+      !hideCharacterCount && maxGraphemeCount !== undefined;
+    const renderFooter =
+      renderDescription || renderErrorMessage || renderGraphemeCount;
 
     if (process.env.NODE_ENV !== "production" && !label) {
       console.warn(
@@ -117,16 +122,22 @@ export const TextField = React.forwardRef<HTMLDivElement, TextFieldProps>(
             <SeedField.Label weight={labelWeight}>
               {label}
               {showRequiredIndicator && <SeedField.RequiredIndicator />}
-              {indicator && <SeedField.IndicatorText>{indicator}</SeedField.IndicatorText>}
+              {indicator && (
+                <SeedField.IndicatorText>{indicator}</SeedField.IndicatorText>
+              )}
             </SeedField.Label>
             {/* You might want to put your custom element here */}
           </SeedField.Header>
         )}
         <SeedTextField.Root ref={ref} {...otherProps} {...textFieldRootProps}>
           {prefixIcon && <SeedTextField.PrefixIcon svg={prefixIcon} />}
-          {prefix && <SeedTextField.PrefixText>{prefix}</SeedTextField.PrefixText>}
+          {prefix && (
+            <SeedTextField.PrefixText>{prefix}</SeedTextField.PrefixText>
+          )}
           {children}
-          {suffix && <SeedTextField.SuffixText>{suffix}</SeedTextField.SuffixText>}
+          {suffix && (
+            <SeedTextField.SuffixText>{suffix}</SeedTextField.SuffixText>
+          )}
           {suffixIcon && <SeedTextField.SuffixIcon svg={suffixIcon} />}
         </SeedTextField.Root>
         {renderFooter && (
@@ -145,7 +156,9 @@ export const TextField = React.forwardRef<HTMLDivElement, TextFieldProps>(
                 {errorMessage}
               </SeedField.ErrorMessage>
             )}
-            {renderGraphemeCount && <SeedField.CharacterCount {...counterProps} />}
+            {renderGraphemeCount && (
+              <SeedField.CharacterCount {...counterProps} />
+            )}
           </SeedField.Footer>
         )}
       </SeedField.Root>

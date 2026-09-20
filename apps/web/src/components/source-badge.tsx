@@ -14,14 +14,19 @@ export function SourceBadge({
   inferenceExecuted,
   dataOrigin,
   className,
-}: Readonly<{ inferenceMode?: InferenceMode; inferenceExecuted?: boolean; dataOrigin: DataOrigin; className?: string }>) {
+}: Readonly<{
+  inferenceMode?: InferenceMode;
+  inferenceExecuted?: boolean;
+  dataOrigin: DataOrigin;
+  className?: string;
+}>) {
   const label = sourceLabel(inferenceMode, dataOrigin, inferenceExecuted);
   return (
-    <Badge tone="neutral" variant="weak" size="medium"
-      className={cn(
-        "max-w-full",
-        className,
-      )}
+    <Badge
+      tone="neutral"
+      variant="weak"
+      size="medium"
+      className={cn("source-badge", className)}
       data-inference-mode={inferenceMode}
       data-origin={dataOrigin}
       data-inference-executed={inferenceExecuted}
@@ -31,8 +36,14 @@ export function SourceBadge({
   );
 }
 
-function sourceLabel(inferenceMode: InferenceMode | undefined, dataOrigin: DataOrigin, executed?: boolean): string {
-  if (inferenceMode === "REAL") return `${dataOrigin === "DEMO" ? "예시 음원 · " : ""}${executed === true ? "실제 모델 실행" : executed === false ? "모델 미실행" : "모델 실행 여부 미확인"}`;
-  if (inferenceMode === "STUB") return `${dataOrigin === "DEMO" ? "예시 자료 · " : ""}개발용 고정 응답`;
+function sourceLabel(
+  inferenceMode: InferenceMode | undefined,
+  dataOrigin: DataOrigin,
+  executed?: boolean,
+): string {
+  if (inferenceMode === "REAL")
+    return `${dataOrigin === "DEMO" ? "예시 음원 · " : ""}${executed === true ? "실제 모델 실행" : executed === false ? "모델 미실행" : "모델 실행 여부 미확인"}`;
+  if (inferenceMode === "STUB")
+    return `${dataOrigin === "DEMO" ? "예시 자료 · " : ""}개발용 고정 응답`;
   return dataOrigin === "DEMO" ? "예시 자료" : "실제 자료";
 }

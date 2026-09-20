@@ -1,13 +1,27 @@
 /** Explicit origins only; no credentials, arbitrary CDN or production unsafe-eval. */
-export function securityHeaders(nonce: string, development: boolean, endpoints: readonly string[]) {
+export function securityHeaders(
+  nonce: string,
+  development: boolean,
+  endpoints: readonly string[],
+) {
   const origins = new Set<string>();
   for (const endpoint of endpoints) {
     if (!endpoint) continue;
     const url = new URL(endpoint);
-    if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) throw new Error("Invalid public endpoint");
+    if (
+      !["http:", "https:"].includes(url.protocol) ||
+      url.username ||
+      url.password
+    )
+      throw new Error("Invalid public endpoint");
     origins.add(url.origin);
-    if (url.hostname.endsWith(".supabase.co") && !url.hostname.endsWith(".storage.supabase.co")) {
-      origins.add(`${url.protocol}//${url.hostname.replace(".supabase.co", ".storage.supabase.co")}`);
+    if (
+      url.hostname.endsWith(".supabase.co") &&
+      !url.hostname.endsWith(".storage.supabase.co")
+    ) {
+      origins.add(
+        `${url.protocol}//${url.hostname.replace(".supabase.co", ".storage.supabase.co")}`,
+      );
     }
   }
   const csp = [

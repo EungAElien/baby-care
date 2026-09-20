@@ -13,7 +13,10 @@ const recordKinds = [
   { value: "SOOTHE", label: "달래기", icon: HeartHandshake },
 ] as const;
 
-export function CareEventFields({ form, disabled = false }: Readonly<{
+export function CareEventFields({
+  form,
+  disabled = false,
+}: Readonly<{
   form: UseFormReturn<CareEventFormValues>;
   disabled?: boolean;
 }>) {
@@ -22,8 +25,29 @@ export function CareEventFields({ form, disabled = false }: Readonly<{
   const timeUnknown = useWatch({ control: form.control, name: "timeUnknown" });
 
   return (
-    <fieldset disabled={disabled} className="flex flex-col gap-4 disabled:opacity-60">
-      <fieldset><legend className="mb-3 font-semibold">기록 종류</legend><div className="care-kind-choices">{recordKinds.map(({ value, label, icon: Icon }) => <label key={value}><input className="sr-only" type="radio" value={value} {...register("type")} /><span><Icon aria-hidden="true" size={22} />{label}</span></label>)}</div></fieldset>
+    <fieldset
+      disabled={disabled}
+      className="flex flex-col gap-4 disabled:opacity-60"
+    >
+      <fieldset>
+        <legend className="mb-3 font-semibold">기록 종류</legend>
+        <div className="care-kind-choices">
+          {recordKinds.map(({ value, label, icon: Icon }) => (
+            <label key={value}>
+              <input
+                className="sr-only"
+                type="radio"
+                value={value}
+                {...register("type")}
+              />
+              <span>
+                <Icon aria-hidden="true" size={22} />
+                {label}
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
       {type !== "SLEEP" && (
         <label className="flex min-h-11 items-center gap-2 text-sm text-foreground">
@@ -41,7 +65,11 @@ export function CareEventFields({ form, disabled = false }: Readonly<{
             aria-invalid={Boolean(formState.errors.occurredAt)}
             className="min-h-11 rounded-md border border-border bg-background px-3"
           />
-          {formState.errors.occurredAt && <span role="alert" className="text-xs text-destructive">{formState.errors.occurredAt.message}</span>}
+          {formState.errors.occurredAt && (
+            <span role="alert" className="text-xs text-destructive">
+              {formState.errors.occurredAt.message}
+            </span>
+          )}
         </label>
       )}
 
@@ -49,23 +77,61 @@ export function CareEventFields({ form, disabled = false }: Readonly<{
         <>
           <label className="flex flex-col gap-1 text-sm text-foreground">
             수유 방식
-            <select {...register("feedingMode")} className="min-h-11 rounded-md border border-border bg-background px-3">
+            <select
+              {...register("feedingMode")}
+              className="min-h-11 rounded-md border border-border bg-background px-3"
+            >
               <option value="UNSPECIFIED">모름</option>
               <option value="BREAST">모유</option>
               <option value="FORMULA">분유</option>
               <option value="MIXED">혼합</option>
             </select>
           </label>
-          <TextField label="양 (mL, 모르면 비워두기)" invalid={Boolean(formState.errors.amountMl)} errorMessage={formState.errors.amountMl?.message} description="빈 값은 ‘모름’으로 저장해요. 실제 양이 0일 때만 0을 입력해 주세요."><TextFieldInput type="number" inputMode="decimal" min="0" step="any" {...register("amountMl")} /></TextField>
-          <TextField label="걸린 시간 (분, 모르면 비워두기)" invalid={Boolean(formState.errors.durationMinutes)} errorMessage={formState.errors.durationMinutes?.message}><TextFieldInput type="number" inputMode="decimal" min="0" step="any" {...register("durationMinutes")} /></TextField>
+          <TextField
+            label="양 (mL, 모르면 비워두기)"
+            invalid={Boolean(formState.errors.amountMl)}
+            errorMessage={formState.errors.amountMl?.message}
+            description="빈 값은 ‘모름’으로 저장해요. 실제 양이 0일 때만 0을 입력해 주세요."
+          >
+            <TextFieldInput
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="any"
+              {...register("amountMl")}
+            />
+          </TextField>
+          <TextField
+            label="걸린 시간 (분, 모르면 비워두기)"
+            invalid={Boolean(formState.errors.durationMinutes)}
+            errorMessage={formState.errors.durationMinutes?.message}
+          >
+            <TextFieldInput
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="any"
+              {...register("durationMinutes")}
+            />
+          </TextField>
         </>
       )}
 
       {type === "SLEEP" && (
         <label className="flex flex-col gap-1 text-sm text-foreground">
           수면 종료 시각 (진행 중이면 비워두기)
-          <input type="datetime-local" step="any" {...register("endedAt")} aria-invalid={Boolean(formState.errors.endedAt)} className="min-h-11 rounded-md border border-border bg-background px-3" />
-          {formState.errors.endedAt && <span role="alert" className="text-xs text-destructive">{formState.errors.endedAt.message}</span>}
+          <input
+            type="datetime-local"
+            step="any"
+            {...register("endedAt")}
+            aria-invalid={Boolean(formState.errors.endedAt)}
+            className="min-h-11 rounded-md border border-border bg-background px-3"
+          />
+          {formState.errors.endedAt && (
+            <span role="alert" className="text-xs text-destructive">
+              {formState.errors.endedAt.message}
+            </span>
+          )}
         </label>
       )}
 
@@ -73,14 +139,20 @@ export function CareEventFields({ form, disabled = false }: Readonly<{
         <>
           <label className="flex flex-col gap-1 text-sm text-foreground">
             한 일
-            <select {...register("diaperOperation")} className="min-h-11 rounded-md border border-border bg-background px-3">
+            <select
+              {...register("diaperOperation")}
+              className="min-h-11 rounded-md border border-border bg-background px-3"
+            >
               <option value="CHECK">확인</option>
               <option value="CHANGE">교체</option>
             </select>
           </label>
           <label className="flex flex-col gap-1 text-sm text-foreground">
             확인한 상태
-            <select {...register("diaperCondition")} className="min-h-11 rounded-md border border-border bg-background px-3">
+            <select
+              {...register("diaperCondition")}
+              className="min-h-11 rounded-md border border-border bg-background px-3"
+            >
               <option value="UNKNOWN">모름</option>
               <option value="WET">소변</option>
               <option value="STOOL">대변</option>
@@ -94,7 +166,10 @@ export function CareEventFields({ form, disabled = false }: Readonly<{
       {type === "SOOTHE" && (
         <label className="flex flex-col gap-1 text-sm text-foreground">
           한 일
-          <select {...register("sootheAction")} className="min-h-11 rounded-md border border-border bg-background px-3">
+          <select
+            {...register("sootheAction")}
+            className="min-h-11 rounded-md border border-border bg-background px-3"
+          >
             <option value="OTHER">기타 돌봄</option>
             <option value="HOLDING">안기</option>
             <option value="BURPING">트림 돕기</option>
