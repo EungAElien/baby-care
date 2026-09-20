@@ -1,7 +1,7 @@
 [project]
 name = "baby-care-m2d-supervised"
-version = "1.1.0"
-description = "Reproducible M2D supervised preparation and resumable development training"
+version = "1.2.0"
+description = "Fixed M2D development comparison, final retraining, sealed evaluation and export"
 requires-python = ">=3.11,<3.13"
 dependencies = [
     "numpy==2.4.6",
@@ -10,6 +10,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+inference = [
+    "nnAudio==0.3.4",
+    "soundfile==0.13.1",
+    "soxr==1.0.0",
+]
 dev = [
     "pytest>=9,<10",
     "ruff>=0.16,<0.17",
