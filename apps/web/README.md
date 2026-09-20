@@ -32,9 +32,9 @@ cd ../.. && npm ci && npm run supabase:start && npm run supabase:reset
 
 과거 A-03 인증 기반 연결 시점에는 실제 OTP 왕복·아기 생성·전환을 확인하지 못했습니다. 격리 로컬 API 합성 검사는 별도로 통과했으나 실제 두 계정 브라우저 시험을 대신하지 않습니다. 최신 인수 상태는 A 작업표를 확인하세요.
 
-실제 초대 발급·재발급은 OWNER의 새 OTP 재인증을 거친 뒤 진행합니다. 서버가 내는 `/invite/{invite_id}#<token>` 링크는 `/invite/[inviteId]`에서 fragment를 즉시 제거하고 같은 탭에서 초대받은 이메일로 로그인·수락합니다. 수락은 SHARED_USE의 승인 문구와 정확한 `policy_version`이 모두 설정된 경우에만 가능합니다. 모든 정책 문구·버전은 `.env.example`의 공개 환경변수 이름을 참고해 승인된 값으로 공급하세요. 누락하면 새 동의·수락은 닫혀 있습니다. 비밀값이나 실제 아기 자료는 넣지 마세요.
+실제 초대 발급·재발급은 OWNER의 새 OTP 재인증을 거친 뒤 진행합니다. 서버가 내는 `/invite/{invite_id}#<token>` 링크는 `/invite/[inviteId]`에서 fragment를 즉시 제거하고 같은 탭에서 초대받은 이메일로 로그인·수락합니다. 운영 문구와 버전은 `.env.example`의 공개 환경변수 이름을 참고해 함께 공급하세요. 합성 로컬 시험은 `NEXT_PUBLIC_ENABLE_MOCK_NAV=true`와 `NEXT_PUBLIC_POLICY_PROFILE=LOCAL_SYNTHETIC_V1`을 모두 명시하면 [시험 문구 초안](../../docs/policies/a03-local-synthetic-consent-v1.md)을 사용합니다. 운영 기본값은 닫혀 있습니다. 비밀값이나 실제 아기 자료는 넣지 마세요.
 
-설정의 실제 동의 화면은 현재 이력 조회·철회와 승인된 정책에 따른 새 동의를 제공합니다. BABY_TRAINING은 서버의 아동 자료 확인과 새 OTP 증명이 추가로 필요합니다. 탈퇴 뒤에도 `/account?baby_id=<이전 아기 ID>`에서 본인 학습 동의 조회·철회를 이어갈 수 있습니다. 계정 화면은 다른 기기 또는 모든 기기 세션 회수를 요청하고, 로그아웃은 현재 세션 회수 결과를 로컬 정리와 구분해 알립니다. 실제 OTP 두 계정 브라우저 인수는 남아 있습니다.
+설정의 실제 동의 화면은 현재 이력 조회·철회와 승인된 정책에 따른 새 동의를 제공합니다. BABY_TRAINING은 서버의 아동 자료 확인과 새 OTP 증명이 추가로 필요합니다. OWNER의 전체 자료 삭제는 별도 확인·DELETE_BABY OTP proof가 필요하며, 접수 뒤 `/account/baby-deletions/[deletionJobId]`에서 정리 상태를 확인합니다. 탈퇴 뒤에도 `/account?baby_id=<이전 아기 ID>`에서 본인 학습 동의 조회·철회를 이어갈 수 있습니다. 계정 화면은 다른 기기 또는 모든 기기 세션 회수를 요청하고, 로그아웃은 현재 세션 회수 결과를 로컬 정리와 구분해 알립니다. 실제 OTP 두 계정 브라우저 인수는 남아 있습니다.
 
 ## SC01~SC10 목 화면 이동 (A-01 ②)
 
@@ -66,7 +66,7 @@ cd ../.. && npm ci && npm run supabase:start && npm run supabase:reset
 | 내 계정 | `/account` | 아기 멤버십이 없어도(예: 탈퇴한 `removed_a`) 본인 학습 동의·삭제 신청 진입점을 유지한다 |
 | 아기 전환 시 미저장 초안 | 헤더의 아기 전환 select | SC05에 입력이 있으면 "계속 작성/개인 초안 저장 후 전환/버리고 전환"을 물어보고, 저장한 초안은 그 아기로 돌아왔을 때 다시 채워진다 |
 
-위 표의 `/invite/accept`는 합성 목 화면입니다. 실제 발급 링크는 `/invite/[inviteId]`로 열립니다. 승인된 정책 문구·버전과 실제 시험 계정·로컬 서비스가 없으면 실제 수락 인수는 수행할 수 없습니다.
+위 표의 `/invite/accept`는 합성 목 화면입니다. 실제 발급 링크는 `/invite/[inviteId]`로 열립니다. 승인된 운영 문구 또는 명시적 합성 로컬 시험 프로필, 실제 OTP 시험 계정·로컬 서비스가 없으면 수락 인수는 수행할 수 없습니다.
 
 실제 환경을 사용할 때만 `.env.example`을 참고해 공개 설정을 입력하세요. `.env.local`은 버전 관리 대상이 아니며, `service_role`/secret·DB·LLM 자격 증명을 `NEXT_PUBLIC_`에 두면 안 됩니다. 브라우저 토큰 보관 방식(현재 supabase-js 기본값인 지속 저장)은 개발계약이 아직 A의 결정 사항으로 남겨둔 항목입니다 — 잠정값이며 다중 탭·새로고침·XSS 노출 검토 전까지 최종 결정으로 보지 마세요.
 
