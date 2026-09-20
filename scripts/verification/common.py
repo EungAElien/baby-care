@@ -33,8 +33,8 @@ def npx_command() -> str:
 FOLLOW_UP_ACCEPTANCE = [
     "A의 실제 브라우저·기기·두 화면 공동 인수",
     "Realtime과 SEC30·SEC31",
-    "TUS·음원 처리·실제 모델·외부 LLM",
-    "물리 삭제 실행기·백업 복원·키 회수 사고 리허설",
+    "hosted TUS 미완료 조각 정리 시각·실제 기기 음원·실제 모델·외부 LLM",
+    "운영 스케줄러의 물리 삭제 실행·백업 복원·키 회수 사고 리허설",
     "운영 IAM·Secret Manager·전역 할당량·부하 측정·Cloud Run 배포",
     "B-09 변경 이력 정리의 운영 스케줄 등록",
 ]

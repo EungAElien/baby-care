@@ -21,6 +21,7 @@
 | [진행 현황 원본 기록](planning/b-implementation-plan-2026-09-19/progress-snapshot.json), [당시 계획 문서 검사](planning/b-implementation-plan-2026-09-19/plan-validation.json) | 시각·범위·미검증 항목을 유지한 과거 기록. 원본 JSON의 절대 경로는 당시 환경 기록 |
 | [B-03 Supabase 구현·검증](../supabase/README.md) | 현재 로컬 migration, RLS, Storage 정책, 재현 명령과 부분/미실행 인수 범위 |
 | [B-04 → A-03·A-04 연동 인계](handoffs/b04-account-shared-care-records.md) | 구현 operationId, 실행 주소, 합성 계정 배치, 초대·재인증·기록·오류·삭제 UI 연결 순서 |
+| [B-05 → A-02·A-05·B-06 음원 인계](handoffs/b05-audio-intake.md) | STANDARD/TUS 순서, 실제 형식→PCM→V1 경계, 품질·보관·정리, 기기별 검증 상태 |
 | [B-09 → A-08 변경 조회 인계](handoffs/b09-shared-change-feed.md) | 폴링 복구 계약, 쓰기별 재조회, revision 경계와 남은 Realtime 인수 |
 | [B-13 자동 검사·CI 인계](handoffs/b13-automatic-verification.md) | 로컬/CI 명령, 계약 재생성, 필수 check·산출물·실패 복구와 후속 전체 인수 |
 | [아기 상태·완료 조치·기록 그래프 범주 v2](product/baby-state-care-action-categories-v2.md) | 사용자 선택을 반영한 기획. 계약에 반영할 차이는 8절에 명시. API enum이나 구현을 이미 바꾼 것으로 취급하지 않음 |
