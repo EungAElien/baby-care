@@ -238,6 +238,37 @@ describe("capture and intake", () => {
     another.dispose();
   });
 
+  it("retries an uncertain cancel with its original key without restarting transfer", async () => {
+    const scope = new PrivateScope(new QueryClient());
+    scope.set("user", "baby");
+    const audio = asset();
+    const cancelIds: string[] = [];
+    let rejectTransfer: ((error: Error) => void) | null = null;
+    const send = vi.spyOn(StorageUpload.prototype, "send").mockImplementation(() => new Promise<void>((_resolve, reject) => { rejectTransfer = reject; }));
+    vi.spyOn(StorageUpload.prototype, "abort").mockImplementation(() => rejectTransfer?.(new Error("aborted")));
+    const api = { POST: vi.fn(async (path: string, options: { body: Record<string, unknown> }) => {
+      if (path === "/episodes") return { data: { episode_id: "episode" }, response: { ok: true } };
+      if (path === "/episodes/{episode_id}/uploads") return { data: { audio, upload: grant("STANDARD") }, response: { ok: true } };
+      cancelIds.push(String(options.body.client_request_id));
+      if (cancelIds.length === 1) throw new Error("cancel response lost");
+      return { data: audio, response: { ok: true } };
+    }) } as unknown as RealApiClient;
+    const stages: string[] = [];
+    const session = new AudioIntake("baby", api, config, auth, scope, (view) => stages.push(view.stage));
+    session.select("FILE", new Blob(["x"], { type: "audio/webm" }), 2, false);
+    const running = session.start();
+    await vi.waitFor(() => expect(send).toHaveBeenCalled());
+    await session.cancel();
+    await running;
+    expect(stages.at(-1)).toBe("uncertain");
+    await session.retry();
+    expect(stages.at(-1)).toBe("cancelled");
+    expect(cancelIds).toHaveLength(2);
+    expect(cancelIds[0]).toBe(cancelIds[1]);
+    expect(send).toHaveBeenCalledTimes(1);
+    session.dispose();
+  });
+
   it("cleans an in-flight transfer when the baby or account scope changes", async () => {
     for (const [userId, babyId] of [["user", "other-baby"], ["other-user", null]] as const) {
       const scope = new PrivateScope(new QueryClient());

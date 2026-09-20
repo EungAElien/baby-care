@@ -6,12 +6,12 @@
 
 | 구분 | 확인 내용 | 상태 |
 | --- | --- | --- |
-| 웹 합성 자동 시험 | 실제 Blob MIME·크기, 정상 stop의 마지막 조각, 6 MiB TUS 경계·청크·재개, URL 출처·경로 거부, 취소 순서, 만료 재승인, complete 응답 유실, 아기/계정 전환 시 전송·재생 정리, 품질 문구 | 통과. 실제 마이크·Storage 증거는 아님 |
+| 웹 합성 자동 시험 | 실제 Blob MIME·크기, 정상 stop의 마지막 조각, 6 MiB TUS 경계·청크·재개, URL 출처·경로 거부, 취소 순서·응답 유실, 만료 재승인, complete 응답 유실, 아기/계정 전환 시 전송·재생 정리, 품질 문구 | 통과. 실제 마이크·Storage 증거는 아님 |
 | B-05 서버 기존 합성 검증 | B-05 인계의 로컬 Auth·DB·Storage·FFmpeg STANDARD/TUS·품질·재생 시험 | B-05 인계 기록 참조. 이 A-05 작업에서 재실행한 결과로 표기하지 않음 |
 | A-05와 B-05 실연동 | 실제 브라우저 → 로컬 B-05 서버 → 로컬 Storage 전송·완료·재생 | 미실행. 이 작업 PC에 Docker CLI가 없고 WSL 배포 열거가 접근 거부되어 로컬 Supabase를 시작하지 못함 |
 | 실제 브라우저·기기 | 아래 네 대상에서 직접 녹음·파일·권한·연결 중단 | 미실행 |
 
-웹 자동 게이트는 최신 `develop` 재적용 후 `typecheck`, 전체 ESLint, Vitest 25파일 116건, `NEXT_PUBLIC_ENABLE_MOCK_NAV=true/false` 각각의 Next 생산 빌드가 통과했다. 실제 브라우저와 서버 통합 경로의 통과로 해석하지 않는다.
+웹 자동 게이트는 최신 `develop` 재적용 후 `typecheck`, 전체 ESLint, Vitest 25파일 117건, `NEXT_PUBLIC_ENABLE_MOCK_NAV=true/false` 각각의 Next 생산 빌드가 통과했다. 실제 브라우저와 서버 통합 경로의 통과로 해석하지 않는다.
 
 ## 재현 준비
 

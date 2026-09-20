@@ -73,7 +73,7 @@ export class AudioIntake {
   private playbackTimer: ReturnType<typeof setTimeout> | null = null;
   private playbackObjectUrl: string | null = null;
   private playbackController: AbortController | null = null;
-  private lastStep: "episode" | "grant" | "transfer" | "complete" = "episode";
+  private lastStep: "episode" | "grant" | "transfer" | "complete" | "cancel" = "episode";
 
   constructor(
     private readonly babyId: string,
@@ -194,6 +194,7 @@ export class AudioIntake {
   }
 
   async retry(): Promise<void> {
+    if (this.lastStep === "cancel") { await this.cancel(); return; }
     if (this.lastStep !== "complete") { await this.start(); return; }
     await this.refresh();
     if (this.view.audio?.status === "ALLOCATED") await this.complete();
@@ -235,6 +236,7 @@ export class AudioIntake {
   async cancel(): Promise<void> {
     this.transfer?.abort();
     this.assertCurrent();
+    this.lastStep = "cancel";
     this.set({ stage: "cancelling", message: "전송을 중단하고 서버 승인을 취소하고 있어요." });
     const grant = this.view.grant;
     if (!grant) { this.dispose(); return; }
