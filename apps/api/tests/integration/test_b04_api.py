@@ -685,9 +685,12 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
         assert owner_edit.status_code == 200
         assert owner_edit.json()["created_by_user_id"] == str(caregiver.user_id)
         assert owner_edit.json()["updated_by_user_id"] == str(owner.user_id)
-        assert client.get(summary_url, headers=_headers(caregiver)).json()["feeding"][
-            "total_recorded_ml"
-        ] == 100
+        assert (
+            client.get(summary_url, headers=_headers(caregiver)).json()["feeding"][
+                "total_recorded_ml"
+            ]
+            == 100
+        )
         stale_event_id = uuid4()
         stale_event = client.patch(
             f"/v1/care-events/{event_id}",
@@ -747,9 +750,12 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
         assert conflicted_update.json()["details"]["current_resource"] == successful_update.json()
         fetched_event = client.get(f"/v1/care-events/{event_id}", headers=_headers(caregiver))
         assert fetched_event.status_code == 200 and fetched_event.json() == successful_update.json()
-        assert client.get(summary_url, headers=_headers(owner_otp)).json()["feeding"][
-            "total_recorded_ml"
-        ] == successful_update.json()["event"]["payload"]["amount_ml"]
+        assert (
+            client.get(summary_url, headers=_headers(owner_otp)).json()["feeding"][
+                "total_recorded_ml"
+            ]
+            == successful_update.json()["event"]["payload"]["amount_ml"]
+        )
 
         disposable_id = uuid4()
         disposable = client.post(
@@ -767,9 +773,10 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
             },
         )
         assert disposable.status_code == 201
-        assert client.get(summary_url, headers=_headers(owner_otp)).json()["diaper"][
-            "change_count"
-        ] == 1
+        assert (
+            client.get(summary_url, headers=_headers(owner_otp)).json()["diaper"]["change_count"]
+            == 1
+        )
         disposable_event_id = disposable.json()["care_event_id"]
         stale_delete_id = uuid4()
         stale_delete = client.delete(
@@ -784,9 +791,10 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
             headers=_headers(caregiver, request_id=delete_event_id),
         )
         assert deleted_event.status_code == 202
-        assert client.get(summary_url, headers=_headers(owner_otp)).json()["diaper"][
-            "change_count"
-        ] == 0
+        assert (
+            client.get(summary_url, headers=_headers(owner_otp)).json()["diaper"]["change_count"]
+            == 0
+        )
         replay_deleted_event = client.delete(
             f"/v1/care-events/{disposable_event_id}?version=1",
             headers=_headers(caregiver, request_id=delete_event_id),
