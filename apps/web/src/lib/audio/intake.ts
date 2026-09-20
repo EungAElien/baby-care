@@ -362,6 +362,7 @@ export class AudioIntake {
   }
 
   async retry(): Promise<void> {
+    const revision = this.operationRevision;
     if (this.lastStep === "cancel") {
       await this.cancel();
       return;
@@ -371,6 +372,7 @@ export class AudioIntake {
       return;
     }
     await this.refresh();
+    if (revision !== this.operationRevision) return;
     if (this.view.audio?.status === "ALLOCATED") await this.complete();
   }
 
@@ -421,6 +423,7 @@ export class AudioIntake {
   }
 
   async renew(): Promise<void> {
+    const revision = this.operationRevision;
     this.assertCurrent();
     const audio = this.view.audio;
     const oldGrant = this.view.grant;
@@ -443,6 +446,7 @@ export class AudioIntake {
         }),
       );
       this.assertCurrent();
+      if (revision !== this.operationRevision) return;
       if (
         renewed.upload.object_key !== oldGrant.object_key ||
         renewed.upload.bucket !== oldGrant.bucket ||
@@ -463,6 +467,7 @@ export class AudioIntake {
         message: "같은 음원 경로로 재승인받았어요. 전송을 다시 시작해 주세요.",
       });
     } catch (error) {
+      if (this.disposed || revision !== this.operationRevision) return;
       this.set({ stage: "expired", message: errorText(error) });
     }
   }

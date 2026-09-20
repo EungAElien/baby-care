@@ -662,3 +662,29 @@ describe("capture and intake", () => {
     expect(revoke).toHaveBeenCalledWith("blob:private-playback");
   });
 });
+
+it("does not restore an upload after a renewal response arrives after cancellation", async () => {
+  const scope = new PrivateScope(new QueryClient());
+  scope.set("user", "baby");
+  const audio = asset();
+  const expired = { ...grant("STANDARD"), expires_at: new Date(Date.now() - 1).toISOString() };
+  let resolveRenew!: (value: unknown) => void;
+  const pending = new Promise((resolve) => { resolveRenew = resolve; });
+  const api = { POST: vi.fn(async (path: string) => {
+    if (path === "/episodes") return { data: { episode_id: "episode" }, response: { ok: true } };
+    if (path === "/episodes/{episode_id}/uploads") return { data: { audio, upload: expired }, response: { ok: true } };
+    if (path === "/audio-assets/{audio_id}/uploads") return pending;
+    if (path === "/uploads/{upload_id}/cancel") return { data: audio, response: { ok: true } };
+    throw new Error("Unexpected request");
+  }) } as unknown as RealApiClient;
+  const stages: string[] = [];
+  const intake = new AudioIntake("baby", api, config, auth, scope, (view) => stages.push(view.stage));
+  intake.select("FILE", new Blob(["x"], { type: "audio/webm" }), 2, false);
+  await intake.start();
+  const renewal = intake.renew();
+  await intake.cancel();
+  resolveRenew({ data: { audio, upload: grant("STANDARD") }, response: { ok: true } });
+  await renewal;
+  expect(stages.at(-1)).toBe("cancelled");
+  intake.dispose();
+});
