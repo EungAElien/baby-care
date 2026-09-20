@@ -47,3 +47,6 @@
 - [이전 제품 문서](archive/2026-09-product/README.md): PRD·기능명세 v1의 Markdown/DOCX, 초기 MVP 기획, 상태·조치 범주 v1.
 
 옛 문서에 있는 명령은 해당 문서의 작업 환경과 요청 범위를 확인한 뒤 사용한다. 문서를 가져왔다는 사실은 학습 완료·성능 검증·배포 또는 과거 진행 상태의 현재 유효성을 증명하지 않는다.
+
+- [웹 브랜드 인터페이스 설계와 A 작업 범위](./design/web-brand-interface.md)
+- [웹 브랜드 인터페이스 검증 기록](./verification/web-brand-interface-2026-09-20.md)

@@ -18,6 +18,7 @@ import {
 } from "@/lib/mock/fixtures";
 import { ScreenSection } from "@/components/screen-state";
 import { RealLogin } from "./real-login";
+import { BrandScene } from "@/components/brand-scene";
 
 const inviteOutcomeLinks = [
   { token: "demo-accept", label: "정상 수락" },
@@ -40,31 +41,46 @@ export default function LoginPage() {
   const mockNavEnabled = isMockNavEnabled();
 
   return (
-    <main className="mx-auto flex min-h-svh max-w-xl flex-col gap-6 px-6 py-10">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-primary">아기 돌봄 도우미</p>
-        <h1 className="text-2xl font-semibold tracking-tight">시작하기</h1>
-        <p className="text-sm text-muted-foreground">
-          로그인 아기 정보 분석 동의를 완료하면 홈으로 이동합니다.
+    <main className="welcome-layout">
+      <section className="brand-hero welcome-brand">
+        <p className="hero-topline">BABY CARE · 아기 돌봄 도우미</p>
+        <div>
+          <h1 className="hero-heading">
+            서툰 하루도,
+            <br />
+            함께라서 괜찮아요.
+          </h1>
+          <p className="hero-copy">
+            작은 신호를 살펴보고
+            <br />
+            오늘의 돌봄을 함께 기록해요.
+          </p>
+        </div>
+        <BrandScene />
+        <p className="text-sm">소리 살펴보기 · 돌봄 기록 · 공동양육</p>
+      </section>
+      <section className="welcome-form" aria-label="로그인과 시작">
+        <h2 className="text-2xl font-bold">우리 아기의 하루 시작하기</h2>
+        <p className="text-muted-foreground">
+          이메일로 로그인하고 돌보는 아기를 선택해 주세요.
         </p>
-      </div>
+        <LogoutNotice />
 
-      <LogoutNotice />
+        {realSession.configured ? (
+          <RealLogin />
+        ) : (
+          !mockNavEnabled && (
+            <ScreenSection title="환경 설정이 필요해요">
+              <p className="text-sm text-muted-foreground">
+                아직 로그인 서비스가 연결되지 않았어요. 연결이 준비되면 이메일로
+                시작할 수 있어요.
+              </p>
+            </ScreenSection>
+          )
+        )}
 
-      {realSession.configured ? (
-        <RealLogin />
-      ) : (
-        !mockNavEnabled && (
-          <ScreenSection title="환경 설정이 필요해요">
-            <p className="text-sm text-muted-foreground">
-              실제 Supabase 주소·키가 설정되지 않았어요. `.env.local`을 확인하거나, 로컬 화면 확인만 필요하면
-              `NEXT_PUBLIC_ENABLE_MOCK_NAV=true`로 목 화면을 켜세요.
-            </p>
-          </ScreenSection>
-        )
-      )}
-
-      {mockNavEnabled && <MockLoginPreview />}
+        {mockNavEnabled && <MockLoginPreview />}
+      </section>
     </main>
   );
 }
@@ -80,12 +96,20 @@ function LogoutNotice() {
     queueMicrotask(() => setOutcome(value));
   }, []);
   if (!outcome) return null;
-  const message = outcome === "complete"
-    ? "이 기기의 로그아웃과 서버 세션 회수를 확인했어요."
-    : outcome === "provider-pending"
-      ? "이 기기에서는 로그아웃했어요. 제공자 세션 회수가 끝나지 않아 새 로그인 뒤 모든 기기 회수를 다시 요청할 수 있어요."
-      : "이 기기에서는 로그아웃했어요. 서버 회수 결과는 확인하지 못했습니다.";
-  return <p role="status" className="rounded-md border border-border p-3 text-sm text-foreground">{message}</p>;
+  const message =
+    outcome === "complete"
+      ? "이 기기의 로그아웃과 서버 세션 회수를 확인했어요."
+      : outcome === "provider-pending"
+        ? "이 기기에서는 로그아웃했어요. 제공자 세션 회수가 끝나지 않아 새 로그인 뒤 모든 기기 회수를 다시 요청할 수 있어요."
+        : "이 기기에서는 로그아웃했어요. 서버 회수 결과는 확인하지 못했습니다.";
+  return (
+    <p
+      role="status"
+      className="rounded-md border border-border p-3 text-sm text-foreground"
+    >
+      {message}
+    </p>
+  );
 }
 
 function MockLoginPreview() {
@@ -103,7 +127,8 @@ function MockLoginPreview() {
   }
 
   const selectedAlias = session.alias;
-  const selectedHasNoBaby = selectedAlias !== null && session.activeMemberships.length === 0;
+  const selectedHasNoBaby =
+    selectedAlias !== null && session.activeMemberships.length === 0;
 
   return (
     <details className="rounded-lg border border-dashed border-border p-4">
@@ -122,8 +147,12 @@ function MockLoginPreview() {
                   aria-pressed={selectedAlias === user.alias}
                   className="flex min-h-11 w-full flex-col items-start gap-0.5 rounded-md border border-border bg-background px-3 py-2 text-left hover:border-primary"
                 >
-                  <span className="text-sm font-medium text-foreground">{user.alias}</span>
-                  <span className="text-xs text-muted-foreground">{purposeByAlias[user.alias]}</span>
+                  <span className="text-sm font-medium text-foreground">
+                    {user.alias}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {purposeByAlias[user.alias]}
+                  </span>
                 </button>
               </li>
             ))}
@@ -133,8 +162,9 @@ function MockLoginPreview() {
         {selectedHasNoBaby && selectedAlias === "invited_a" && (
           <ScreenSection title="참여한 아기가 없어요">
             <p className="text-sm text-muted-foreground">
-              초대 링크를 받으면 로그인과 이메일 확인 후 공유 범위를 수락할 수 있어요. 아래는 링크를 열었을 때의
-              결과를 계약 fixture로 미리 보는 화면입니다.
+              초대 링크를 받으면 로그인과 이메일 확인 후 공유 범위를 수락할 수
+              있어요. 아래는 링크를 열었을 때의 결과를 계약 fixture로 미리 보는
+              화면입니다.
             </p>
             <ul className="flex flex-wrap gap-2">
               {inviteOutcomeLinks.map((link) => (
@@ -150,7 +180,11 @@ function MockLoginPreview() {
                 </li>
               ))}
             </ul>
-            <button type="button" disabled className="min-h-11 w-fit rounded-md border border-border px-4 text-sm text-muted-foreground">
+            <button
+              type="button"
+              disabled
+              className="min-h-11 w-fit rounded-md border border-border px-4 text-sm text-muted-foreground"
+            >
               새 아기 만들기 (실제 API 연동 이후)
             </button>
           </ScreenSection>
@@ -159,8 +193,8 @@ function MockLoginPreview() {
         {selectedHasNoBaby && selectedAlias === "removed_a" && (
           <ScreenSection title="이 아기의 접근 권한이 없어요">
             <p className="text-sm text-muted-foreground">
-              공동 기록에는 다시 접근할 수 없지만, 본인의 학습 동의 철회와 본인이 신청한 삭제 작업 조회는 계속할 수
-              있어요.
+              공동 기록에는 다시 접근할 수 없지만, 본인의 학습 동의 철회와
+              본인이 신청한 삭제 작업 조회는 계속할 수 있어요.
             </p>
             <Link href="/account" className="text-sm font-medium text-primary">
               내 계정 관리로 이동

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Badge } from "@seed-design/react";
 
 type InferenceMode = "REAL" | "STUB";
 type DataOrigin = "USER" | "DEMO";
@@ -10,29 +11,39 @@ type DataOrigin = "USER" | "DEMO";
  */
 export function SourceBadge({
   inferenceMode,
+  inferenceExecuted,
   dataOrigin,
   className,
-}: Readonly<{ inferenceMode?: InferenceMode; dataOrigin: DataOrigin; className?: string }>) {
-  const label = sourceLabel(inferenceMode, dataOrigin);
-  const isReal = inferenceMode === "REAL" && dataOrigin === "USER";
+}: Readonly<{
+  inferenceMode?: InferenceMode;
+  inferenceExecuted?: boolean;
+  dataOrigin: DataOrigin;
+  className?: string;
+}>) {
+  const label = sourceLabel(inferenceMode, dataOrigin, inferenceExecuted);
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium",
-        isReal ? "border-primary/30 bg-accent text-primary" : "border-border bg-muted text-muted-foreground",
-        className,
-      )}
+    <Badge
+      tone="neutral"
+      variant="weak"
+      size="medium"
+      className={cn("source-badge", className)}
       data-inference-mode={inferenceMode}
       data-origin={dataOrigin}
+      data-inference-executed={inferenceExecuted}
     >
       {label}
-    </span>
+    </Badge>
   );
 }
 
-function sourceLabel(inferenceMode: InferenceMode | undefined, dataOrigin: DataOrigin): string {
-  if (inferenceMode === "REAL" && dataOrigin === "USER") return "실제 입력 분석";
-  if (inferenceMode === "REAL" && dataOrigin === "DEMO") return "예시 음원 실제 분석";
-  if (inferenceMode === "STUB") return "개발용 고정 응답";
+function sourceLabel(
+  inferenceMode: InferenceMode | undefined,
+  dataOrigin: DataOrigin,
+  executed?: boolean,
+): string {
+  if (inferenceMode === "REAL")
+    return `${dataOrigin === "DEMO" ? "예시 음원 · " : ""}${executed === true ? "실제 모델 실행" : executed === false ? "모델 미실행" : "모델 실행 여부 미확인"}`;
+  if (inferenceMode === "STUB")
+    return `${dataOrigin === "DEMO" ? "예시 자료 · " : ""}개발용 고정 응답`;
   return dataOrigin === "DEMO" ? "예시 자료" : "실제 자료";
 }

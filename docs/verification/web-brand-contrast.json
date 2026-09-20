@@ -1,0 +1,77 @@
+{
+  "method": "WCAG relative luminance, declared service tokens; focus threshold 3:1, text 4.5:1",
+  "pairs": [
+    {
+      "role": "black/pink",
+      "fg": "#000000",
+      "bg": "#FF9398",
+      "ratio": 9.88
+    },
+    {
+      "role": "black/brick",
+      "fg": "#000000",
+      "bg": "#D14836",
+      "ratio": 4.69
+    },
+    {
+      "role": "white/black",
+      "fg": "#FFFFFF",
+      "bg": "#000000",
+      "ratio": 21
+    },
+    {
+      "role": "white/pressed",
+      "fg": "#FFFFFF",
+      "bg": "#303038",
+      "ratio": 13.08
+    },
+    {
+      "role": "black/weak pressed",
+      "fg": "#000000",
+      "bg": "#E9E9EE",
+      "ratio": 17.35
+    },
+    {
+      "role": "secondary/white",
+      "fg": "#51515E",
+      "bg": "#FFFFFF",
+      "ratio": 7.81
+    },
+    {
+      "role": "white/navy",
+      "fg": "#FFFFFF",
+      "bg": "#1D1841",
+      "ratio": 16.68
+    },
+    {
+      "role": "white/cobalt",
+      "fg": "#FFFFFF",
+      "bg": "#1057BF",
+      "ratio": 6.69
+    },
+    {
+      "role": "focus/pink",
+      "fg": "#1057BF",
+      "bg": "#FF9398",
+      "ratio": 3.15
+    },
+    {
+      "role": "control/white",
+      "fg": "#71717D",
+      "bg": "#FFFFFF",
+      "ratio": 4.82
+    },
+    {
+      "role": "white/wine",
+      "fg": "#FFFFFF",
+      "bg": "#8F0D3D",
+      "ratio": 9.16
+    },
+    {
+      "role": "black/sky",
+      "fg": "#000000",
+      "bg": "#51A5FF",
+      "ratio": 8.18
+    }
+  ]
+}
