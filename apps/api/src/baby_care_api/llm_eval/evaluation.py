@@ -152,11 +152,12 @@ def _claim_signature(
     unit: str | None,
     evidence_ids: list[str],
 ) -> tuple[str, float | None, str | None, str | None, tuple[str, ...]]:
-    scored_kind = "NUMBER" if numeric_value is not None else kind
+    is_numeric = numeric_value is not None
+    scored_kind = "NUMBER" if is_numeric else kind
     return (
         scored_kind,
         numeric_value,
-        value_text,
+        None if is_numeric else value_text,
         _canonical_unit(unit),
         tuple(sorted(evidence_ids)),
     )

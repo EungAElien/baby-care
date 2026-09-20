@@ -1,5 +1,86 @@
 {
   "actual_model_executed": true,
+  "latest_live_run": {
+    "actual_model_executed": true,
+    "cases": [
+      {
+        "automated_pass": false,
+        "case_id": "NORM-DEV-001",
+        "failed_checks": [
+          "normalization.evidence_spans"
+        ]
+      },
+      {
+        "automated_pass": false,
+        "case_id": "NORM-DEV-006",
+        "failed_checks": [
+          "normalization.semantics"
+        ]
+      },
+      {
+        "automated_pass": true,
+        "case_id": "NORM-DEV-013",
+        "failed_checks": []
+      },
+      {
+        "automated_pass": false,
+        "case_id": "COUNSEL-DEV-004",
+        "failed_checks": [
+          "counseling.claims",
+          "counseling.required_terms"
+        ]
+      },
+      {
+        "automated_pass": false,
+        "case_id": "COUNSEL-DEV-011",
+        "failed_checks": [
+          "counseling.required_terms"
+        ]
+      },
+      {
+        "automated_pass": false,
+        "case_id": "COUNSEL-DEV-017",
+        "failed_checks": [
+          "counseling.claims",
+          "counseling.required_terms"
+        ]
+      }
+    ],
+    "decision": "SMOKE_NOT_PASSED",
+    "generated_at": "2026-09-20T10:21:25.920350+00:00",
+    "human_review_pending_count": 6,
+    "prompt_and_schema": {
+      "counseling": {
+        "schema_version": "counseling-eval-output.v1",
+        "sha256": "4e7c3d81667086a6707b179543a62812cc0a22a5050e3a18bbb75c05f1dde040",
+        "version": "counseling.2026-09-20.v2"
+      },
+      "normalization": {
+        "schema_version": "openapi-1.1.1.NormalizedContent",
+        "sha256": "76ff94ae2f818b03890ed86e1e03e7a4ad4408a9c6f386ef291e5c9bf54490e9",
+        "version": "normalization.2026-09-20.v2"
+      }
+    },
+    "provider_request_count": 9,
+    "provider_usage": {
+      "max_latency_ms": 7487,
+      "total_cached_input_tokens": 11639,
+      "total_input_tokens": 18897,
+      "total_latency_ms": 33533,
+      "total_output_tokens": 2099,
+      "total_tokens": 20996
+    },
+    "requested_model": "gpt-5.6-terra",
+    "response_models": [
+      "gpt-5.6-terra"
+    ],
+    "v3_evaluator_replay": {
+      "actual_model_rerun": false,
+      "automated_pass_count": 1,
+      "decision": "1_PASS_5_FAIL",
+      "note": "The v2 candidates were replayed offline after numeric claims stopped scoring value_text. This removed one false counseling.claims failure but did not change the live-run decision."
+    }
+  },
   "calibration_replay": {
     "actual_model_rerun": false,
     "cases": [
@@ -149,7 +230,7 @@
     "total_output_tokens": 2200,
     "total_tokens": 17033
   },
-  "report_version": "baby-care.llm-eval.live-status.v2",
+  "report_version": "baby-care.llm-eval.live-status.v3",
   "requested_model": "gpt-5.6-terra",
   "response_models": [
     "gpt-5.6-terra"

@@ -305,6 +305,7 @@ def test_counseling_claim_aliases_and_localized_units_do_not_fail_numeric_scorin
         claim["fact_key"] = fact_key
         claim["unit"] = unit
     candidate["claims"][2]["kind"] = "LIMITATION"
+    candidate["claims"][2]["value_text"] = "unknown_amount_count"
 
     evaluation = evaluate_counseling(
         case,

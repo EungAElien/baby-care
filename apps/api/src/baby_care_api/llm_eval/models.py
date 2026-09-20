@@ -9,9 +9,9 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 MODEL_ID = "gpt-5.6-terra"
 CASE_FORMAT_VERSION = "baby-care.llm-eval.case.v1"
-NORMALIZATION_PROMPT_VERSION = "normalization.2026-09-20.v2"
+NORMALIZATION_PROMPT_VERSION = "normalization.2026-09-20.v3"
 NORMALIZATION_SCHEMA_VERSION = "openapi-1.1.1.NormalizedContent"
-COUNSELING_PROMPT_VERSION = "counseling.2026-09-20.v2"
+COUNSELING_PROMPT_VERSION = "counseling.2026-09-20.v3"
 COUNSELING_SCHEMA_VERSION = "counseling-eval-output.v1"
 
 

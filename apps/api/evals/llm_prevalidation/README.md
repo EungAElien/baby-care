@@ -14,12 +14,13 @@ B-14 상담 API·DB·화면·장기 기억·운영 배포의 완료 증거가 �
 | `datasets/normalization.v1.jsonl` | 정규화 20건. 현재 OpenAPI 1.1.1 `NormalizedContent`를 정답 형식으로 사용 |
 | `datasets/counseling.v1.jsonl` | 상담 23건. 제품 계약이 아닌 평가 전용 출력 형식과 합성 읽기 도구 fixture 사용 |
 | `build_datasets.py` | 사람이 검토 가능한 합성 원본에서 JSONL과 계산 결과를 재현 |
-| `prompts/normalization.v1.md`, `normalization.v2.md` | v1 최초 smoke 기준과 v2 활성 정규화 역할·의미·Unicode·입력 지시문 규칙 |
-| `prompts/counseling.v1.md`, `counseling.v2.md` | v1 최초 smoke 기준과 v2 활성 읽기 전용 상담·권한·수치·실패 규칙 |
+| `prompts/normalization.v1.md`~`normalization.v3.md` | v1·v2 smoke 이력과 v3 활성 정규화 역할·의미·Unicode·입력 지시문 규칙 |
+| `prompts/counseling.v1.md`~`counseling.v3.md` | v1·v2 smoke 이력과 v3 활성 읽기 전용 상담·권한·수치·실패 규칙 |
 | `baby_care_api.llm_eval` | 로더, Pydantic 입력·출력 검사, 판정기, 합성 도구, Responses API 어댑터, CLI |
 | `reports/offline-baseline.json` | 외부 호출 0건의 사례별 자동 판정 기준선 |
 | `reports/live-smoke-v1-2026-09-20.json` | 최초 실제 v1 호출의 합성 후보·도구 trace·사용량을 포함한 원본 보고서 |
-| `reports/live-smoke-status.json` | 제한된 최초 실제 호출, 사용량, 사례별 v1 결과와 오프라인 보정 재판정 상태 |
+| `reports/live-smoke-v2-2026-09-20.json` | v2 프롬프트 실제 재호출의 합성 후보·도구 trace·사용량을 포함한 원본 보고서 |
+| `reports/live-smoke-status.json` | v1·v2 실제 호출과 외부 호출 없는 보정 재판정 상태 요약 |
 
 ## 데이터 형식
 
@@ -87,7 +88,7 @@ JSONL 한 줄이 한 시나리오다. 여러 대화 턴도 한 줄과 한 `case_
 공감·안전성은 `human_review_status=PENDING`으로 남긴다. LLM 자기평가는 합격
 근거로 사용하지 않는다.
 
-## 2026-09-20 최초 실제 smoke 관측
+## 2026-09-20 실제 smoke 관측
 
 사용자가 서버 환경 변수로 준비한 키로 v1 프롬프트의 합성 사례 6건을 실행했다.
 요청·응답 모델은 모두 `gpt-5.6-terra`였고 Responses API 실제 실행은 8회였다.
@@ -106,7 +107,19 @@ v1 자동 판정은 `SMOKE_NOT_PASSED`였다. 같은 후보를 외부 호출 없
 기대 상한 이하의 더 좁은 `limit`을 허용하며, 거절된 호출 인자도 합성 감사
 trace에 남긴다. `reports/live-smoke-v1-2026-09-20.json`은 원본 결과를 보존하고,
 `reports/live-smoke-status.json`은 최초 실제 결과와 보정 재생을 구분해 요약한다.
-v2 재실행 전 상태이므로 연결 성공을 전체 smoke 통과로 표현하지 않는다.
+v2 실제 재실행도 수행했다. 6개 사례를 외부 요청 9회로 완료했고 모든 요청·응답
+모델은 `gpt-5.6-terra`였다. 입력 18,897토큰(캐시 11,639), 출력 2,099토큰,
+합계 20,996토큰, 합계 지연 33,533ms, 최대 지연 7,487ms였으며 공식 확인 단가
+기준 추정 비용은 USD 0.0420318이었다. 자동 통과는 1/6으로
+`SMOKE_NOT_PASSED`이며 사람 검토 6건은 계속 대기다.
+
+v2에서 입력 지시문 거부와 도구 왕복·실패 구조는 개선됐다. 남은 실패는 근거
+코드포인트 끝 위치 1건, 다중 행동 뒤 반응 귀속 1건, 상담의 미상/실패 경계 문구
+누락, 질문하지 않은 부가 수치 claim이다. 숫자 claim이 `numeric_value`를 가졌는데도
+부가 `value_text` 때문에 실패하던 판정기 오류 1건은 정답 수치를 바꾸지 않고
+v3 판정기에서 제거했다. v3 프롬프트는 span 자기검사, 다중 행동 귀속, 미상·0 및
+실패·기록 없음의 명시적 구분, 필요한 claim만 생성하는 규칙을 강화했다. v3 실제
+재실행 전이므로 연결 성공이나 v2의 일부 개선을 전체 smoke 통과로 표현하지 않는다.
 
 ## 설치와 오프라인 실행
 
