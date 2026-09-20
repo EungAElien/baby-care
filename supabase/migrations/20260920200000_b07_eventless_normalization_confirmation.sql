@@ -21,16 +21,12 @@ create unique index normalization_one_running_per_revision
     on baby_data.normalization_runs (entry_id, input_revision)
     where status = 'RUNNING';
 
--- Bring the pre-created B-03 table in line with the public StateObservation
--- shape used by confirmation and B-09 refetches.
+-- B-05 already added the shared StateObservation serialization columns. B-07
+-- adds updater provenance and replaces its generic visual mapping version with
+-- the confirmed-care mapping used by eventless confirmation.
 alter table baby_data.state_observations
-    add column time_precision baby_data.time_precision not null default 'UNKNOWN',
-    add column observation_source text,
-    add column confirmation_status text not null default 'USER_CONFIRMED',
-    add column visual_state_code text,
-    add column visual_mapping_version text not null default 'care-visual-v1',
     add column updated_by_user_id uuid references auth.users(id) on delete restrict,
-    add column data_origin baby_data.data_origin not null default 'USER';
+    alter column visual_mapping_version set default 'care-visual-v1';
 
 update baby_data.state_observations
    set observation_source = case source
@@ -51,21 +47,11 @@ update baby_data.state_observations
            when 'CHEERFUL_APPEARING' = any(state_codes) then 'CHEERFUL_APPEARING'
            else 'NEUTRAL'
        end,
+       visual_mapping_version = 'care-visual-v1',
        updated_by_user_id = created_by_user_id;
 
 alter table baby_data.state_observations
-    alter column observation_source set not null,
-    alter column visual_state_code set not null,
-    alter column updated_by_user_id set not null,
-    add constraint state_observations_observation_source_check
-        check (observation_source in ('SELF_REPORTED', 'REPORTED_BY_OTHER')),
-    add constraint state_observations_confirmation_status_check
-        check (confirmation_status in ('USER_CONFIRMED', 'USER_CORRECTED')),
-    add constraint state_observations_visual_state_code_check
-        check (visual_state_code in (
-            'CRYING', 'FUSSING', 'CALM', 'SLEEPY_APPEARING', 'ASLEEP',
-            'AWAKE', 'CHEERFUL_APPEARING', 'NEUTRAL'
-        ));
+    alter column updated_by_user_id set not null;
 
 alter table baby_data.state_observations drop column source;
 

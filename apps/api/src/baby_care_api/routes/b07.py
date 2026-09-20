@@ -7,19 +7,17 @@ from fastapi import APIRouter, Header, Request
 
 from baby_care_api.core.config import API_V1_PREFIX
 from baby_care_api.core.errors import ApiException
+from baby_care_api.models.audio import Capabilities, DetectorInfo, ModelInfo
 from baby_care_api.models.normalization import (
-    Capabilities,
     ConfirmCareEntry,
     ConfirmedResources,
     CreateNormalization,
-    DetectorInfo,
-    ModelInfo,
     NormalizationRun,
     StateObservation,
 )
+from baby_care_api.services.audio import PostgresAudioService
 from baby_care_api.services.b07 import PostgresNormalizationService
 from baby_care_api.services.idempotency import ensure_idempotency_key_matches
-from baby_care_api.services.model_runtime import ModelRuntimeManager
 from baby_care_api.services.security import AuthenticatedPrincipal, AuthenticationPort
 
 router = APIRouter(prefix=API_V1_PREFIX)
@@ -42,25 +40,29 @@ async def _principal(request: Request, authorization: str | None) -> Authenticat
 
 @router.get("/capabilities", response_model=Capabilities, operation_id="getCapabilities")
 async def get_capabilities(request: Request) -> Capabilities:
-    runtime = cast(ModelRuntimeManager, request.app.state.model_runtime)
-    service = request.app.state.b07_service
+    normalizer = request.app.state.b07_service
+    normalizer_available = (
+        isinstance(normalizer, PostgresNormalizationService) and normalizer.available
+    )
+    unavailable_reason = request.app.state.normalizer_unavailable_reason
+    audio_service = request.app.state.audio_service
+    if isinstance(audio_service, PostgresAudioService):
+        return audio_service.capabilities(
+            normalizer_available=normalizer_available,
+            normalizer_unavailable_reason=unavailable_reason,
+        )
     return Capabilities(
-        contract_version="1.2.0",
         audio_model=ModelInfo(
-            available=runtime.ready,
+            available=False,
             model_version=None,
             preprocess_version=None,
             label_mapping_version=None,
             supported_labels=[],
-            inference_mode="REAL" if runtime.enabled else "STUB",
+            inference_mode="STUB",
         ),
-        supported_mime_types=["audio/wav", "audio/mpeg", "audio/mp4", "audio/webm"],
-        upload_max_bytes=25_000_000,
-        upload_max_seconds=60,
-        normalizer_available=(
-            isinstance(service, PostgresNormalizationService) and service.available
-        ),
-        normalizer_unavailable_reason=request.app.state.normalizer_unavailable_reason,
+        supported_mime_types=[],
+        normalizer_available=normalizer_available,
+        normalizer_unavailable_reason=unavailable_reason,
         automatic_detection_supported=False,
         detector=DetectorInfo(
             available=False,

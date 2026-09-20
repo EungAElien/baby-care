@@ -11,7 +11,6 @@ from baby_care_api.models.audio import (
     AudioAsset,
     AudioUpload,
     CancelUpload,
-    Capabilities,
     CompleteUpload,
     CreateEpisode,
     CreateUpload,
@@ -44,14 +43,6 @@ async def _principal(request: Request, authorization: str | None) -> Authenticat
 
 def _path(request: Request) -> str:
     return request.url.path
-
-
-@router.get("/capabilities", response_model=Capabilities, operation_id="getCapabilities")
-async def get_capabilities(
-    request: Request, authorization: AuthorizationHeader = None
-) -> Capabilities:
-    principal = await _principal(request, authorization)
-    return await _service(request).capabilities(principal)
 
 
 @router.post(

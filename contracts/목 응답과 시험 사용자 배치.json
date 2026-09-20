@@ -87,9 +87,10 @@
           },
           "supported_mime_types": [
             "audio/wav",
-            "audio/mpeg",
+            "audio/x-wav",
+            "audio/webm",
             "audio/mp4",
-            "audio/webm"
+            "audio/aac"
           ],
           "upload_max_bytes": 25000000,
           "upload_max_seconds": 60,

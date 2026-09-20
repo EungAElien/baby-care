@@ -291,8 +291,8 @@ npm run verify:container
 API_PYTHON="$PWD/apps/api/.venv/bin/python" npm run verify:integration
 ```
 
-이번 구현에서 격리 로컬 Supabase와 실제 FastAPI를 사용한 API 전체 suite는 155개 통과,
-필수 integration 13/13 수집, coverage 91.21%였고 pgTAP 96개가 통과했다. Ruff와 mypy도
+최신 `develop` 재배치 뒤 격리 로컬 Supabase와 실제 FastAPI를 사용한 API 전체 suite는
+216개 통과, 필수 integration 19/19 수집, coverage 91.02%였고 pgTAP 96개가 통과했다. Ruff와 mypy도
 통과했다. 이 수치는 로컬 DB·Auth·RLS와 주입한 LLM 대역 검증이며 실제 Terra 품질 수치가
 아니다.
 

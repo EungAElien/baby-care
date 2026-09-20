@@ -237,38 +237,3 @@ class StateObservation(StrictContractModel):
     version: PositiveInt
     recorded_at: AwareDatetime
     updated_at: AwareDatetime
-
-
-class ModelInfo(StrictContractModel):
-    available: bool
-    model_version: str | None
-    preprocess_version: str | None
-    label_mapping_version: str | None
-    supported_labels: list[str]
-    inference_mode: Literal["REAL", "STUB"]
-
-
-class DetectorInfo(StrictContractModel):
-    available: bool
-    execution_mode: Literal["REAL", "STUB"]
-    model_version: str | None
-    model_asset_url: str | None
-    weights_sha256: str | None
-    input_sample_rate_hz: int | None
-    policy_version: str | None
-    supported_clients: list[dict[str, object]]
-
-
-class Capabilities(StrictContractModel):
-    contract_version: Literal["1.2.0"]
-    audio_model: ModelInfo
-    supported_mime_types: list[str]
-    upload_max_bytes: Literal[25000000]
-    upload_max_seconds: Literal[60]
-    normalizer_available: bool
-    normalizer_unavailable_reason: (
-        Literal["DISABLED", "CREDENTIALS_MISSING", "DEPENDENCY_MISSING", "DATABASE_UNAVAILABLE"]
-        | None
-    )
-    automatic_detection_supported: bool
-    detector: DetectorInfo

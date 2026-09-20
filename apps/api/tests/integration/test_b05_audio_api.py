@@ -377,10 +377,12 @@ def _insert_linked_episode_rows(episode_id: str, baby_id: UUID, owner: AuthSessi
             """
             insert into baby_data.state_observations (
                 state_observation_id, baby_id, episode_id, action_id, phase,
-                state_codes, source, created_by_user_id, confirmed_by_user_id,
-                data_origin
+                state_codes, observation_source, confirmation_status,
+                visual_state_code, visual_mapping_version, created_by_user_id,
+                updated_by_user_id, confirmed_by_user_id, data_origin
             ) values (
-                %s, %s, %s, %s, 'AFTER', array['CALM'], 'DIRECT', %s, %s, 'DEMO'
+                %s, %s, %s, %s, 'AFTER', array['CALM'], 'SELF_REPORTED',
+                'USER_CONFIRMED', 'CALM', 'care-visual-v1', %s, %s, %s, 'DEMO'
             )
             """,
             (
@@ -388,6 +390,7 @@ def _insert_linked_episode_rows(episode_id: str, baby_id: UUID, owner: AuthSessi
                 baby_id,
                 UUID(episode_id),
                 action_id,
+                owner.user_id,
                 owner.user_id,
                 owner.user_id,
             ),

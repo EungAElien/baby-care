@@ -12,6 +12,8 @@ from baby_care_api.core.config import Settings
 from baby_care_api.core.logging import SafeJsonFormatter
 from baby_care_api.main import create_app
 from baby_care_api.models.care_events import CreateCareEvent
+from baby_care_api.routes.audio import router as audio_router
+from baby_care_api.routes.b07 import router as b07_router
 
 
 def _client_with_test_routes() -> TestClient:
@@ -157,6 +159,13 @@ def test_safe_log_formatter_does_not_render_arbitrary_messages() -> None:
 
 def test_openapi_is_honest_about_implemented_business_operations(client: TestClient) -> None:
     schema = client.get("/openapi.json").json()
+
+    capability_routes = [
+        route
+        for route in [*audio_router.routes, *b07_router.routes]
+        if getattr(route, "operation_id", None) == "getCapabilities"
+    ]
+    assert len(capability_routes) == 1
 
     business_contract = schema["x-business-contract"]
     assert business_contract["source"] == "contracts/openapi계약.json"
