@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import asyncio
 import os
+import sys
 from collections.abc import Iterator
 
 import pytest
@@ -10,6 +12,9 @@ from baby_care_api.core.config import RuntimeEnvironment, Settings
 from baby_care_api.main import create_app
 
 _REQUIRE_INTEGRATION = os.environ.get("BABY_CARE_REQUIRE_INTEGRATION") == "1"
+if sys.platform == "win32" and _REQUIRE_INTEGRATION:
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 _INTEGRATION_NODE_IDS: set[str] = set()
 _INTEGRATION_REPORTS: dict[str, set[str]] = {
     "passed": set(),

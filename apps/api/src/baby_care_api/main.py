@@ -24,6 +24,12 @@ from baby_care_api.services.audio import PostgresAudioService
 from baby_care_api.services.audio_decoder import AudioDecoder, FfmpegAudioDecoder
 from baby_care_api.services.auth_provider import SupabaseSessionRevocationProvider
 from baby_care_api.services.idempotency import UnconfiguredIdempotencyPort
+from baby_care_api.services.model_runtime import (
+    ModelRuntimeFactory,
+    ModelRuntimeManager,
+    load_configured_m2d_runtime,
+    m2d_configuration_complete,
+)
 from baby_care_api.services.postgres import PostgresAuthorizationPort
 from baby_care_api.services.readiness import ComponentName, ReadinessProbe, ReadinessService
 from baby_care_api.services.security import (
@@ -114,6 +120,7 @@ def create_app(
     readiness_probes: Mapping[ComponentName, ReadinessProbe] | None = None,
     audio_storage: AudioStoragePort | None = None,
     audio_decoder: AudioDecoder | None = None,
+    model_runtime_factory: ModelRuntimeFactory = load_configured_m2d_runtime,
 ) -> FastAPI:
     active_settings = settings or get_settings()
     configure_logging(active_settings.log_level)
@@ -192,14 +199,37 @@ def create_app(
         active_readiness_probes[ComponentName.DATABASE] = database.probe
     if authentication is not None:
         active_readiness_probes[ComponentName.AUTHENTICATION] = authentication.probe
+    model_runtime = ModelRuntimeManager(
+        enabled=active_settings.m2d_enabled,
+        configured=m2d_configuration_complete(active_settings),
+        settings=active_settings,
+        factory=model_runtime_factory,
+    )
+    if model_runtime.enabled:
+        # The service-owned model state is authoritative when this profile is
+        # enabled; callers cannot replace it with an unrelated readiness probe.
+        active_readiness_probes.pop(ComponentName.MODEL, None)
+    if model_runtime.enabled and model_runtime.configured:
+        active_readiness_probes[ComponentName.MODEL] = model_runtime.probe
+    required_components = {
+        ComponentName.AUTHENTICATION,
+        ComponentName.DATABASE,
+    }
+    if model_runtime.enabled:
+        required_components.add(ComponentName.MODEL)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         if database is not None:
             await database.open()
+        # FastAPI does not accept HTTP traffic until lifespan startup completes.
+        # A failed model load is retained as readiness=false so liveness can still
+        # be served after startup; health requests never trigger a retry.
+        await model_runtime.start()
         try:
             yield
         finally:
+            await model_runtime.close()
             if database is not None:
                 await database.close()
 
@@ -215,7 +245,11 @@ def create_app(
         lifespan=lifespan,
     )
     app.state.settings = active_settings
-    app.state.readiness = ReadinessService(active_readiness_probes)
+    app.state.readiness = ReadinessService(
+        active_readiness_probes,
+        required_components=frozenset(required_components),
+    )
+    app.state.model_runtime = model_runtime
     app.state.authentication = authentication or UnconfiguredAuthenticationPort()
     app.state.authorization = database or UnconfiguredAuthorizationPort()
     app.state.b04_service = b04_service

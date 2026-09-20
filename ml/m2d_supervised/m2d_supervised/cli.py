@@ -32,6 +32,9 @@ def parser() -> argparse.ArgumentParser:
         ("pilot", "Run an isolated MPS timing and checkpoint-resume verification."),
         ("train-matrix", "Run or resume the 27 development experiments sequentially."),
         ("launch", "Detach a caffeinate-protected training worker from a code snapshot."),
+        ("compare", "Audit completed development runs and freeze model selection."),
+        ("post-training", "Fixed final retraining, once-only tests and local full-model export."),
+        ("launch-post", "Detach the post-training pipeline from an immutable code snapshot."),
     ):
         sub = commands.add_parser(command, help=help_text)
         sub.add_argument("--research-root", required=True, type=_path)
@@ -40,6 +43,12 @@ def parser() -> argparse.ArgumentParser:
         sub.add_argument("--repository-root", type=_path, default=DEFAULT_REPOSITORY_ROOT)
         sub.add_argument("--config", type=_path, default=DEFAULT_CONFIG)
         options[command] = sub
+    for command in ("post-training", "launch-post"):
+        options[command].add_argument(
+            "--resume",
+            action="store_true",
+            help="Resume only after reviewing a previous interruption/failure.",
+        )
     preflight = options["preflight"]
     preflight.add_argument(
         "--bounded-check",
@@ -69,6 +78,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         from .pilot import run_pilot
 
         report = run_pilot(config, arguments.config, paths)
+    elif arguments.command == "compare":
+        from .comparison import compare_development
+        from .runtime import training_locks
+
+        with training_locks(paths):
+            report = compare_development(config, arguments.config, paths)
+    elif arguments.command in {"post-training", "launch-post"}:
+        from .post_training import launch_post_training, run_post_training
+
+        operation = (
+            launch_post_training if arguments.command == "launch-post" else run_post_training
+        )
+        report = operation(config, arguments.config, paths, resume=arguments.resume)
     else:
         from .runtime import launch, train_matrix
 

@@ -19,7 +19,8 @@ def phase_at(epoch: int, config: dict[str, Any]) -> str:
 
 def partial_names(model: M2DClassifier, config: dict[str, Any]) -> set[str]:
     blocks = config["training"]["finetune"]["trainable_encoder_blocks"]
-    prefixes = ("heads.", "encoder.norm.", *(f"encoder.blocks.{i}." for i in blocks))
+    norm = ("encoder.norm.",) if config["training"]["finetune"]["train_final_norm"] else ()
+    prefixes = ("heads.", *norm, *(f"encoder.blocks.{i}." for i in blocks))
     return {name for name in model.state_dict() if name.startswith(prefixes)}
 
 
@@ -39,12 +40,14 @@ def make_optimizer(
         if tune["train_final_norm"]:
             model.encoder.norm.requires_grad_(True)
         groups[0]["lr"] = tune["head_lr"]
-        groups.append(
-            {
-                "params": [p for p in model.encoder.parameters() if p.requires_grad],
-                "lr": tune["encoder_lr"],
-            }
-        )
+        encoder_parameters = [p for p in model.encoder.parameters() if p.requires_grad]
+        if encoder_parameters:
+            groups.append(
+                {
+                    "params": encoder_parameters,
+                    "lr": tune["encoder_lr"],
+                }
+            )
     return torch.optim.AdamW(
         groups,
         betas=tuple(recipe["optimizer"]["betas"]),
@@ -74,7 +77,7 @@ def train_update(
     interrupt: Callable[[], None] = lambda: None,
 ) -> dict[str, Any]:
     model.train()
-    if phase == "warmup":
+    if phase == "warmup" or not any(p.requires_grad for p in model.encoder.parameters()):
         model.encoder.eval()
     optimizer.zero_grad(set_to_none=True)
     totals: dict[str, float] = {}

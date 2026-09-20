@@ -1,6 +1,7 @@
 // SC02 홈 — 아기 감지 상태, 최근 확인 상태, 분석/기록 진입점.
 import Link from "next/link";
-import { isForBaby, mockCareEvent, mockStateObservation } from "@/lib/mock/fixtures";
+import { isForBaby, mockStateObservation } from "@/lib/mock/fixtures";
+import { RecentCareEvent } from "@/components/recent-care-event";
 import { SourceBadge } from "@/components/source-badge";
 import { EmptyState, ScreenSection } from "@/components/screen-state";
 
@@ -19,8 +20,6 @@ export default async function BabyHomePage({ params }: Readonly<{ params: Promis
   const { babyId } = await params;
   const observationFixture = mockStateObservation();
   const observation = isForBaby(babyId, observationFixture) ? observationFixture : null;
-  const recentEventFixture = mockCareEvent();
-  const recentEvent = isForBaby(babyId, recentEventFixture) ? recentEventFixture : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -41,29 +40,7 @@ export default async function BabyHomePage({ params }: Readonly<{ params: Promis
         )}
       </ScreenSection>
 
-      <ScreenSection title="최근 기록">
-        {recentEvent ? (
-          <>
-            <p className="text-sm text-foreground">
-              {recentEvent.event.type === "FEEDING" && "수유"}
-              {recentEvent.event.type === "SLEEP" && "수면"}
-              {recentEvent.event.type === "DIAPER" && "기저귀"}
-              {recentEvent.event.type === "SOOTHE" && "달래기"} 기록
-            </p>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
-                {new Date(recentEvent.event.occurred_at ?? recentEvent.recorded_at).toLocaleString("ko-KR")}
-              </p>
-              <SourceBadge dataOrigin={recentEvent.data_origin} />
-            </div>
-          </>
-        ) : (
-          <EmptyState label="이 아기의 최근 기록이 아직 없어요" />
-        )}
-        <Link href={`/babies/${babyId}/timeline`} className="text-sm font-medium text-primary">
-          타임라인에서 모두 보기
-        </Link>
-      </ScreenSection>
+      <RecentCareEvent babyId={babyId} />
 
       <div className="grid grid-cols-2 gap-3">
         <Link

@@ -15,6 +15,7 @@
 - `(user_id, method, path, Idempotency-Key)` DB 예약과 7일 이상 결과 참조 보존
 - 민감정보를 입력으로 받지 않는 허용 목록 기반 JSON 로그
 - liveness/readiness 분리, pytest·Ruff·mypy·컨테이너·GitHub Actions 기반
+- 별도 V1 B 프로필의 고정 M2D 레지스트리, 시작 시 1회 적재, 모델 readiness
 
 `/v1`의 기준은 저장소 루트의 `contracts/openapi계약.json`입니다. FastAPI의 `/openapi.json`은 실제 라우트만 만들고 `x-business-contract.implemented_operations`에 구현된 B-04 operationId와 `getChanges`를 표시합니다. 분석·업로드·정규화 확인 등 후속 계약 경로를 구현됐다고 노출하지 않습니다.
 
@@ -67,6 +68,54 @@ PYTHONPATH=src .venv/bin/python -m baby_care_api.llm_eval \
   --report evals/llm_prevalidation/reports/offline-baseline.json
 ```
 
+## V1 B M2D 실행 프로필
+
+일반 API는 `BABY_CARE_M2D_ENABLED=false`가 기본이며 기존 경량 이미지와 잠금 파일을
+그대로 사용합니다. 전용 `Dockerfile.m2d`만 다음 고정 실행물을 추가합니다.
+
+- 모델 `m2d-supervised-v1.0.0-final-B`, 학습된 `donate` head와 5개 고정 라벨 순서
+- 전처리 `m2d-logmel-v1.0.0`, 라벨 매핑 `donate-cause-labels-v1.0.0`
+- Python 3.12.12, CPU PyTorch 2.14.0+cpu, 고정 Python 잠금 파일
+- digest로 고정한 FFmpeg 7.1.1과 해시를 확인한 최소 M2D 구조 코드
+- CPU float32, Uvicorn worker 1개, 프로세스당 동시 추론 1개
+
+가중치·개발 음원·특징은 Git이나 일반 build context에 넣지 않습니다. M2D 구조 코드도
+신뢰한 로컬 사본을 준비 스크립트로 검사한 뒤 별도 named build context로만 전달합니다.
+예시는 다음과 같습니다. 각 경로는 서버 운영자가 정하고 요청으로 받지 않습니다.
+
+```bash
+python3 scripts/model_runtime/prepare_m2d_source.py \
+  --source-root "$M2D_SOURCE_ROOT" \
+  --output "$M2D_BUILD_CONTEXT"
+
+docker buildx build \
+  --platform linux/amd64 \
+  --build-context m2d_source="$M2D_BUILD_CONTEXT" \
+  --file apps/api/Dockerfile.m2d \
+  --tag baby-care-m2d-v1-b:local \
+  apps/api
+
+docker run --rm --platform linux/amd64 \
+  --read-only --tmpfs /tmp:rw,noexec,nosuid,size=128m \
+  --publish 127.0.0.1:8080:8080 \
+  --mount type=bind,src="$V1_B_BUNDLE",dst=/opt/baby-care-runtime/model/selected,readonly \
+  baby-care-m2d-v1-b:local
+```
+
+lifespan 시작 과정이 레지스트리·파일·버전·구조를 검사하고 전체 가중치와 전처리 객체를
+한 번 적재한 뒤 작은 예열 추론을 수행합니다. 이 과정이 끝날 때까지 HTTP 포트가 열리지
+않습니다. 성공한 객체는 요청 사이에 재사용되며 health 조회는 파일을 다시 읽거나 추론하지
+않습니다. 실패를 잡고 서버가 열린 뒤에는 liveness만 200이고, 활성화된 모델 check와 전체
+readiness는 503입니다. health나 요청으로 자동 재시도하거나 STUB으로 바꾸지 않습니다.
+고정 파일·설정을 복구한 후 프로세스를 다시 시작해야 합니다.
+
+현재 운영 입력으로 허용한 형식은 검증된 PCM WAV뿐입니다. CAF·3GP 등 압축 입력은 개발
+자료로 Linux 디코더 차이만 측정했으며 지원 완료가 아닙니다. 모델 출력은 고정 순서의
+점수일 뿐, 보정된 원인 확률이나 임상 진단이 아닙니다. `calibration_status=NOT_VALIDATED`,
+`release_ready=false`를 유지하며 `/capabilities`와 공개 분석 API를 활성화하지 않습니다.
+빌드·실측 명령, 실패 결과와 남은 일은
+[V1 B 런타임 인계](../../docs/handoffs/b02-b06-v1-model-runtime.md)에 있습니다.
+
 ## 로컬 실행과 상태 확인
 
 ```bash
@@ -81,7 +130,7 @@ curl -i http://127.0.0.1:8080/health/ready
 ```
 
 - `GET /health/live`: 프로세스가 HTTP 요청을 처리하면 200을 반환합니다.
-- `GET /health/ready`: 필수 인증·DB probe가 실제 연결되기 전에는 503입니다. 모델과 외부 서비스는 별도 선택 구성으로 표시되며, 설정 문자열의 존재만으로 준비 완료가 되지 않습니다.
+- `GET /health/ready`: 필수 인증·DB probe가 실제 연결되기 전에는 503입니다. 일반 프로필의 모델은 선택 항목이지만 V1 B 프로필에서는 필수입니다. 활성화 상태의 누락 경로·무결성/버전/구조 오류·적재/예열 실패는 모델 check와 전체 readiness를 503으로 유지합니다. 모델 성공이 인증·DB 실패를 가리지 않습니다.
 - 모든 응답은 서버가 새로 만든 UUID `X-Request-ID`를 포함합니다. 오류 본문의 `request_id`와 같습니다.
 
 운영 상태 경로는 정적 최소 응답이며 업무 데이터·자격 증명·내부 예외를 노출하지 않습니다.
@@ -143,5 +192,6 @@ A의 안전한 전체/증분 복구 순서, 쓰기별 재조회 매핑, 예시�
 - 승인된 법정대리인 확인 수단·증빙·정책. 현재 운영 아동 정보 처리는 fail-closed입니다.
 - 삭제 Job 실행기와 Storage·학습 사본·백업 실제 정리(B-12·B-13). B-04는 차단·요청·조회·재시도만 저장하며 COMPLETE를 만들지 않습니다.
 - B-07 LLM 정규화·확인 저장 전체, B-09 Realtime, B-11 집계, B-14 상담
-- B-05 TUS·업로드 완료·서버 재생 URL, 실제 M2D 모델, Cloud Run 배포
+- B-05 TUS·업로드 완료·서버 재생 URL, M2D 분석 API·보정/유보 정책, Cloud Run 배포
+- V1 B의 Linux 실행 기반은 별도 프로필로 구현했지만 MPS 기준 대비 `1e-6` 재현 검사는 미통과입니다. 자세한 플랫폼별 차이와 후속 기준 결정은 V1 B 런타임 인계를 따릅니다.
 - A의 실제 브라우저·캐시·두 계정 화면 시험과 운영 계정/기기/외부 서비스 시험
