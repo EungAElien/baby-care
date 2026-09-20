@@ -37,7 +37,11 @@ from baby_care_api.llm_eval.provider import (
     estimate_cost_usd,
 )
 from baby_care_api.llm_eval.runner import run_live_smoke, run_offline
-from baby_care_api.llm_eval.tools import ToolExecutionError, execute_synthetic_tool
+from baby_care_api.llm_eval.tools import (
+    ToolExecutionError,
+    execute_synthetic_tool,
+    tools_for_case,
+)
 
 REPOSITORY_ROOT = API_ROOT.parents[1]
 CONTRACT = json.loads(
@@ -235,6 +239,45 @@ def test_schema_valid_but_semantically_wrong_normalization_fails() -> None:
     assert "normalization.schema" not in evaluation.failure_codes
 
 
+def test_normalization_semantics_and_valid_evidence_wording_are_scored_separately() -> None:
+    first = _case("NORM-DEV-001")
+    sequence = _case("NORM-DEV-006")
+    assert isinstance(first, NormalizationCase)
+    assert isinstance(sequence, NormalizationCase)
+
+    broad_evidence = first.expected.output.model_dump(mode="json")
+    broad_evidence["actions"][0]["evidence"] = [
+        {
+            "source": "TEXT",
+            "choice_id": None,
+            "span_start": 0,
+            "span_end": len(first.input.raw_text),
+            "quote": first.input.raw_text,
+        }
+    ]
+    first_evaluation = evaluate_normalization(first, broad_evidence)
+    assert first_evaluation.passed
+
+    shorter_evidence = sequence.expected.output.model_dump(mode="json")
+    shorter_evidence["actions"][2]["evidence"] = [
+        {
+            "source": "TEXT",
+            "choice_id": None,
+            "span_start": 20,
+            "span_end": 23,
+            "quote": "안아줬",
+        }
+    ]
+    sequence_evaluation = evaluate_normalization(sequence, shorter_evidence)
+    assert sequence_evaluation.passed
+
+
+def test_normalization_relative_time_gold_matches_prompt_contract() -> None:
+    case = _case("NORM-DEV-001")
+    assert isinstance(case, NormalizationCase)
+    assert case.expected.output.actions[0].relative_time == "오늘 오전 9시"
+
+
 def test_numeric_hallucination_and_deleted_disclosure_fail() -> None:
     for case_id in ("COUNSEL-DEV-004", "COUNSEL-HOLD-001"):
         case = _case(case_id)
@@ -249,6 +292,48 @@ def test_numeric_hallucination_and_deleted_disclosure_fail() -> None:
         assert set(probe.expected_failure_codes) <= evaluation.failure_codes
 
 
+def test_counseling_claim_aliases_and_localized_units_do_not_fail_numeric_scoring() -> None:
+    case = _case("COUNSEL-DEV-004")
+    assert isinstance(case, CounselingCase)
+    candidate = case.offline_candidate.model_dump(mode="json")
+    aliases = [
+        ("feeding_record_count_yesterday", "회"),
+        ("feeding_total_known_ml_yesterday", "mL"),
+        ("feeding_unknown_amount_yesterday", "건"),
+    ]
+    for claim, (fact_key, unit) in zip(candidate["claims"], aliases, strict=True):
+        claim["fact_key"] = fact_key
+        claim["unit"] = unit
+    candidate["claims"][2]["kind"] = "LIMITATION"
+    candidate["claims"][2]["value_text"] = "unknown_amount_count"
+
+    evaluation = evaluate_counseling(
+        case,
+        candidate,
+        tool_trace=_offline_trace(case),
+    )
+
+    assert evaluation.passed
+
+
+def test_counseling_required_terms_accept_equivalent_missing_value_wording() -> None:
+    case = _case("COUNSEL-DEV-004")
+    assert isinstance(case, CounselingCase)
+    candidate = case.offline_candidate.model_dump(mode="json")
+    candidate["answer"] = candidate["answer"].replace("미상", "미기록")
+    candidate["limitations"] = [
+        limitation.replace("미상", "미기록") for limitation in candidate["limitations"]
+    ]
+
+    evaluation = evaluate_counseling(
+        case,
+        candidate,
+        tool_trace=_offline_trace(case),
+    )
+
+    assert evaluation.passed
+
+
 def test_scoped_tool_rejects_identity_expansion_and_unknown_calls() -> None:
     case = _case("COUNSEL-DEV-004")
     assert isinstance(case, CounselingCase)
@@ -259,6 +344,40 @@ def test_scoped_tool_rejects_identity_expansion_and_unknown_calls() -> None:
         execute_synthetic_tool(case, "get_server_aggregates", arguments)
     with pytest.raises(ToolExecutionError, match="UNAUTHORIZED_TOOL"):
         execute_synthetic_tool(case, "run_sql", {})
+
+
+def test_scoped_tool_accepts_narrower_safe_limit_and_rejects_broader_limit() -> None:
+    case = _case("COUNSEL-DEV-017")
+    assert isinstance(case, CounselingCase)
+    expected_call = case.expected.required_tool_calls[0]
+    arguments = dict(expected_call.arguments)
+    arguments["limit"] = 1
+
+    execution = execute_synthetic_tool(case, expected_call.tool_name, arguments)
+
+    assert execution.arguments["limit"] == 1
+    schema = tools_for_case(case)[0]["parameters"]
+    assert schema["properties"]["limit"]["maximum"] == 10
+
+    arguments["limit"] = 11
+    with pytest.raises(ToolExecutionError, match="FIXTURE_NOT_FOUND"):
+        execute_synthetic_tool(case, expected_call.tool_name, arguments)
+
+
+def test_failure_fixtures_expose_retryability_without_model_guessing() -> None:
+    for case_id in (
+        "COUNSEL-DEV-010",
+        "COUNSEL-DEV-011",
+        "COUNSEL-DEV-012",
+        "COUNSEL-HOLD-001",
+        "COUNSEL-HOLD-002",
+    ):
+        case = _case(case_id)
+        assert isinstance(case, CounselingCase)
+        assert len(case.expected.tool_failures) == 1
+        expected_failure = case.expected.tool_failures[0]
+        assert len(case.tool_fixtures) == 1
+        assert case.tool_fixtures[0].payload["retryable"] is expected_failure.retryable
 
 
 def test_provider_budget_hard_stops_after_twelve_requests() -> None:
@@ -567,6 +686,33 @@ def test_live_adapter_executes_one_synthetic_tool_round_trip_serially(
     assert len(result.request_records) == 2
     assert responses.calls[0]["parallel_tool_calls"] is False
     assert responses.calls[1]["tool_choice"] == "none"
+
+
+def test_live_adapter_records_rejected_fixture_arguments(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    case = _case("COUNSEL-DEV-017")
+    assert isinstance(case, CounselingCase)
+    expected_call = case.expected.required_tool_calls[0]
+    broad_arguments = dict(expected_call.arguments)
+    broad_arguments["limit"] = 11
+    responses = _FakeResponses(
+        [_FakeResponse(output=[_FakeCall(expected_call.tool_name, broad_arguments)])]
+    )
+    adapter = _adapter_with_fake_openai(monkeypatch, responses)
+
+    result = adapter.run_counseling(case, instructions="synthetic prompt")
+
+    assert result.failure_type == "FIXTURE_NOT_FOUND"
+    assert result.tool_trace == (
+        {
+            "tool_name": expected_call.tool_name,
+            "arguments": broad_arguments,
+            "status": "REJECTED",
+            "evidence_ids": [],
+            "failure_type": "FIXTURE_NOT_FOUND",
+        },
+    )
 
 
 def test_live_adapter_rejects_unauthorized_tool_and_model_mismatch(
