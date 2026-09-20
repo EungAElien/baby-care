@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePrivateScope } from "@/components/app-providers";
 import { ScreenSection } from "@/components/screen-state";
 import { AudioMeasurementSession, type AudioMeasurementState } from "@/lib/audio/audio-measurement";
@@ -14,14 +14,16 @@ export function AudioMeasureScreen() {
   const [state, setState] = useState<AudioMeasurementState>({
     status: "idle", reason: null, worklet: null, recorder: null,
   });
-  const [session] = useState(() => new AudioMeasurementSession(setState));
+  const sessionRef = useRef<AudioMeasurementSession | null>(null);
   const subscribe = useCallback((listener: () => void) => scope.subscribe(listener), [scope]);
   const getGeneration = useCallback(() => scope.snapshot().generation, [scope]);
   const scopeGeneration = useSyncExternalStore(subscribe, getGeneration, getGeneration);
 
-  useEffect(() => scope.registerCleanup(() => session.clearScope()), [scope, scopeGeneration, session]);
-
   useEffect(() => {
+    // An effect setup owns one session. Strict Mode may clean up and set up again
+    // without recreating component state, so a render-owned session would stay disposed.
+    const session = new AudioMeasurementSession(setState);
+    sessionRef.current = session;
     const stopForVisibility = () => {
       if (document.visibilityState === "hidden") session.abort("화면이 숨겨져 측정을 중단했어요. 복귀 후 직접 다시 시작해 주세요.");
     };
@@ -31,9 +33,16 @@ export function AudioMeasureScreen() {
     return () => {
       document.removeEventListener("visibilitychange", stopForVisibility);
       window.removeEventListener("pagehide", stopForPageExit);
+      sessionRef.current = null;
       session.dispose();
     };
-  }, [session]);
+  }, []);
+
+  useEffect(() => {
+    const session = sessionRef.current;
+    if (!session) return;
+    return scope.registerCleanup(() => session.clearScope());
+  }, [scope, scopeGeneration]);
 
   const running = state.status === "requesting" || state.status === "listening";
   return (
@@ -45,11 +54,11 @@ export function AudioMeasureScreen() {
           AudioWorklet은 중지할 때까지 샘플 수를 셉니다. 원음과 Blob은 저장하거나 전송하지 않습니다.
         </p>
         <div className="flex gap-2">
-          <button type="button" onClick={() => void session.start()} disabled={running}
+          <button type="button" onClick={() => void sessionRef.current?.start()} disabled={running}
             className="min-h-11 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50">
             측정 시작
           </button>
-          <button type="button" onClick={() => session.stop()} disabled={!running}
+          <button type="button" onClick={() => sessionRef.current?.stop()} disabled={!running}
             className="min-h-11 rounded-md border border-border px-4 text-sm font-medium disabled:opacity-50">
             측정 중지
           </button>

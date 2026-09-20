@@ -162,4 +162,18 @@ describe("A-02 audio measurement", () => {
     expect(recorders).toHaveLength(0);
     expect(session.snapshot().status).toBe("stopped");
   });
+
+  it("silently disposes an active capture and cannot restart the disposed session", async () => {
+    const updates: AudioMeasurementState[] = [];
+    const session = new AudioMeasurementSession((state) => updates.push(state));
+    await session.start();
+    const updateCount = updates.length;
+    session.dispose();
+    expect(session.snapshot().status).toBe("stopped");
+    expect(tracks[0]!.stop).toHaveBeenCalledTimes(1);
+    expect(nodes[0]!.port.close).toHaveBeenCalledTimes(1);
+    expect(updates).toHaveLength(updateCount);
+    await session.start();
+    expect(getUserMedia).toHaveBeenCalledTimes(1);
+  });
 });

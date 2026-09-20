@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { StrictMode } from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { AudioMeasureScreen } from "@/app/babies/[babyId]/audio-measure/screen";
@@ -21,11 +22,18 @@ vi.mock("@/components/app-providers", () => ({
 
 vi.mock("@/lib/audio/audio-measurement", () => ({
   AudioMeasurementSession: class {
-    start = fakes.start;
+    private disposed = false;
+
+    start = () => {
+      if (!this.disposed) fakes.start();
+    };
     stop = fakes.stop;
     abort = fakes.abort;
     clearScope = fakes.clearScope;
-    dispose = fakes.dispose;
+    dispose = () => {
+      this.disposed = true;
+      fakes.dispose();
+    };
   },
 }));
 
@@ -53,4 +61,14 @@ it("requires a click and wires hidden, page exit, scope, and unmount cleanup wit
   fireEvent(window, new Event("pagehide"));
   expect(fakes.abort).toHaveBeenCalledTimes(2);
   expect(fakes.start).toHaveBeenCalledTimes(1);
+});
+
+it("creates a usable session after Strict Mode's setup-cleanup-setup cycle", () => {
+  const view = render(<StrictMode><AudioMeasureScreen /></StrictMode>);
+  expect(screen.getByRole("status").textContent).toContain("idle");
+  expect(fakes.start).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "측정 시작" }));
+  expect(fakes.start).toHaveBeenCalledTimes(1);
+  view.unmount();
+  expect(fakes.dispose).toHaveBeenCalledTimes(2);
 });

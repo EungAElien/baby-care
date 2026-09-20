@@ -197,8 +197,12 @@ export class AudioMeasurementSession {
   }
 
   dispose(): void {
-    this.abort("화면을 떠나 측정을 정리했어요.");
+    if (this.disposed) return;
+    this.generation++;
     this.disposed = true;
+    if (this.active) this.release(this.active, true);
+    // The owning screen is leaving; release resources without notifying an unmounted view.
+    this.state = { ...initialState, status: "stopped", reason: "화면을 떠나 측정을 정리했어요." };
   }
 
   private release(capture: ActiveCapture, discard: boolean, preserveRecorder = false): void {
