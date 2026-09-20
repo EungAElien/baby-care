@@ -4,12 +4,23 @@
 
 - 웹 고정 주소: <https://baby-care-demo.vercel.app>
 - Vercel 프로젝트: `jyk3716715-1972s-projects/baby-care-demo` (Hobby)
-- 첫 배포: `dpl_EmTUbxeTUd1SqCjCRk8NdSEedSz7`, 소스 기준 `4307e1a`.
-- 인증 없는 `/`, `/login` 요청에서 HTML 200을 확인했다. API/DB 환경값은 아직 설정하지 않았다.
-- Google Cloud 프로젝트: `baby-care-demo-20260920` (번호 `891675703053`). 프로젝트 생성은 완료했으나 결제 계정 연결 및 Cloud Run 서비스 생성은 미완료다.
-- Supabase: 사용자가 선택한 `juny030507's Org`에 `baby-care-demo`, 서울, FREE, Data API 비활성으로 생성 폼을 준비했다. 실제 생성 결과와 새 project ref는 별도 확인해야 한다. 기존 로또 프로젝트 `ccnuctvzdsfinqmpyjtm`에는 변경하지 않았다.
+- 웹 소스: `a546bd8` (`develop` 기준 `ed87d29`), API 연결 후 READY 배포 `dpl_BFmoDPNmfKv6r4zB2EEbkaM5pykh`. 브라우저에서 환경 미설정 경고 없이 이메일 로그인 화면이 표시되는 것을 확인했다. 이전 READY 배포는 `dpl_6W6G8Mi5eAWupFqha7xUpdtQrjaJ`다.
+- 인증 없는 `/`, `/login` 요청에서 HTML 200을 확인했다. 새 Supabase 공개 URL·publishable key와 Cloud Run `/v1` 주소를 Vercel Production 환경에 등록했다.
+- API: <https://baby-care-api-891675703053.asia-northeast3.run.app>, 서울 `asia-northeast3`, revision `baby-care-api-00001-d4j`, 트래픽 100%. 1 CPU, 512 MiB, concurrency 8, 최소 0/최대 2 인스턴스, timeout 60초.
+- Google Cloud 프로젝트: `baby-care-demo-20260920` (번호 `891675703053`). 결제 연결과 필수 서비스 활성화, Cloud Build `1c2ec20d-d51e-4c32-8ea1-bbb0dbd8d002` 성공을 확인했다.
+- Supabase: `juny030507's Org`의 `baby-care-demo`, ref `tnsqrizismtkzcwzzymq`, 서울 `ap-northeast-2`, FREE, ACTIVE_HEALTHY, Data API 비활성. 기존 로또 프로젝트 `ccnuctvzdsfinqmpyjtm`에는 변경하지 않았다.
+- 기존 migration 7개를 seed 없이 적용했다. `baby_data` 업무 테이블 44개 모두 RLS/FORCE RLS이며 `baby-audio` bucket은 private/25,000,000 bytes다. 보안 advisor 경고·오류 0건.
+- `baby_care_runtime`은 LOGIN/NOINHERIT/NOBYPASSRLS이며 관리자·역할 생성·DB 생성 권한이 없다. `baby_app` SET 가능/상속 불가와 session pooler TLS 접속을 확인했다.
+- Secret Manager의 지정된 비밀값 4개(version 1)에만 `baby-care-api` 실행 계정의 accessor를 부여했다. 기본 빌드 계정에는 `roles/run.builder`를 부여하고 자동 생성된 `roles/editor`는 제거했다.
+- 실제 `/health/live`, `/health/ready` 200, 정확한 웹 CORS, 미인증 `/v1/babies` 401, 미등록 Origin 거부를 확인했다.
 - 이 주소의 공개 접속과 로그인 이후 기능 인수는 별개다. 대회 제출 자체, 두 계정 흐름, 실제 모델 동작은 아직 확인하지 않았다.
-- 후속 배포 준비 기준 `ed87d29`: 웹 Vitest 31개 파일/179개 테스트, 프로덕션 빌드(타입 검사 포함), ESLint 통과. Vercel JSON 파싱, Cloud Run 업로드 허용 목록, 공개 웹 접속 검사도 통과했다. Docker 빌드와 Cloud Run·DB 실연동은 미실행이다.
+- 배포 준비 기준 `ed87d29`: 웹 Vitest 31개 파일/179개 테스트, 프로덕션 빌드(타입 검사 포함), ESLint 통과. Vercel JSON 파싱, Cloud Run 업로드 허용 목록, 실제 Docker 기반 Cloud Build·API/DB 연결도 통과했다. PR #39의 GitHub 검사 5개가 성공했다.
+
+### 남은 제품 연결 조건
+
+- 이메일 OTP 로그인: 무료 기본 메일 제공자가 템플릿 수정을 HTTP 400으로 거부했다. 현재 웹의 숫자 OTP 흐름에는 별도 SMTP와 OTP 템플릿 적용이 필요하다. 사용자는 SMTP 없이 배포 기반부터 완료하도록 지시했다. 이메일 발송·두 계정 로그인은 시험하지 않았다.
+- Auth Site URL과 정확한 `/login` redirect는 배포 주소로 적용했다. 기본 8자리 OTP·이메일 확인·MFA 등 선언하지 않은 원격 설정은 유지했다.
+- 승인된 동의 문구·버전, 보호자 확인 조건, 실제 모델 묶음과 운영 검증은 후속이다. 아동 자료·외부 정규화·M2D 실행 게이트는 모두 `false`다. readiness를 전체 제품 시연 성공으로 해석하지 않는다.
 
 ## 웹 재배포
 
@@ -31,14 +42,14 @@ npx vercel@59.23.2 deploy --prod --yes --scope jyk3716715-1972s-projects
 
 Git 자동 배포를 추가한다면 같은 저장소를 연결하고 Root Directory를 `apps/web`로 지정한다. 저장소 기본 브랜치 `main`은 현재 배포한 `develop`보다 오래되므로 연결 직후 옛 코드가 운영 주소를 덮어쓰지 않도록 배포 브랜치와 버전을 확인한다. 기존 팀의 `develop` → `main` 배포 PR 절차는 유지한다.
 
-API와 새 Supabase 프로젝트가 준비되면 Vercel 프로젝트의 **Production** 환경에 다음 공개 값만 넣고 다시 빌드한다. `NEXT_PUBLIC_` 값은 빌드 시 브라우저 번들에 들어간다.
+Vercel 프로젝트의 **Production** 환경에는 다음 공개 값만 넣는다. `NEXT_PUBLIC_` 값은 빌드 시 브라우저 번들에 들어가므로 변경 후 재배포한다.
 
 | 변수 | 값 |
 | --- | --- |
-| `NEXT_PUBLIC_API_BASE_URL` | 실제 Cloud Run HTTPS 주소 뒤 `/v1` |
-| `NEXT_PUBLIC_SUPABASE_URL` | 새 프로젝트 URL |
+| `NEXT_PUBLIC_API_BASE_URL` | `https://baby-care-api-891675703053.asia-northeast3.run.app/v1` |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://tnsqrizismtkzcwzzymq.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 새 프로젝트의 publishable key |
-| `NEXT_PUBLIC_SUPABASE_STORAGE_URL` | 새 프로젝트의 Storage URL (사용 시) |
+| `NEXT_PUBLIC_SUPABASE_STORAGE_URL` | `https://tnsqrizismtkzcwzzymq.storage.supabase.co` |
 
 운영 주소에서 `NEXT_PUBLIC_ENABLE_MOCK_NAV`, `NEXT_PUBLIC_POLICY_PROFILE=LOCAL_SYNTHETIC_V1`은 켜지 않는다. 승인된 동의 정책 문구·버전과 서버의 아동 자료 처리 조건은 별도 준비가 필요하다. 화면을 열기 위해 해당 게이트를 임의 해제하지 않는다.
 
@@ -51,6 +62,8 @@ API와 새 Supabase 프로젝트가 준비되면 Vercel 프로젝트의 **Produc
 5. Cloud Run에서 접속 가능한 TLS DB 연결을 사용한다. 현재 psycopg 코드는 prepared statement 설정을 바꾸지 않으므로 **session pooler**를 사용하고 transaction pooler로 임의 변경하지 않는다.
 6. Auth Site URL은 `https://baby-care-demo.vercel.app`, 허용 redirect는 실제 웹 로그인 경로에 맞춘다. 이메일 OTP 템플릿·SMTP/전송 제한·두 계정 로그인을 별도로 확인한다.
 7. API가 사용하는 비대칭 JWT 알고리즘과 JWKS를 확인한다. Data API 비활성은 Auth·Storage 사용과 별개이며 업무 테이블은 FastAPI만 거친다.
+
+배포용 최소 Auth 설정은 [supabase/config.toml](supabase/config.toml)에 분리했다. 저장소 루트의 로컬 개발 config 전체를 원격에 push하지 않는다. `supabase config diff --workdir deploy --project-ref tnsqrizismtkzcwzzymq`로 검토한 뒤 같은 인자의 `config push`로 URL 2개만 적용한다. SMTP가 준비되면 메일 템플릿에 `{{ .Token }}`을 포함하고 별도로 발송을 확인한다.
 
 ## Cloud Run 준비
 
