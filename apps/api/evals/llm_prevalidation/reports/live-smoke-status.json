@@ -1,8 +1,113 @@
 {
-  "actual_model_executed": false,
-  "cases": [],
+  "actual_model_executed": true,
+  "calibration_replay": {
+    "actual_model_rerun": false,
+    "cases": [
+      {
+        "case_id": "NORM-DEV-001",
+        "decision": "PASS"
+      },
+      {
+        "case_id": "NORM-DEV-006",
+        "decision": "PASS"
+      },
+      {
+        "case_id": "NORM-DEV-013",
+        "decision": "FAIL",
+        "failure_codes": [
+          "normalization.forbidden_output",
+          "normalization.semantics"
+        ]
+      },
+      {
+        "case_id": "COUNSEL-DEV-004",
+        "decision": "PASS"
+      },
+      {
+        "case_id": "COUNSEL-DEV-011",
+        "decision": "FAIL",
+        "failure_codes": [
+          "counseling.claims",
+          "counseling.evidence",
+          "counseling.tool_failures"
+        ]
+      },
+      {
+        "case_id": "COUNSEL-DEV-017",
+        "decision": "NO_CANDIDATE",
+        "failure_type": "FIXTURE_NOT_FOUND"
+      }
+    ],
+    "decision": "3_PASS_2_FAIL_1_NO_CANDIDATE",
+    "evaluator_version": "live-smoke-calibration-2026-09-20.v2",
+    "note": "The original v1 candidates were replayed offline after separating semantic scoring from valid evidence wording and canonicalizing numeric claim units. No provider call was made for this replay."
+  },
+  "cases": [
+    {
+      "automated_pass": false,
+      "case_id": "NORM-DEV-001",
+      "failed_checks": [
+        "normalization.semantics"
+      ],
+      "failure_type": null,
+      "request_count": 1,
+      "suite": "normalization"
+    },
+    {
+      "automated_pass": false,
+      "case_id": "NORM-DEV-006",
+      "failed_checks": [
+        "normalization.semantics"
+      ],
+      "failure_type": null,
+      "request_count": 1,
+      "suite": "normalization"
+    },
+    {
+      "automated_pass": false,
+      "case_id": "NORM-DEV-013",
+      "failed_checks": [
+        "normalization.semantics",
+        "normalization.forbidden_output"
+      ],
+      "failure_type": null,
+      "request_count": 1,
+      "suite": "normalization"
+    },
+    {
+      "automated_pass": false,
+      "case_id": "COUNSEL-DEV-004",
+      "failed_checks": [
+        "counseling.claims",
+        "counseling.required_terms"
+      ],
+      "failure_type": null,
+      "request_count": 2,
+      "suite": "counseling"
+    },
+    {
+      "automated_pass": false,
+      "case_id": "COUNSEL-DEV-011",
+      "failed_checks": [
+        "counseling.claims",
+        "counseling.evidence",
+        "counseling.tool_failures"
+      ],
+      "failure_type": null,
+      "request_count": 2,
+      "suite": "counseling"
+    },
+    {
+      "automated_pass": false,
+      "case_id": "COUNSEL-DEV-017",
+      "failed_checks": [],
+      "failure_type": "FIXTURE_NOT_FOUND",
+      "request_count": 1,
+      "suite": "counseling"
+    }
+  ],
   "data_origin": "SYNTHETIC",
-  "generated_at": "2026-09-19T20:42:48.861713+00:00",
+  "generated_at": "2026-09-20T09:50:12.436374+00:00",
   "limits": {
     "concurrency": 1,
     "counseling_cases": 3,
@@ -18,7 +123,8 @@
   },
   "mode": "live-smoke",
   "pricing": {
-    "estimate_status": "NOT_RUN",
+    "estimate_status": "ESTIMATED_FROM_REPORTED_TOKENS",
+    "estimated_cost_usd": 0.0406886,
     "source": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
     "verified_on": "2026-09-20"
   },
@@ -34,11 +140,26 @@
       "version": "normalization.2026-09-20.v1"
     }
   },
-  "provider_request_count": 0,
-  "report_version": "baby-care.llm-eval.report.v1",
+  "provider_request_count": 8,
+  "provider_usage": {
+    "max_latency_ms": 8688,
+    "total_cached_input_tokens": 8543,
+    "total_input_tokens": 14833,
+    "total_latency_ms": 39127,
+    "total_output_tokens": 2200,
+    "total_tokens": 17033
+  },
+  "report_version": "baby-care.llm-eval.live-status.v2",
   "requested_model": "gpt-5.6-terra",
+  "response_models": [
+    "gpt-5.6-terra"
+  ],
   "summary": {
-    "decision": "NOT_RUN_MISSING_API_KEY",
-    "failure_type": "MISSING_API_KEY"
+    "automated_fail_count": 6,
+    "automated_pass_count": 0,
+    "completed_case_count": 6,
+    "decision": "SMOKE_NOT_PASSED",
+    "human_review_pending_count": 6,
+    "scope_note": "The live run verified authentication, exact-model Responses API execution, structured output, usage reporting, and two synthetic tool round trips. It did not pass the v1 automated evaluation and is not production or child-data approval."
   }
 }

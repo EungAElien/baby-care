@@ -14,11 +14,12 @@ B-14 상담 API·DB·화면·장기 기억·운영 배포의 완료 증거가 �
 | `datasets/normalization.v1.jsonl` | 정규화 20건. 현재 OpenAPI 1.1.1 `NormalizedContent`를 정답 형식으로 사용 |
 | `datasets/counseling.v1.jsonl` | 상담 23건. 제품 계약이 아닌 평가 전용 출력 형식과 합성 읽기 도구 fixture 사용 |
 | `build_datasets.py` | 사람이 검토 가능한 합성 원본에서 JSONL과 계산 결과를 재현 |
-| `prompts/normalization.v1.md` | 도구 없는 정규화 역할·의미·Unicode 근거 규칙 |
-| `prompts/counseling.v1.md` | 읽기 전용 상담 역할·권한·수치·실패·안전 규칙 |
+| `prompts/normalization.v1.md`, `normalization.v2.md` | v1 최초 smoke 기준과 v2 활성 정규화 역할·의미·Unicode·입력 지시문 규칙 |
+| `prompts/counseling.v1.md`, `counseling.v2.md` | v1 최초 smoke 기준과 v2 활성 읽기 전용 상담·권한·수치·실패 규칙 |
 | `baby_care_api.llm_eval` | 로더, Pydantic 입력·출력 검사, 판정기, 합성 도구, Responses API 어댑터, CLI |
 | `reports/offline-baseline.json` | 외부 호출 0건의 사례별 자동 판정 기준선 |
-| `reports/live-smoke-status.json` | 이 작업 시점의 제한된 실제 호출 실행 또는 미실행 상태 |
+| `reports/live-smoke-v1-2026-09-20.json` | 최초 실제 v1 호출의 합성 후보·도구 trace·사용량을 포함한 원본 보고서 |
+| `reports/live-smoke-status.json` | 제한된 최초 실제 호출, 사용량, 사례별 v1 결과와 오프라인 보정 재판정 상태 |
 
 ## 데이터 형식
 
@@ -31,7 +32,7 @@ JSONL 한 줄이 한 시나리오다. 여러 대화 턴도 한 줄과 한 `case_
 | `synthetic_data` | 항상 `true`. 실제 사용자·아기·음원·운영 DB 자료 금지 |
 | `current_time`, `timezone`, `conversation`, `input` | 합성 현재 시각·시간대·대화·직접 입력 |
 | `source_records` | 수치 정답을 먼저 계산하는 합성 원본. 모델 응답이 아님 |
-| `allowed_tools`, `tool_fixtures` | 해당 상담 사례에만 허용한 읽기 도구와 정확히 일치해야 하는 합성 응답 |
+| `allowed_tools`, `tool_fixtures` | 해당 상담 사례에만 허용한 읽기 도구와 범위가 고정된 합성 응답. `limit`은 기대 상한 이하의 충분한 더 좁은 조회를 허용 |
 | `expected.facts`, `numbers`, `claims`, `evidence_ids` | 모델 실행 전에 고정한 사실·수치·근거 정답 |
 | `expected.allowed_actions`, `forbidden_outputs` | 허용 응답 행동과 필수 금지 출력 |
 | `automatic_checks`, `human_review` | 코드 판정과 사람이 직접 확인할 기준 |
@@ -61,7 +62,9 @@ JSONL 한 줄이 한 시나리오다. 여러 대화 턴도 한 줄과 한 `case_
 
 ## 판정 기준
 
-정규화 자동 판정은 다음을 모두 통과해야 한다.
+정규화 자동 판정은 다음을 모두 통과해야 한다. 의미 구조와 근거 문자열은 별도
+항목으로 채점하므로, 원문을 정확히 가리키는 서로 다른 길이의 근거 구간을 의미
+오류로 중복 판정하지 않는다.
 
 - 현재 계약 스키마 적합성
 - 행동·assertion·순서·시각·수량·관찰·반응·보호자 추정·미해결 값의 의미 일치
@@ -71,7 +74,9 @@ JSONL 한 줄이 한 시나리오다. 여러 대화 턴도 한 줄과 한 `case_
 상담은 문장 전체 일치로 채점하지 않는다. 다음 구조화 항목을 독립적으로 본다.
 
 - 평가 전용 스키마와 답변/개인화 상태
-- 합성 원본에서 미리 정의한 사실·수치와 현재 유효 근거 ID
+- 합성 원본에서 미리 정의한 사실·수치와 현재 유효 근거 ID. 평가 전용
+  `fact_key` 문구나 `COUNT`/`회` 같은 동치 단위 표기는 문장 전체 일치처럼
+  채점하지 않고 claim 종류·수치·정규화 단위·상태·근거의 다중집합을 비교
 - 필요한 도구 이름·인자·순서 및 도구 실패 표현
 - 수행/계획/부정/불확실 기록 후보와 `requires_confirmation=true`
 - 기록 없음, 미상, 실제 0, 일부 결과, 실패, 미준비, 접근 거부, 삭제의 구분
@@ -81,6 +86,27 @@ JSONL 한 줄이 한 시나리오다. 여러 대화 턴도 한 줄과 한 `case_
 필수 실패다. 모든 자동 항목을 통과해도 자연스러움, 질문 응답성, 도움 정도,
 공감·안전성은 `human_review_status=PENDING`으로 남긴다. LLM 자기평가는 합격
 근거로 사용하지 않는다.
+
+## 2026-09-20 최초 실제 smoke 관측
+
+사용자가 서버 환경 변수로 준비한 키로 v1 프롬프트의 합성 사례 6건을 실행했다.
+요청·응답 모델은 모두 `gpt-5.6-terra`였고 Responses API 실제 실행은 8회였다.
+입력 14,833토큰(캐시 8,543), 출력 2,200토큰, 합계 17,033토큰이 보고됐으며,
+공식 확인 단가 기준 추정 비용은 USD 0.0406886이었다. 최대 요청 지연은
+8,688ms였다. 실제 사용자·아기·음원·운영 DB 자료는 사용하지 않았다.
+
+v1 자동 판정은 `SMOKE_NOT_PASSED`였다. 같은 후보를 외부 호출 없이 보정된
+판정기로 재생하면 3건 통과, 2건 실제 출력 실패, 1건은 도구 fixture 불일치로
+후보가 없어 판정 불가다. 보정으로 통과한 사례는 정규화의 유효한 근거 구간 차이와
+상담의 동치 수치·단위 표현이었다. 유지된 실제 실패는 입력 지시문의 허위 500mL
+행동 추출과 미준비 도구 실패의 claim/evidence/retryable 불일치다.
+
+이 관측을 반영해 v2 프롬프트는 입력 지시문을 부정 행동으로도 추출하지 않는 규칙,
+실패 status/evidence/error_code/retryable 보존 규칙을 추가했다. 도구 fixture는
+기대 상한 이하의 더 좁은 `limit`을 허용하며, 거절된 호출 인자도 합성 감사
+trace에 남긴다. `reports/live-smoke-v1-2026-09-20.json`은 원본 결과를 보존하고,
+`reports/live-smoke-status.json`은 최초 실제 결과와 보정 재생을 구분해 요약한다.
+v2 재실행 전 상태이므로 연결 성공을 전체 smoke 통과로 표현하지 않는다.
 
 ## 설치와 오프라인 실행
 
