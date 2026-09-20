@@ -164,3 +164,8 @@ v3 원본은
 `apps/api/evals/llm_prevalidation/reports/live-smoke-v3-2026-09-20.json`에 보존했다.
 추가 유료 prompt-tuning 호출은 중단했다. 6건의 사람 검토, 마지막 확인용 12사례,
 실제 B-07/B-14 API·DB·권한·삭제 검증은 아직 수행하지 않았다.
+
+위 문단은 B-02 선검증 당시의 경계다. 이후 같은 날 B-07 제품 API는 동결 합성 3사례와
+외부 요청 총 6회 안에서 실제 Terra 정규화·확인 저장·권한·복구를 별도로 통과했다.
+후속 결과는 [B-07 제품 API 실제 Terra 검증](b07-terra-product-verification.md)을 따른다.
+B-14와 12사례 최종 평가는 여전히 미실행이다.

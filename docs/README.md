@@ -23,6 +23,7 @@
 | [B-04 → A-03·A-04 연동 인계](handoffs/b04-account-shared-care-records.md) | 구현 operationId, 실행 주소, 합성 계정 배치, 초대·재인증·기록·오류·삭제 UI 연결 순서 |
 | [B-05 → A-02·A-05·B-06 음원 인계](handoffs/b05-audio-intake.md) | STANDARD/TUS 순서, 실제 형식→PCM→V1 경계, 품질·보관·정리, 기기별 검증 상태 |
 | [B-07 → A-07·A-12 사건 없는 정규화 인계](handoffs/b07-eventless-normalization.md) | LLM/RULE/MANUAL 흐름, 원자 확인 저장, 상태 표현·복구·오류 예시와 사건 연결 잔여 범위 |
+| [B-07 제품 API 실제 Terra 검증](handoffs/b07-terra-product-verification.md) | 합성 3사례·외부 요청 6회 안의 실제 Terra 연결, 제품 HTTP 확인 저장·권한·복구 결과와 재현 경계 |
 | [B-09 → A-08 변경 조회 인계](handoffs/b09-shared-change-feed.md) | 폴링 복구 계약, 쓰기별 재조회, revision 경계와 남은 Realtime 인수 |
 | [B-13 자동 검사·CI 인계](handoffs/b13-automatic-verification.md) | 로컬/CI 명령, 계약 재생성, 필수 check·산출물·실패 복구와 후속 전체 인수 |
 | [아기 상태·완료 조치·기록 그래프 범주 v2](product/baby-state-care-action-categories-v2.md) | 사용자 선택을 반영한 기획. 계약에 반영할 차이는 8절에 명시. API enum이나 구현을 이미 바꾼 것으로 취급하지 않음 |
