@@ -15,11 +15,12 @@ import { ContractApiError } from "@/lib/api/errors";
 import { revokeAndSignOut } from "@/lib/auth/session-control";
 import { useMockSessionOptional } from "@/lib/mock/session";
 import { getMockScenario } from "@/lib/mock/fixtures";
-import { ScreenSection } from "@/components/screen-state";
+import { LoadingState, ScreenSection } from "@/components/screen-state";
 import { ConsentPanel } from "@/components/consent-panel";
 
 export default function AccountPage() {
   const real = useRealSession();
+  if (real.status === "loading") return <LoadingState label="계정 정보를 확인하고 있어요" />;
   if (real.status === "signed-in") return <RealAccountPage />;
   return <MockAccountPage />;
 }

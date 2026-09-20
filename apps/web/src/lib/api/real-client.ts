@@ -16,6 +16,7 @@ export type RealApiClient = ReturnType<typeof createApiClient>;
 export function useApiClient(): RealApiClient | null {
   const scope = usePrivateScope();
   return useMemo(() => {
+    if (typeof window === "undefined") return null;
     const config = tryReadPublicConfig();
     if (!config) return null;
     return createApiClient({ baseUrl: config.apiBaseUrl, auth: supabaseAuthAdapter, scope });

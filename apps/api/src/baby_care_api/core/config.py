@@ -4,8 +4,9 @@ from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
 from typing import ClassVar, Literal
+from urllib.parse import urlsplit
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 API_V1_PREFIX = "/v1"
@@ -39,6 +40,29 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     host: str = "127.0.0.1"
     port: int = Field(default=8080, ge=1, le=65535)
+    browser_origins: str = ""
+
+    @field_validator("browser_origins")
+    @classmethod
+    def validate_browser_origins(cls, value: str) -> str:
+        for origin in (item.strip() for item in value.split(",") if item.strip()):
+            parsed = urlsplit(origin)
+            if (
+                "*" in origin
+                or parsed.scheme not in {"http", "https"}
+                or not parsed.hostname
+                or parsed.username
+                or parsed.password
+                or parsed.path
+                or parsed.query
+                or parsed.fragment
+                or (
+                    parsed.scheme == "http"
+                    and parsed.hostname not in {"localhost", "127.0.0.1", "::1"}
+                )
+            ):
+                raise ValueError("Browser origins must be exact HTTPS or local HTTP origins")
+        return value
 
     database_url: SecretStr | None = None
     supabase_jwt_issuer: str | None = None

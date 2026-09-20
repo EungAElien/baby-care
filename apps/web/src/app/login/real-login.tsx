@@ -5,6 +5,7 @@
 // 게이트는 다음 커밋에서 잇는다(개발계약의 [직접] 항목은 그대로 둔다).
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useRealSession } from "@/lib/auth/real-session";
 import {
   useActiveBabyQuery,
@@ -162,7 +163,18 @@ function BabySelection() {
   if (babies.isLoading) return <LoadingState label="아기 정보를 불러오고 있어요" />;
   if (babies.isError) return <ErrorState label={errorMessage(babies.error)} retryable />;
 
-  if (items.length === 0) return <CreateBabyForm />;
+  if (items.length === 0) {
+    return (
+      <>
+        <CreateBabyForm />
+        <div className="mx-auto max-w-xl px-6 pb-6">
+          <Link href="/account" className="text-sm font-medium text-primary">
+            내 계정 관리·로그아웃
+          </Link>
+        </div>
+      </>
+    );
+  }
   if (items.length === 1) return <LoadingState label="아기 홈으로 이동하고 있어요" />;
 
   const suggested = activeBaby.data?.baby_id ?? null;
