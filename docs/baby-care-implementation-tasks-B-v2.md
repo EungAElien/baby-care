@@ -155,13 +155,13 @@ B·운영 책임자는 내부 시험, 공개 시연, 외부 전송, 학습 이�
 
 착수는 나눌 수 있다. B-04의 개인 초안·생활 기록 기반 위에서 정규화 어댑터·의미 검사·분석 사건 없는 확인 저장을 먼저 구현·시험할 수 있다. 계약의 `CreateCareEntry.episode_id`는 null을 허용한다. 실제 울음 사건의 행동/반응 연결은 B-06의 사건 생성이, 캐릭터 실제 표현은 A의 연결표가 필요하다. 앞의 독립 작업을 M2D 학습 완료까지 미루지 않는다.
 
-- [x] **2026-09-20 1차 완료:** 실제 FastAPI·격리 로컬 Supabase에서 사건 없는 CHOICE·TEXT·MIXED와 LLM 대역/RULE/MANUAL 흐름, 현재 권한·동시성·lease·STALE·원자 롤백·수정 lineage·B-09 재조회를 검증했다. 제품용 Terra 어댑터는 구현했지만 이 환경에는 키가 없어 실제 외부 호출·품질 판정은 미실행이다. 사건 연결 ActionAttempt·action group·Outcome과 A 브라우저/캐릭터 인수도 남아 있다. ([인계](./handoffs/b07-eventless-normalization.md))
+- [x] **2026-09-20 1차 완료:** 실제 FastAPI·격리 로컬 Supabase에서 사건 없는 CHOICE·TEXT·MIXED와 LLM/RULE/MANUAL 흐름, 현재 권한·동시성·lease·STALE·원자 롤백·수정 lineage·B-09 재조회를 검증했다. 동결 합성 3사례는 실제 `gpt-5.6-terra` 제품 HTTP 호출·명시 확인·저장·재조회까지 통과했다. 사건 연결 ActionAttempt·action group·Outcome과 A 브라우저/캐릭터 인수, 운영 일반화는 남아 있다. ([구현 인계](./handoffs/b07-eventless-normalization.md), [실제 Terra 검증](./handoffs/b07-terra-product-verification.md))
 
 - [ ] **[Codex]** 복수 실제 행동·순서·관찰 시각·후속 반응, 기존 CareEvent 연결을 구현한다. 실제 수행·계획·부정·불확실, 아기 상태·반응·보호자 해석은 분리한다. 기존 기록 연결로 집계를 늘리지 않는다. (F10)
 - [ ] **[Codex]** 교체 가능한 NormalizerAdapter와 초안/확정 흐름을 구현한다. 선택 모델 `gpt-5.6-terra`를 OpenAI Responses API·Structured Outputs로 연결하고 실제 호출 설정·품질은 B-02에서 검증한다. 정규화에는 DB 조회·웹 검색·MCP·쓰기 도구를 주지 않는다. (F17)
-  - [x] 제품 어댑터, 고정 모델·strict schema·20초 전체 기한·1회 제한 재시도·도구 없음과 테스트 대역은 구현했다. 실제 계정 호출과 품질 통과는 미실행이므로 상위 항목은 열어 둔다.
+  - [x] 제품 어댑터, 고정 모델·strict schema·20초 전체 기한·1회 제한 재시도·도구 없음과 테스트 대역을 구현했다. 실제 계정의 합성 3사례 제품 smoke도 외부 요청 총 6회 안에서 통과했다. 복수 실제 행동·사건 연결 전체 범위가 남아 있어 상위 항목은 열어 둔다.
 - [x] **[Codex]** JSON 스키마뿐 아니라 수행 여부·허용 코드·시각·수량·선택지 충돌·근거를 검사한다. 한글/이모지 근거는 전송한 원문의 Unicode 코드포인트 좌표로 검증한다. 현재 1차는 별도 마스킹 변환을 하지 않아 좌표 복원 단계가 없다.
-- [x] **[Codex → 직접 확인]** `normalizer_available`을 DB·서버 외부 처리 게이트·key·런타임 의존성의 결합으로 계약화하고 서버에서 강제했다. 비활성·실행 전 실패·제공자 실패·시간 초과에는 원문과 RULE/MANUAL 경로를 유지하며 STUB 성공으로 바꾸지 않는다. 실제 제공자 호출은 미실행이다.
+- [x] **[Codex → 직접 확인]** `normalizer_available`을 DB·서버 외부 처리 게이트·key·런타임 의존성의 결합으로 계약화하고 서버에서 강제했다. 비활성·실행 전 실패·제공자 실패·시간 초과에는 원문과 RULE/MANUAL 경로를 유지하며 STUB 성공으로 바꾸지 않는다. 실제 Terra 합성 호출과 제품 경로를 별도 opt-in 환경에서 확인했다.
 - [x] **[Codex → 직접 확인]** 사건 없는 1차에서 확인 시 input_revision·run_id·normalization_mode·연결 기록 version·현재 권한·실행 토큰을 검사해 CareEvent·StateObservation·라벨과 B-09 변경을 원자적으로 확정했다. 늦은 결과는 STALE 또는 저장 거절로 제외하고 확인 전 초안은 공유하지 않는다.
 - [ ] **[Codex]** A-12에 ActionAttempt·연결 CareEvent의 ID/버전·행동 종류·수행 시각·수행자(모르면 null), StateObservation의 state_codes·visual_state_code·visual_mapping_version·관찰 시각·작성자·출처를 제공한다. 분석 후보·행동·관찰은 별도 근거로 전달한다. (F18)
 - [ ] **[Codex → 직접 확인]** UNKNOWN·같은 시각의 배타적 관찰은 NEUTRAL로 매핑하고, 과거에 수행한 행동을 지금 수행한 것처럼 만들지 않는다. 기록 수정·삭제 후 마지막 유효 관찰을 재조회하게 한다. 재전송·폴링·새로고침의 동작 중복 방지는 A가 실제 action_id와 version을 이용해 처리한다.
