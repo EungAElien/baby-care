@@ -27,6 +27,7 @@
 | [B-13 자동 검사·CI 인계](handoffs/b13-automatic-verification.md) | 로컬/CI 명령, 계약 재생성, 필수 check·산출물·실패 복구와 후속 전체 인수 |
 | [아기 상태·완료 조치·기록 그래프 범주 v2](product/baby-state-care-action-categories-v2.md) | 사용자 선택을 반영한 기획. 계약에 반영할 차이는 8절에 명시. API enum이나 구현을 이미 바꾼 것으로 취급하지 않음 |
 | [아기·양육자 일러스트와 모션 제작안](design/character-motion/README.md) | Inside the Head 공개 코드·화면 조사, 범주별 이미지 초안과 모션·정적 로그 제작 명세. 편집 원본·애니메이션·제품 연동은 후속 |
+| [Duolingo 캐릭터·모션 스킬 설치](tooling/duolingo-character-motion/README.md) | 팀원에게 전달할 ZIP, Windows·Mac 설치 방법과 Codex 인식 확인 |
 | [B-02 LLM 선검증 → B-07·B-14 인계](handoffs/b02-llm-prevalidation.md) | 합성 평가, 분리 프롬프트·판정, 제한된 Terra smoke, 재사용/미구현 경계 |
 
 ## 보안 설계와 시험 항목

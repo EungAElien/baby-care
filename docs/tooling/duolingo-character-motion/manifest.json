@@ -1,0 +1,45 @@
+{
+  "packaged_at": "2026-09-20",
+  "skill_name": "duolingo-character-motion",
+  "display_name": "Duolingo 캐릭터·모션",
+  "source_content_modified": false,
+  "files": [
+    {
+      "path": "duolingo-character-motion/SKILL.md",
+      "bytes": 5490,
+      "sha256": "ea73cce1220cb3c58c6d34c7d2fdeacf48a18d9159e7905eb5ca68887aab8728"
+    },
+    {
+      "path": "duolingo-character-motion/agents/openai.yaml",
+      "bytes": 334,
+      "sha256": "4cc411a96b2c6a5abc468303d477aa8d61b4ed38c9bd39a61879787d5897e7ee"
+    },
+    {
+      "path": "duolingo-character-motion/references/illustration-and-characters.md",
+      "bytes": 4014,
+      "sha256": "d5131abcbbb12ab98a0a2f727681155924198880f1ac99fe72982d225d3f9074"
+    },
+    {
+      "path": "duolingo-character-motion/references/personality-and-motion.md",
+      "bytes": 3743,
+      "sha256": "b1ab0f3582572586086783daaadf784bbd7276303619b850e7bb7b7c3bbc0521"
+    },
+    {
+      "path": "duolingo-character-motion/references/sources.md",
+      "bytes": 3894,
+      "sha256": "c49705806b50a44ef4f14c747e717229b5077239887ad03a45d4f79fb8c001bb"
+    }
+  ],
+  "archive": {
+    "file": "duolingo-character-motion.zip",
+    "bytes": 9178,
+    "sha256": "04ccd65d3131a740dc0d9c598d9dc8f31950c60be450db0d35a1af1b86e27414"
+  },
+  "validation": {
+    "zip_integrity": "passed",
+    "source_file_bytes_match": 5,
+    "relative_links": "passed",
+    "teammate_windows_install": "not executed",
+    "teammate_mac_install": "not executed"
+  }
+}
