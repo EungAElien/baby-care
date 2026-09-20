@@ -53,6 +53,7 @@ cp .env.example .env
 - `BABY_CARE_REAUTHENTICATION_PROOF_SECRET`: 32바이트 이상 서버 비밀. proof 원문은 DB에 저장하지 않습니다.
 - `BABY_CARE_INVITE_BASE_URL`: A의 초대 진입 주소. 토큰은 URL fragment에 붙고 최초 발급·재발급 응답에서만 반환됩니다.
 - `BABY_CARE_CHILD_DATA_PRODUCTION_ENABLED=false`: 승인된 법정대리인 확인 정책이 준비되기 전에는 그대로 둡니다.
+- `BABY_CARE_BROWSER_ORIGINS`: 웹에서 직접 API를 호출할 때 허용할 정확한 출처를 쉼표로 구분합니다. 기본값은 비어 있으며 로컬 웹 포트와 배포 웹 출처를 환경별로 명시합니다. 와일드카드는 사용하지 않습니다.
 - `BABY_CARE_SUPABASE_SECRET_KEY`: B-05 서버가 원본을 검증하고 서명·삭제할 때만 쓰는 서버 비밀입니다. 브라우저·`NEXT_PUBLIC`에 넣지 않습니다.
 - `BABY_CARE_SUPABASE_STORAGE_URL`: hosted TUS의 직접 Storage origin입니다. 생략하면 `SUPABASE_URL`을 사용합니다.
 - `BABY_CARE_AUDIO_FFMPEG_PATH`, `...FFPROBE_PATH`, `...VERSION_PREFIX`, `...DECODE_CONCURRENCY`: digest로 고정한 7.1.1 디코더 경계입니다.

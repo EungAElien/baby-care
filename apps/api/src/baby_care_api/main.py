@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
 from baby_care_api.core.config import (
@@ -318,6 +319,20 @@ def create_app(
     app.state.normalizer_unavailable_reason = normalizer_unavailable_reason
     app.state.session_revocation = session_revocation
     app.state.idempotency = UnconfiguredIdempotencyPort()
+
+    browser_origins = [
+        origin.strip() for origin in active_settings.browser_origins.split(",") if origin.strip()
+    ]
+    if browser_origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=browser_origins,
+            allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+            allow_headers=[
+                "Authorization", "Content-Type", "Idempotency-Key", "X-Reauthentication-Proof"
+            ],
+            expose_headers=["X-Request-ID", "Retry-After"],
+        )
 
     install_exception_handlers(app)
     install_request_context(app)
