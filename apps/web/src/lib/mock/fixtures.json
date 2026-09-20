@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.1.1",
+  "contract_version": "1.2.0",
   "notice": "All fixtures are synthetic contract examples. No model ran, no audio is supplied, and no real account or token is created. Never count these as measured model results.",
   "test_users": [
     {
@@ -65,6 +65,51 @@
     }
   ],
   "scenarios": [
+    {
+      "name": "normalizer_disabled_capability",
+      "operation_id": "getCapabilities",
+      "synthetic": true,
+      "expected_ui": "외부 정규화 비활성 표시와 RULE/MANUAL 경로 유지",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "10000000-0000-4000-8000-000000000900"
+        },
+        "body": {
+          "contract_version": "1.2.0",
+          "audio_model": {
+            "available": false,
+            "model_version": null,
+            "preprocess_version": null,
+            "label_mapping_version": null,
+            "supported_labels": [],
+            "inference_mode": "STUB"
+          },
+          "supported_mime_types": [
+            "audio/wav",
+            "audio/x-wav",
+            "audio/webm",
+            "audio/mp4",
+            "audio/aac"
+          ],
+          "upload_max_bytes": 25000000,
+          "upload_max_seconds": 60,
+          "normalizer_available": false,
+          "normalizer_unavailable_reason": "DISABLED",
+          "automatic_detection_supported": false,
+          "detector": {
+            "available": false,
+            "execution_mode": "STUB",
+            "model_version": null,
+            "model_asset_url": null,
+            "weights_sha256": null,
+            "input_sample_rate_hz": null,
+            "policy_version": null,
+            "supported_clients": []
+          }
+        }
+      }
+    },
     {
       "name": "baby_created",
       "operation_id": "createBaby",
@@ -1065,10 +1110,11 @@
           "status": "COMPLETE",
           "lease_expires_at": null,
           "execution_mode": "STUB",
+          "provider_call_executed": false,
           "provider": null,
           "model": null,
           "prompt_version": "fixture-prompt-v1",
-          "schema_version": "1.0.0",
+          "schema_version": "1.2.0",
           "ontology_version": "care-v1",
           "result": {
             "actions": [
@@ -1137,7 +1183,7 @@
           "baby_id": "10000000-0000-4000-8000-000000000101",
           "author_user_id": "10000000-0000-4000-8000-000000000001",
           "original_author_user_id": "10000000-0000-4000-8000-000000000001",
-          "episode_id": "10000000-0000-4000-8000-000000000301",
+          "episode_id": null,
           "input_mode": "TEXT",
           "raw_text": "분유 80mL 먹였어요",
           "choices": [],
@@ -1211,7 +1257,7 @@
               "baby_id": "10000000-0000-4000-8000-000000000101",
               "author_user_id": "10000000-0000-4000-8000-000000000001",
               "original_author_user_id": "10000000-0000-4000-8000-000000000001",
-              "episode_id": "10000000-0000-4000-8000-000000000301",
+              "episode_id": null,
               "input_mode": "TEXT",
               "raw_text": "분유 80mL 먹였어요",
               "choices": [],
@@ -1320,10 +1366,11 @@
           "status": "FAILED",
           "lease_expires_at": null,
           "execution_mode": "STUB",
+          "provider_call_executed": false,
           "provider": null,
           "model": null,
           "prompt_version": "fixture-prompt-v1",
-          "schema_version": "1.0.0",
+          "schema_version": "1.2.0",
           "ontology_version": "care-v1",
           "result": null,
           "failure": {
@@ -1372,7 +1419,7 @@
       "name": "confirm_once",
       "operation_id": "confirmCareEntry",
       "synthetic": true,
-      "expected_ui": "생활 기록과 행동 한 번만 저장, 반응은 미확인",
+      "expected_ui": "생활 기록과 확인 라벨을 한 번만 저장하고 사건 행동·반응은 만들지 않음",
       "response": {
         "status": 200,
         "headers": {
@@ -1384,9 +1431,7 @@
           "care_event_ids": [
             "10000000-0000-4000-8000-000000000601"
           ],
-          "action_ids": [
-            "10000000-0000-4000-8000-000000000602"
-          ],
+          "action_ids": [],
           "action_group_ids": [],
           "state_observation_ids": [],
           "outcome_ids": [],
@@ -1460,9 +1505,7 @@
           "care_event_ids": [
             "10000000-0000-4000-8000-000000000601"
           ],
-          "action_ids": [
-            "10000000-0000-4000-8000-000000000602"
-          ],
+          "action_ids": [],
           "action_group_ids": [],
           "state_observation_ids": [],
           "outcome_ids": [],
@@ -2055,10 +2098,11 @@
           "status": "RUNNING",
           "lease_expires_at": "2026-09-19T09:00:30Z",
           "execution_mode": "STUB",
+          "provider_call_executed": false,
           "provider": null,
           "model": null,
           "prompt_version": "fixture-prompt-v1",
-          "schema_version": "1.0.0",
+          "schema_version": "1.2.0",
           "ontology_version": "care-v1",
           "result": null,
           "failure": null,
@@ -2084,10 +2128,11 @@
           "status": "STALE",
           "lease_expires_at": null,
           "execution_mode": "STUB",
+          "provider_call_executed": false,
           "provider": null,
           "model": null,
           "prompt_version": "fixture-prompt-v1",
-          "schema_version": "1.0.0",
+          "schema_version": "1.2.0",
           "ontology_version": "care-v1",
           "result": {
             "actions": [
@@ -2273,18 +2318,18 @@
     },
     {
       "name": "confirmed_state_visual",
-      "operation_id": "createStateObservation",
+      "operation_id": "getStateObservation",
       "synthetic": true,
-      "expected_ui": "보호자가 잠듦으로 기록한 시각 표시, 자동 기분 추정 아님",
+      "expected_ui": "B-09 식별자로 확인된 관찰을 재조회, 자동 기분 추정 아님",
       "response": {
-        "status": 201,
+        "status": 200,
         "headers": {
           "X-Request-ID": "10000000-0000-4000-8000-000000000900"
         },
         "body": {
           "state_observation_id": "10000000-0000-4000-8000-000000000820",
           "baby_id": "10000000-0000-4000-8000-000000000101",
-          "episode_id": "10000000-0000-4000-8000-000000000301",
+          "episode_id": null,
           "action_id": null,
           "source_entry_id": "10000000-0000-4000-8000-000000000750",
           "phase": "AFTER",
@@ -2298,6 +2343,8 @@
           "visual_state_code": "ASLEEP",
           "visual_mapping_version": "care-visual-v1",
           "created_by_user_id": "10000000-0000-4000-8000-000000000001",
+          "updated_by_user_id": "10000000-0000-4000-8000-000000000001",
+          "confirmed_by_user_id": "10000000-0000-4000-8000-000000000001",
           "data_origin": "DEMO",
           "version": 1,
           "recorded_at": "2026-09-19T09:00:00Z",

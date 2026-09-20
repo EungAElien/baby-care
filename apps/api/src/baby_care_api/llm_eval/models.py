@@ -3,14 +3,19 @@ from __future__ import annotations
 from datetime import datetime
 from enum import StrEnum
 from typing import Annotated, Any, Literal
-from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-MODEL_ID = "gpt-5.6-terra"
+from baby_care_api.models.normalization import (
+    ActionCode,
+    Assertion,
+    Evidence,
+    NormalizedContent,
+)
+
 CASE_FORMAT_VERSION = "baby-care.llm-eval.case.v1"
 NORMALIZATION_PROMPT_VERSION = "normalization.2026-09-20.v3"
-NORMALIZATION_SCHEMA_VERSION = "openapi-1.1.1.NormalizedContent"
+NORMALIZATION_SCHEMA_VERSION = "openapi-1.2.0.NormalizedContent"
 COUNSELING_PROMPT_VERSION = "counseling.2026-09-20.v3"
 COUNSELING_SCHEMA_VERSION = "counseling-eval-output.v1"
 
@@ -22,115 +27,6 @@ class StrictModel(BaseModel):
 class EvaluationSplit(StrEnum):
     PROMPT_TUNING = "PROMPT_TUNING"
     FINAL_CONFIRMATION = "FINAL_CONFIRMATION"
-
-
-class EvidenceSource(StrEnum):
-    CHOICE = "CHOICE"
-    TEXT = "TEXT"
-    USER_CORRECTION = "USER_CORRECTION"
-
-
-class ActionCode(StrEnum):
-    FEEDING = "FEEDING"
-    DIAPER_CHECK = "DIAPER_CHECK"
-    DIAPER_CHANGE = "DIAPER_CHANGE"
-    HOLDING = "HOLDING"
-    BURPING = "BURPING"
-    SLEEP_PREPARATION = "SLEEP_PREPARATION"
-    ENVIRONMENT_ADJUSTMENT = "ENVIRONMENT_ADJUSTMENT"
-    OTHER = "OTHER"
-
-
-class Assertion(StrEnum):
-    PERFORMED = "PERFORMED"
-    PLANNED = "PLANNED"
-    NEGATED = "NEGATED"
-    UNCERTAIN = "UNCERTAIN"
-
-
-class TimePrecision(StrEnum):
-    EXACT = "EXACT"
-    RELATIVE = "RELATIVE"
-    UNKNOWN = "UNKNOWN"
-
-
-class Evidence(StrictModel):
-    source: EvidenceSource
-    choice_id: str | None
-    span_start: Annotated[int, Field(ge=0)] | None
-    span_end: Annotated[int, Field(ge=0)] | None
-    quote: str | None
-
-
-class DraftAction(StrictModel):
-    action_ref: str
-    action_code: ActionCode
-    assertion: Assertion
-    performed_by_user_id: UUID | None
-    occurred_at: datetime | None
-    relative_time: str | None
-    time_precision: TimePrecision
-    sequence: Annotated[int, Field(ge=1)]
-    amount: Annotated[float, Field(ge=0)] | None
-    unit: Literal["ML", "MINUTES"] | None
-    feeding_mode: Literal["BREAST", "FORMULA", "MIXED", "UNSPECIFIED"] | None
-    evidence: Annotated[list[Evidence], Field(min_length=1)]
-
-
-class DraftState(StrictModel):
-    state_codes: Annotated[
-        list[
-            Literal[
-                "CRYING",
-                "FUSSING",
-                "CALM",
-                "SLEEPY_APPEARING",
-                "ASLEEP",
-                "AWAKE",
-                "CHEERFUL_APPEARING",
-                "UNKNOWN",
-            ]
-        ],
-        Field(min_length=1),
-    ]
-    phase: Literal["BEFORE", "AFTER", "UNRELATED", "UNKNOWN"]
-    observed_at: datetime | None
-    time_precision: TimePrecision
-    linked_action_refs: list[str]
-    evidence: Annotated[list[Evidence], Field(min_length=1)]
-
-
-class DraftOutcome(StrictModel):
-    response_code: Literal["CALMED", "PARTIALLY_CALMED", "NO_CHANGE", "CRYING_AGAIN", "UNKNOWN"]
-    observed_at: datetime | None
-    time_precision: TimePrecision
-    linked_action_refs: list[str]
-    attribution: Literal["SINGLE", "MULTI", "UNKNOWN"]
-    evidence: Annotated[list[Evidence], Field(min_length=1)]
-
-
-class Interpretation(StrictModel):
-    text: str
-    certainty: Literal["CAREGIVER_REPORTED"]
-    evidence: Annotated[list[Evidence], Field(min_length=1)]
-
-
-class Unresolved(StrictModel):
-    field: str
-    code: Literal[
-        "CONFLICT", "UNKNOWN_VALUE", "UNKNOWN_TIME", "UNSUPPORTED_CODE", "MISSING_EVIDENCE"
-    ]
-    message: str
-
-
-class NormalizedContent(StrictModel):
-    """Mirrors OpenAPI 1.1.1 ``NormalizedContent`` for evaluation only."""
-
-    actions: list[DraftAction]
-    states: list[DraftState]
-    outcomes: list[DraftOutcome]
-    caregiver_interpretations: list[Interpretation]
-    unresolved: list[Unresolved]
 
 
 class ConversationTurn(StrictModel):

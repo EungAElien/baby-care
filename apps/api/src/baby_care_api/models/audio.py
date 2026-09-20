@@ -355,12 +355,21 @@ class DetectorInfo(ContractModel):
     supported_clients: list[BrowserSupport]
 
 
+NormalizerUnavailableReason = Literal[
+    "DISABLED",
+    "CREDENTIALS_MISSING",
+    "DEPENDENCY_MISSING",
+    "DATABASE_UNAVAILABLE",
+]
+
+
 class Capabilities(ContractModel):
-    contract_version: Literal["1.1.1"] = "1.1.1"
+    contract_version: Literal["1.2.0"] = "1.2.0"
     audio_model: ModelInfo
     supported_mime_types: list[str]
     upload_max_bytes: Literal[25_000_000] = 25_000_000
     upload_max_seconds: Literal[60] = 60
     normalizer_available: bool
+    normalizer_unavailable_reason: NormalizerUnavailableReason | None
     automatic_detection_supported: bool
     detector: DetectorInfo

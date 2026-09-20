@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Baby care team integration contract",
-    "version": "1.1.1",
-    "description": "P0 frontend integration agreement dated 2026-09-20, covering A-01 to A-11. B-04 adds authentication recovery, reauthentication, invite reissue, child-data gate status, and private draft listing. B-09 clarifies the existing changes polling semantics without changing its response fields. Internal training curator/export APIs retain the v2 scope and are not browser endpoints."
+    "version": "1.2.0",
+    "description": "P0 frontend integration agreement dated 2026-09-20. B-07 1차 adds eventless normalization and atomic confirmation, including a StateObservation refetch path for B-09. Episode-linked outcomes remain a later slice. Internal training curator/export APIs retain the v2 scope and are not browser endpoints."
   },
   "servers": [
     {
@@ -3179,6 +3179,71 @@
         }
       }
     },
+    "/state-observations/{state_observation_id}": {
+      "get": {
+        "operationId": "getStateObservation",
+        "summary": "getStateObservation",
+        "description": "Current members can refetch a confirmed observation named by the B-09 change feed.",
+        "tags": [
+          "Care"
+        ],
+        "parameters": [
+          {
+            "name": "state_observation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Current members can refetch a confirmed observation named by the B-09 change feed.",
+            "headers": {
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StateObservation"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
     "/episodes/{episode_id}/observations": {
       "post": {
         "operationId": "createObservation",
@@ -5350,7 +5415,7 @@
         "type": "object",
         "properties": {
           "contract_version": {
-            "const": "1.1.1",
+            "const": "1.2.0",
             "type": "string"
           },
           "audio_model": {
@@ -5373,6 +5438,22 @@
           "normalizer_available": {
             "type": "boolean"
           },
+          "normalizer_unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "DISABLED",
+                  "CREDENTIALS_MISSING",
+                  "DEPENDENCY_MISSING",
+                  "DATABASE_UNAVAILABLE"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "automatic_detection_supported": {
             "type": "boolean"
           },
@@ -5387,6 +5468,7 @@
           "upload_max_bytes",
           "upload_max_seconds",
           "normalizer_available",
+          "normalizer_unavailable_reason",
           "automatic_detection_supported",
           "detector"
         ],
@@ -7173,8 +7255,13 @@
               "ANALYSIS_TIMEOUT",
               "ANALYSIS_LEASE_EXPIRED",
               "INFERENCE_ERROR",
+              "NORMALIZATION_DISABLED",
+              "NORMALIZATION_CREDENTIALS_MISSING",
+              "NORMALIZATION_DEPENDENCY_MISSING",
               "NORMALIZATION_TIMEOUT",
               "NORMALIZATION_LEASE_EXPIRED",
+              "NORMALIZATION_REFUSED",
+              "NORMALIZATION_INCOMPLETE",
               "NORMALIZATION_SCHEMA_INVALID",
               "NORMALIZATION_PROVIDER_ERROR",
               "CLEANUP_FAILED",
@@ -9187,6 +9274,14 @@
             "type": "string",
             "format": "uuid"
           },
+          "updated_by_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "confirmed_by_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "data_origin": {
             "type": "string",
             "enum": [
@@ -9222,6 +9317,8 @@
           "visual_state_code",
           "visual_mapping_version",
           "created_by_user_id",
+          "updated_by_user_id",
+          "confirmed_by_user_id",
           "data_origin",
           "version",
           "recorded_at",
@@ -10392,6 +10489,9 @@
               "STUB"
             ]
           },
+          "provider_call_executed": {
+            "type": "boolean"
+          },
           "provider": {
             "anyOf": [
               {
@@ -10464,6 +10564,7 @@
           "status",
           "lease_expires_at",
           "execution_mode",
+          "provider_call_executed",
           "provider",
           "model",
           "prompt_version",

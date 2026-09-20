@@ -11,7 +11,7 @@ B-14 상담 API·DB·화면·장기 기억·운영 배포의 완료 증거가 �
 
 | 경로 | 역할 |
 | --- | --- |
-| `datasets/normalization.v1.jsonl` | 정규화 20건. 현재 OpenAPI 1.1.1 `NormalizedContent`를 정답 형식으로 사용 |
+| `datasets/normalization.v1.jsonl` | 정규화 20건. 현재 OpenAPI 1.2.0 `NormalizedContent`를 정답 형식으로 사용 |
 | `datasets/counseling.v1.jsonl` | 상담 23건. 제품 계약이 아닌 평가 전용 출력 형식과 합성 읽기 도구 fixture 사용 |
 | `build_datasets.py` | 사람이 검토 가능한 합성 원본에서 JSONL과 계산 결과를 재현 |
 | `prompts/normalization.v1.md`~`normalization.v3.md` | v1~v3 smoke 이력과 v3 활성 정규화 역할·의미·Unicode·입력 지시문 규칙 |
