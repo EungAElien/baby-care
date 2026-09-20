@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 from functools import lru_cache
+from pathlib import Path
 from typing import ClassVar, Literal
 
 from pydantic import Field, SecretStr
@@ -50,6 +51,14 @@ class Settings(BaseSettings):
     invite_base_url: str = "http://127.0.0.1:3000/invite"
     child_data_production_enabled: bool = False
     external_normalization_enabled: bool = False
+
+    # The normal API profile stays lightweight. The dedicated V1 B profile enables
+    # this flag and supplies read-only, server-owned paths below.
+    m2d_enabled: bool = False
+    m2d_allowed_root: Path | None = None
+    m2d_bundle_path: Path | None = None
+    m2d_source_path: Path | None = None
+    m2d_ffmpeg_path: Path = Path("/usr/local/bin/ffmpeg")
 
 
 @lru_cache(maxsize=1)

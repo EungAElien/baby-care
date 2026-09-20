@@ -1,12 +1,47 @@
 from __future__ import annotations
 
+import logging
+from pathlib import Path
 from uuid import UUID
 
+import pytest
 from fastapi.testclient import TestClient
 
 from baby_care_api.core.config import CONTRACT_VERSION, SERVICE_VERSION, Settings
 from baby_care_api.main import create_app
 from baby_care_api.services.readiness import ComponentName
+
+
+class FakeModelRuntime:
+    def __init__(self) -> None:
+        self.inference_calls = 0
+        self.closed = False
+
+    def infer_audio(self, path: Path) -> object:
+        self.inference_calls += 1
+        return {"path_name": path.name}
+
+    def close(self) -> None:
+        self.closed = True
+
+
+class UnsafeCodedLoadError(RuntimeError):
+    code = "PRIVATE_PATH_/sensitive/model.pt"
+
+
+def _enabled_model_settings(tmp_path: Path) -> Settings:
+    allowed = tmp_path / "runtime"
+    bundle = allowed / "model"
+    source = allowed / "source"
+    bundle.mkdir(parents=True)
+    source.mkdir()
+    return Settings(
+        environment="test",
+        m2d_enabled=True,
+        m2d_allowed_root=allowed,
+        m2d_bundle_path=bundle,
+        m2d_source_path=source,
+    )
 
 
 def test_liveness_only_claims_process_health(client: TestClient) -> None:
@@ -98,3 +133,161 @@ def test_failed_probe_never_becomes_ready() -> None:
         "configured": True,
         "ready": False,
     }
+
+
+def test_enabled_model_is_required_and_loaded_once(tmp_path: Path) -> None:
+    async def ready_probe() -> bool:
+        return True
+
+    runtime = FakeModelRuntime()
+    factory_calls = 0
+
+    def factory(_: Settings) -> FakeModelRuntime:
+        nonlocal factory_calls
+        factory_calls += 1
+        return runtime
+
+    app = create_app(
+        settings=_enabled_model_settings(tmp_path),
+        readiness_probes={
+            ComponentName.AUTHENTICATION: ready_probe,
+            ComponentName.DATABASE: ready_probe,
+        },
+        model_runtime_factory=factory,
+    )
+
+    with TestClient(app) as test_client:
+        first = test_client.get("/health/ready")
+        second = test_client.get("/health/ready")
+
+        assert first.status_code == second.status_code == 200
+        assert first.json()["checks"]["model"] == {
+            "required": True,
+            "configured": True,
+            "ready": True,
+        }
+        assert app.state.model_runtime.load_attempts == 1
+        assert factory_calls == 1
+        assert runtime.inference_calls == 0
+
+    assert runtime.closed is True
+
+
+def test_enabled_model_missing_configuration_fails_readiness(tmp_path: Path) -> None:
+    async def ready_probe() -> bool:
+        return True
+
+    app = create_app(
+        settings=Settings(
+            environment="test",
+            m2d_enabled=True,
+            m2d_allowed_root=tmp_path,
+        ),
+        readiness_probes={
+            ComponentName.AUTHENTICATION: ready_probe,
+            ComponentName.DATABASE: ready_probe,
+        },
+    )
+
+    with TestClient(app) as test_client:
+        response = test_client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["checks"]["model"] == {
+        "required": True,
+        "configured": False,
+        "ready": False,
+    }
+    assert app.state.model_runtime.load_attempts == 0
+
+
+def test_enabled_model_cannot_be_replaced_by_an_injected_probe(tmp_path: Path) -> None:
+    async def ready_probe() -> bool:
+        return True
+
+    app = create_app(
+        settings=Settings(
+            environment="test",
+            m2d_enabled=True,
+            m2d_allowed_root=tmp_path,
+        ),
+        readiness_probes={
+            ComponentName.AUTHENTICATION: ready_probe,
+            ComponentName.DATABASE: ready_probe,
+            ComponentName.MODEL: ready_probe,
+        },
+    )
+
+    with TestClient(app) as test_client:
+        response = test_client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["checks"]["model"] == {
+        "required": True,
+        "configured": False,
+        "ready": False,
+    }
+
+
+def test_model_load_failure_keeps_liveness_and_never_retries(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    async def ready_probe() -> bool:
+        return True
+
+    factory_calls = 0
+
+    def broken_factory(_: Settings) -> FakeModelRuntime:
+        nonlocal factory_calls
+        factory_calls += 1
+        raise UnsafeCodedLoadError("synthetic private detail")
+
+    app = create_app(
+        settings=_enabled_model_settings(tmp_path),
+        readiness_probes={
+            ComponentName.AUTHENTICATION: ready_probe,
+            ComponentName.DATABASE: ready_probe,
+        },
+        model_runtime_factory=broken_factory,
+    )
+
+    with caplog.at_level(logging.ERROR), TestClient(app) as test_client:
+        assert test_client.get("/health/live").status_code == 200
+        for _ in range(3):
+            response = test_client.get("/health/ready")
+            assert response.status_code == 503
+            assert response.json()["checks"]["model"] == {
+                "required": True,
+                "configured": True,
+                "ready": False,
+            }
+
+    assert factory_calls == 1
+    assert app.state.model_runtime.failure_code == "MODEL_LOAD_FAILED"
+    assert "synthetic private detail" not in caplog.text
+    assert UnsafeCodedLoadError.code not in caplog.text
+
+
+def test_ready_model_does_not_hide_required_authentication_failure(tmp_path: Path) -> None:
+    async def ready_probe() -> bool:
+        return True
+
+    async def failed_probe() -> bool:
+        return False
+
+    app = create_app(
+        settings=_enabled_model_settings(tmp_path),
+        readiness_probes={
+            ComponentName.AUTHENTICATION: failed_probe,
+            ComponentName.DATABASE: ready_probe,
+        },
+        model_runtime_factory=lambda _: FakeModelRuntime(),
+    )
+
+    with TestClient(app) as test_client:
+        response = test_client.get("/health/ready")
+
+    assert response.status_code == 503
+    payload = response.json()
+    assert payload["checks"]["model"]["ready"] is True
+    assert payload["checks"]["authentication"]["ready"] is False

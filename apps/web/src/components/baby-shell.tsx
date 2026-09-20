@@ -49,7 +49,7 @@ export function BabyShell({
 
   function requestSwitch(nextBabyId: string) {
     if (nextBabyId === babyId) return;
-    if (draft.hasLiveText(babyId)) {
+    if (draft.hasLiveText(babyId) || draft.hasCareEventDirty(babyId)) {
       setPendingSwitch(nextBabyId);
     } else {
       router.push(`/babies/${nextBabyId}`);
@@ -119,22 +119,30 @@ export function BabyShell({
               >
                 계속 작성
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  draft.saveLiveAsDraft(babyId);
-                  const target = pendingSwitch;
-                  setPendingSwitch(null);
-                  router.push(`/babies/${target}`);
-                }}
-                className="min-h-11 rounded-md border border-border px-4 text-sm text-foreground"
-              >
-                개인 초안 저장 후 전환
-              </button>
+              {!draft.hasCareEventDirty(babyId) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    draft.saveLiveAsDraft(babyId);
+                    const target = pendingSwitch;
+                    setPendingSwitch(null);
+                    router.push(`/babies/${target}`);
+                  }}
+                  className="min-h-11 rounded-md border border-border px-4 text-sm text-foreground"
+                >
+                  개인 초안 저장 후 전환
+                </button>
+              )}
+              {draft.hasCareEventDirty(babyId) && (
+                <p className="text-xs text-muted-foreground">
+                  선택지 기록은 아직 개인 초안으로 저장할 수 없어요. 계속 작성하거나 버린 뒤 전환해 주세요.
+                </p>
+              )}
               <button
                 type="button"
                 onClick={() => {
                   draft.discardLive(babyId);
+                  draft.setCareEventDirty(babyId, false);
                   const target = pendingSwitch;
                   setPendingSwitch(null);
                   router.push(`/babies/${target}`);

@@ -47,6 +47,10 @@ vi.mock("@/lib/mock/session", () => ({
   }),
 }));
 vi.mock("@/lib/api/real-client", () => ({ useApiClient: () => ({ GET: route.getBabies }) }));
+// A-08 ①: the layout also starts /changes polling now. That is covered by its own test
+// (tests/shared-change-polling.test.tsx); here it would otherwise inflate route.getBabies'
+// call count, since both share the same mocked client.
+vi.mock("@/lib/api/changes", () => ({ useSharedChangePolling: () => {} }));
 vi.mock("@/components/baby-shell", () => ({
   BabyShell: ({ babyId, children }: { babyId: string; children: ReactNode }) => (
     <div data-testid="baby-shell" data-baby-id={babyId}>{children}</div>

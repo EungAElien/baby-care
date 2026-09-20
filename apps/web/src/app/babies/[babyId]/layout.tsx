@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useRealSession } from "@/lib/auth/real-session";
 import { useBabiesQuery, findBabyAccess } from "@/lib/api/babies";
+import { useSharedChangePolling } from "@/lib/api/changes";
 import { useMockSession } from "@/lib/mock/session";
 import { isMockNavEnabled } from "@/lib/mock/config";
 import { mockBabyLabel } from "@/lib/mock/fixtures";
@@ -33,6 +34,8 @@ function RealBabyContent({ babyId, children }: Readonly<{ babyId: string; childr
   const router = useRouter();
   const real = useRealSession();
   const babies = useBabiesQuery(true);
+  // A-08 ①: foreground /changes polling for this baby scope. B-09 handoff §A의 안전한 폴링·복구 순서.
+  useSharedChangePolling(babyId, true);
 
   if (babies.isLoading) return <LoadingState label="아기 정보를 불러오고 있어요" />;
   if (babies.isError) return <ErrorState label="아기 정보를 불러오지 못했어요." retryable />;

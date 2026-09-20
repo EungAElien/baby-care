@@ -6,7 +6,7 @@ import os
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Any
 from urllib.error import HTTPError
@@ -71,8 +71,19 @@ class AuthSession:
     email: str
     user_id: UUID
     session_id: UUID
-    access_token: str
-    refresh_token: str
+    access_token: str = field(repr=False)
+    refresh_token: str = field(repr=False)
+
+
+class _RedactedHeaders(dict[str, str]):
+    _sensitive_headers = frozenset({"authorization", "x-reauthentication-proof"})
+
+    def __repr__(self) -> str:
+        safe = {
+            key: "[REDACTED]" if key.lower() in self._sensitive_headers else value
+            for key, value in self.items()
+        }
+        return repr(safe)
 
 
 class LocalAuth:
@@ -195,7 +206,7 @@ def _headers(
     request_id: UUID | None = None,
     proof: str | None = None,
 ) -> dict[str, str]:
-    headers = {"Authorization": f"Bearer {session.access_token}"}
+    headers = _RedactedHeaders(Authorization=f"Bearer {session.access_token}")
     if request_id is not None:
         headers["Idempotency-Key"] = str(request_id)
     if proof is not None:

@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-09-20T08:11:08Z",
+  "scope": "B-02 Linux container inference reproduction and B-06 startup model load/readiness foundation only",
+  "status": "failed",
+  "status_reason": "Both Linux CPU runs loaded and executed the fixed V1 B model, but the predeclared maximum absolute tolerance of 1e-6 was exceeded.",
+  "foundation_implementation": "implemented",
+  "b02_container_reproduction": "failed",
+  "b06_startup_load_and_model_readiness_foundation": "passed",
+  "calibration_status": "NOT_VALIDATED",
+  "release_ready": false,
+  "fixed_identity": {
+    "model_version": "m2d-supervised-v1.0.0-final-B",
+    "product_head": "donate",
+    "trained_heads": [
+      "donate"
+    ],
+    "labels_in_order": [
+      "belly_pain",
+      "burping",
+      "discomfort",
+      "hungry",
+      "tired"
+    ],
+    "preprocess_version": "m2d-logmel-v1.0.0",
+    "label_mapping_version": "donate-cause-labels-v1.0.0",
+    "m2d_source_commit": "3d0c4de9447c404a8d3f9f37e04f53bc902e09b3",
+    "model_sha256": "016bd1e048de7d6ddea010a4bcbe269f2ee4adf76bbc2fd29547aeb808bc97c5",
+    "metadata_sha256": "c4a01b96e31fa5794bdc315f5b9c086e832bc9bc4cec5b4fadec601e3e854597",
+    "config_sha256": "a59e39420242a6c186522acc8678498b17f2e70f859ebb690c985e6d20551283",
+    "full_state_sha256": "b3eb02136a4669330ced2d56eeab90a305b2d6cc875fb5e2d0704be7f55c9015",
+    "registry_sha256": "d52c06a30b8afdd433cbd3cfcdeb5b555f9d67842a7796070db45629f4187cd1"
+  },
+  "build": {
+    "dockerignore_sha256": "4b6f0ba635be23a07b43f78df3fb0bc77819c6b6ab2fc0b6cf59e2f99ab1debc",
+    "dockerfile_sha256": "40778e96787663e838910e4e4419566ba80de37f0b94311f62ab51ccec032a62",
+    "requirements_lock_sha256": "9d548f8cada3b0db49330bfae9196b8f579beb5c1719f8ee4cdef95f797f13d9",
+    "dockerfile_frontend_digest": "sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e",
+    "python_base_digest": "sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c",
+    "ffmpeg_image_digest": "sha256:11a44711684c0b9f754c047dcd64235b8b52deab251bd0e0a86f22faa160749c",
+    "runtime_user": "app",
+    "workers": 1,
+    "inference_concurrency": 1,
+    "local_images": [
+      {
+        "platform": "linux/amd64",
+        "image_id": "sha256:8b2ef2852f82287ca0bc78b893a31a3abfb1a8e1f8f537db23c671eafd79c3b8",
+        "size_bytes": 502627083
+      },
+      {
+        "platform": "linux/arm64",
+        "image_id": "sha256:a6c16a8036559349cfed520b01ca9cd2fd415cb757762a0b529a2a5f508e7704",
+        "size_bytes": 459247607
+      }
+    ]
+  },
+  "runtime_versions": {
+    "python": "3.12.12",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.4.6",
+    "timm": "1.0.29",
+    "nnAudio": "0.3.4",
+    "soundfile": "0.13.1",
+    "soxr": "1.0.0",
+    "ffmpeg": "7.1.1",
+    "ffmpeg_build": "gcc 13.2.1 (Alpine 13.2.1_git20240309) 20240309"
+  },
+  "linux_runs": [
+    {
+      "platform": "linux/amd64",
+      "execution_mode": "emulated_on_apple_silicon",
+      "status": "failed",
+      "model_load_status": "passed",
+      "registry_and_integrity_status": "passed",
+      "warmup_status": "passed",
+      "load_count": 1,
+      "load_seconds": 8.333647886000108,
+      "maximum_rss_after_load_mib": 1072.14453125,
+      "tensor_probes": {
+        "count": 5,
+        "tolerance": 0.000001,
+        "maximum_score_delta": 0.0000015795230865478516,
+        "per_probe_maximum_score_delta": [
+          3.5762786865234375e-7,
+          2.384185791015625e-7,
+          0.0000015795230865478516,
+          7.748603820800781e-7,
+          1.1920928955078125e-7
+        ],
+        "median_inference_seconds": 0.9558713279984659
+      },
+      "pcm_wav_probes": {
+        "count": 5,
+        "status": "failed",
+        "maximum_normalized_input_delta": 0.00006651878356933594,
+        "maximum_score_delta": 0.0000016689300537109375
+      },
+      "compressed_decoder_measurement": {
+        "count": 5,
+        "supported": false,
+        "maximum_normalized_input_delta": 1.1911144256591797,
+        "maximum_score_delta": 0.0072657763957977295
+      },
+      "network_isolation_observed": true,
+      "root_filesystem_read_only": true,
+      "model_mount_read_only": true
+    },
+    {
+      "platform": "linux/arm64",
+      "execution_mode": "native_on_apple_silicon",
+      "status": "failed",
+      "model_load_status": "passed",
+      "registry_and_integrity_status": "passed",
+      "warmup_status": "passed",
+      "load_count": 1,
+      "load_seconds": 6.8272394119994715,
+      "maximum_rss_after_load_mib": 1109.62890625,
+      "tensor_probes": {
+        "count": 5,
+        "tolerance": 0.000001,
+        "maximum_score_delta": 0.0000020265579223632812,
+        "per_probe_maximum_score_delta": [
+          2.980232238769531e-7,
+          1.7881393432617188e-7,
+          0.0000020265579223632812,
+          2.384185791015625e-7,
+          3.5762786865234375e-7
+        ],
+        "median_inference_seconds": 0.45250084700091975
+      },
+      "pcm_wav_probes": {
+        "count": 5,
+        "status": "failed",
+        "maximum_normalized_input_delta": 0.000060439109802246094,
+        "maximum_score_delta": 0.0000018477439880371094,
+        "exact_input_matches_at_16khz": 2
+      },
+      "compressed_decoder_measurement": {
+        "count": 5,
+        "supported": false,
+        "maximum_normalized_input_delta": 1.1911182403564453,
+        "maximum_score_delta": 0.007265567779541016,
+        "exact_caf_input_matches": 2
+      },
+      "network_isolation_observed": true,
+      "root_filesystem_read_only": true,
+      "model_mount_read_only": true
+    }
+  ],
+  "readiness_verification": {
+    "actual_model_with_unconfigured_authentication_and_database": {
+      "liveness_http_status": 200,
+      "readiness_http_status": 503,
+      "model_required": true,
+      "model_configured": true,
+      "model_ready": true,
+      "authentication_ready": false,
+      "database_ready": false,
+      "container_user": "app",
+      "root_filesystem_read_only": true,
+      "model_mount_read_only": true
+    },
+    "missing_model_artifact": {
+      "liveness_http_status": 200,
+      "readiness_http_statuses": [
+        503,
+        503,
+        503
+      ],
+      "model_ready": false,
+      "safe_failure_code": "MODEL_INTEGRITY_FAILED",
+      "startup_failure_log_count": 1,
+      "health_triggered_retry": false
+    },
+    "actual_model_with_synthetic_authentication_and_database_probes": {
+      "readiness_http_statuses": [
+        200,
+        200
+      ],
+      "model_load_attempts": 1,
+      "authentication_and_database_evidence": "synthetic_only_not_live_supabase"
+    }
+  },
+  "regression_verification": {
+    "quick_suite": {
+      "status": "passed",
+      "run_id": "quick-20260920T081046Z-26707",
+      "api_unit_tests": 105,
+      "api_unit_tests_passed": 105,
+      "ruff": "passed",
+      "mypy_source_files": 40,
+      "mypy": "passed",
+      "contract_and_generated_artifacts": "passed",
+      "web_typecheck_test_lint_and_build": "passed",
+      "sensitive_artifact_scan": "passed"
+    },
+    "default_api_container_suite": {
+      "status": "passed",
+      "run_id": "container-20260920T080911Z-26129",
+      "non_root_runtime": true,
+      "base_digest_pinned": true,
+      "unconfigured_liveness": "ok",
+      "unconfigured_readiness": "not_ready",
+      "post_failure_cleanup": "passed"
+    },
+    "m2d_runtime_full_dependency_mypy": "passed"
+  },
+  "verification_guards": {
+    "tolerance_changed": false,
+    "reference_outputs_regenerated": false,
+    "original_checkpoints_used": false,
+    "training_dataset_required": false,
+    "sealed_donate_test_used": false,
+    "model_or_audio_committed": false,
+    "runtime_download_or_training": false,
+    "stub_fallback": false
+  },
+  "not_executed": [
+    "non_emulated_linux_amd64_machine",
+    "live_supabase_authentication_and_database_with_model",
+    "browser_or_physical_device_pcm_capture",
+    "cloud_run_load_cold_start_and_memory_validation",
+    "public_container_or_model_upload",
+    "web_capability_or_analysis_api_activation",
+    "sealed_donate_test_reevaluation",
+    "threshold_calibration_or_product_label_semantics"
+  ]
+}

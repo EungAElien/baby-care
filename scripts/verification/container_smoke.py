@@ -12,6 +12,8 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from uuid import uuid4
 
+from common import npx_command
+
 ROOT = Path(__file__).resolve().parents[2]
 NAME_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,62}$")
 SENSITIVE_PATTERNS = {
@@ -241,7 +243,7 @@ def verify_image(image: str, canary: str) -> dict[str, Any]:
 
 def supabase_status(workdir: Path) -> dict[str, str]:
     completed = run(
-        ["npx", "supabase", "--workdir", str(workdir), "status", "-o", "json"]
+        [npx_command(), "supabase", "--workdir", str(workdir), "status", "-o", "json"]
     )
     try:
         payload = json.loads(completed.stdout)

@@ -5,6 +5,7 @@ import os
 import platform
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import time
@@ -15,6 +16,19 @@ from typing import Any, ClassVar
 from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def npx_command() -> str:
+    """Return the platform-specific npx launcher used by verification commands."""
+
+    candidates = ("npx.cmd", "npx") if os.name == "nt" else ("npx",)
+    for candidate in candidates:
+        resolved = shutil.which(candidate)
+        if resolved:
+            return resolved
+    # Keep the command visible in the verification report when the launcher is
+    # unavailable; subprocess.run will record the actionable failure.
+    return candidates[0]
 
 FOLLOW_UP_ACCEPTANCE = [
     "A의 실제 브라우저·기기·두 화면 공동 인수",
@@ -95,7 +109,7 @@ def collect_metadata(suite: str) -> dict[str, Any]:
             "node": _capture(["node", "--version"]),
             "npm": _capture(["npm", "--version"]),
             "docker": _capture(["docker", "--version"]),
-            "supabase": _capture(["npx", "supabase", "--version"]),
+            "supabase": _capture([npx_command(), "supabase", "--version"]),
         },
         "contract_version": contract_version,
         "latest_migration": migrations[-1].name if migrations else None,
