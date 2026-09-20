@@ -1,12 +1,15 @@
-# Baby Care API — B-04 계정·기록 + B-05 음원 + B-09 변경 조회
+# Baby Care API — B-04 기록 + B-05 음원 + B-07 정규화 + B-09 변경 조회
 
-이 폴더는 계약 1.1.1 가운데 B-04 계정·공동양육·기록, B-05 private 음원 수신·품질·보관, B-09 공동 변경 조회를 실행하는 FastAPI 서비스입니다. 로컬 Supabase의 실제 Auth JWT/JWKS, 최소 권한 `baby_app` 트랜잭션, DB 멱등성·RLS·Storage 회수 경계를 함께 검증합니다.
+이 폴더는 계약 1.2.0 가운데 B-04 계정·공동양육·기록, B-05 private 음원 수신·품질·보관, B-07 사건 없는 정규화·확인 저장 1차와 B-09 공동 변경 조회를 실행하는 FastAPI 서비스입니다. 로컬 Supabase의 실제 Auth JWT/JWKS, 최소 권한 `baby_app` 트랜잭션, DB 멱등성·RLS·Storage 회수 경계를 함께 검증합니다.
 
 ## 현재 포함된 범위
 
 - FastAPI 실행 진입점, 환경 설정, 라우터, 공통 오류 처리, 요청별 `request_id`
 - 아기 생성·목록·선택·프로필, 구성원·초대·동의 API
 - CareEvent CRUD·타임라인, 사건 행동 연결, 작성자 전용 서버 초안
+- CHOICE·TEXT·MIXED 초안의 LLM/RULE/MANUAL 확인과 사건 없는 CareEvent·StateObservation·확인 라벨의 원자 저장
+- `gpt-5.6-terra` Responses API 제품 어댑터, 20초 전체 기한·30초 lease·동일 run 복구와 서버 외부 처리 게이트
+- Unicode 코드포인트 근거, 수행 여부·코드·시각·수량·선택 충돌 의미 검사와 수정 기록 lineage
 - 아기·멤버십·CareEvent의 내구성 있는 변경 이력과 `getChanges` 폴링 복구
 - MANUAL·FILE 사건 생성, 활성 관측 세션에 연결된 AUTO 사건, 실제 연결 자료 사건 상세
 - private STANDARD/TUS 업로드 승인·재발급·취소와 실제 객체 완료 검증
@@ -21,7 +24,7 @@
 - liveness/readiness 분리, pytest·Ruff·mypy·컨테이너·GitHub Actions 기반
 - 별도 V1 B 프로필의 고정 M2D 레지스트리, 시작 시 1회 적재, 모델 readiness
 
-`/v1`의 기준은 저장소 루트의 `contracts/openapi계약.json`입니다. FastAPI의 `/openapi.json`은 실제 라우트만 만들고 `x-business-contract.implemented_operations`에 구현된 B-04·B-05 operationId와 `getChanges`를 표시합니다. B-06 분석·정규화 확인 등 후속 계약 경로를 구현됐다고 노출하지 않습니다.
+`/v1`의 기준은 저장소 루트의 `contracts/openapi계약.json`입니다. FastAPI의 `/openapi.json`은 실제 라우트만 만들고 `x-business-contract.implemented_operations`에 구현된 B-04·B-05·B-07 1차 operationId와 `getChanges`를 표시합니다. B-06 분석과 사건 연결 행동·반응 등 후속 계약 경로를 구현됐다고 노출하지 않습니다.
 
 ## 버전과 재현 설치
 
@@ -66,14 +69,54 @@ uv pip compile pyproject.toml --python-version 3.12 --extra dev --generate-hashe
 합성 한국어 정규화·상담 자료, 분리 프롬프트, 오프라인 판정기와 명시적으로만
 실행되는 `gpt-5.6-terra` Responses API smoke는
 [`evals/llm_prevalidation`](evals/llm_prevalidation/README.md)에 있습니다. 이 도구는
-현재 FastAPI route에 연결되지 않으며 B-02·B-07·B-14의 완료나 실사용 외부 전송을
-의미하지 않습니다.
+제품 B-07은 이 형식과 제공자 오류 분류만 공유하며 평가 fixture·expected 값에는 의존하지
+않습니다. B-02 보고서 자체는 제품 API·DB 권한이나 실제 외부 전송의 통과 증거가 아닙니다.
 
 ```bash
 PYTHONPATH=src .venv/bin/python -m baby_care_api.llm_eval \
   --mode offline \
   --report evals/llm_prevalidation/reports/offline-baseline.json
 ```
+
+## B-07 사건 없는 정규화·확인 1차
+
+이번 범위는 `episode_id=null`인 작성자 전용 초안입니다. `createCareEntry` 뒤
+`createNormalization`/`getNormalization` 또는 RULE/MANUAL 경로를 선택하고,
+`confirmCareEntry`가 현재 권한·`input_revision`·연결 리소스 `version`을 다시 확인한 뒤
+한 DB 트랜잭션으로 확정합니다.
+
+| 확인 내용 | 1차 저장 결과 |
+|---|---|
+| `PERFORMED` 행동 | FEEDING·DIAPER·SOOTHE 계열 CareEvent. 같은 원문 수정은 기존 ID와 증가한 version 사용 |
+| `PLANNED`·`NEGATED`·`UNCERTAIN` 행동 | CareEvent를 만들지 않고 확인 라벨로만 보존 |
+| 명시한 아기 상태 | StateObservation과 `care-visual-v1` 표현 코드. `UNKNOWN` 또는 배타 상태는 `NEUTRAL` |
+| 보호자 해석·허용된 미상 값 | 확인 라벨. 학습 이용 동의와는 별개 |
+| 행동 후 결과 | 사건 연결이 필요하므로 `EVENT_REQUIRED`로 확인 차단 |
+
+사건 없는 입력에서는 가짜 episode, ActionAttempt, action group, Outcome을 만들지 않습니다.
+확정 전 원문·정규화 결과는 작성자에게만 보이고 공동 변경 피드에도 없습니다. 확정된
+CareEvent와 StateObservation만 B-09 피드에 같은 트랜잭션으로 기록되며, 다른 보호자는
+각 ID를 `getCareEvent`와 `getStateObservation`으로 다시 읽습니다.
+
+외부 정규화는 다음 조건을 모두 만족할 때만 `normalizer_available=true`입니다.
+
+- 실제 DB 서비스가 구성됨
+- `BABY_CARE_EXTERNAL_NORMALIZATION_ENABLED=true`
+- `BABY_CARE_OPENAI_API_KEY`가 서버에 있음
+- 고정 런타임 의존성이 설치됨
+
+선택 설정은 `BABY_CARE_OPENAI_ORGANIZATION`, `BABY_CARE_OPENAI_PROJECT`입니다. 전체 호출
+기한은 `BABY_CARE_NORMALIZATION_TIMEOUT_SECONDS=20`, lease는
+`BABY_CARE_NORMALIZATION_LEASE_SECONDS=30`으로 계약값에 고정됩니다. 키 존재만으로 게이트가
+열리지 않으며 USER/DEMO 값도 우회 수단이 아닙니다. 비활성·키 누락·의존성 누락은
+`GET /v1/capabilities`의 `normalizer_unavailable_reason`으로 구분됩니다. LLM 실패 뒤에도
+원문은 남으며 새 run을 자동 생성하거나 RULE/MANUAL 확인을 STUB 성공으로 표시하지 않습니다.
+
+제품 어댑터의 실제 호출은 일반 테스트와 CI에서 금지합니다. 로컬 통합 시험은 주입한 제품
+인터페이스 대역으로 호출 수·실패·늦은 완료를 검증합니다. 실제 합성 Terra smoke는 서버
+게이트와 키를 명시적으로 준비한 별도 환경에서만 최대 3사례·외부 요청 6회 안으로 실행하고,
+대역 결과와 별도로 기록합니다. 구체적인 A 흐름·예시·남은 범위는
+[B-07 인계](../../docs/handoffs/b07-eventless-normalization.md)에 있습니다.
 
 ## V1 B M2D 실행 프로필
 
@@ -214,7 +257,7 @@ A의 안전한 전체/증분 복구 순서, 쓰기별 재조회 매핑, 예시�
 - 운영 Supabase migration 적용, 배포별 runtime/관리 로그인 발급과 운영 Auth 설정 검증
 - 승인된 법정대리인 확인 수단·증빙·정책. 현재 운영 아동 정보 처리는 fail-closed입니다.
 - 삭제 Job 실행기와 Storage·학습 사본·백업 실제 정리(B-12·B-13). B-04는 차단·요청·조회·재시도만 저장하며 COMPLETE를 만들지 않습니다.
-- B-07 LLM 정규화·확인 저장 전체, B-09 Realtime, B-11 집계, B-14 상담
+- B-07 실제 Terra 계정 호출·품질 판정, 사건 연결 ActionAttempt/action group/Outcome와 A-07·A-12 브라우저 인수, B-09 Realtime, B-11 집계, B-14 상담
 - B-06 M2D 분석 API·보정/유보 정책, hosted TUS 조각·백업 보관 확인, 운영 Scheduler와 Cloud Run 배포
 - V1 B의 Linux 실행 기반은 별도 프로필로 구현했지만 MPS 기준 대비 `1e-6` 재현 검사는 미통과입니다. 자세한 플랫폼별 차이와 후속 기준 결정은 V1 B 런타임 인계를 따릅니다.
 - A의 실제 브라우저·캐시·두 계정 화면 시험과 운영 계정/기기/외부 서비스 시험
