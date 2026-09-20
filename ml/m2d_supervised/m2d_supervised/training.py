@@ -15,6 +15,7 @@ from typing import Any
 import numpy as np
 import torch
 
+from .balanced_data import DevelopmentStore, development_plan
 from .checkpoint import (
     atomic_torch,
     capture_rng,
@@ -121,8 +122,11 @@ def record_exposures(
                 ("samples", "sample_id"),
                 ("babies", "baby_id"),
                 ("bouts", "bout_id"),
+                ("groups", "group_id"),
+                ("labels", "label"),
             ):
                 if row.get(key):
+                    counts.setdefault(field, {})
                     counts[field][row[key]] = counts[field].get(row[key], 0) + 1
 
 
@@ -168,10 +172,15 @@ def run_fold(
     torch.manual_seed(seed)
     if device == "mps":
         torch.mps.manual_seed(seed)
-    manifests = ManifestStore(config, paths).fold(fold)
+    if config.get("balanced_v2") and experiment != "B":
+        raise ValueError("Balanced v2 must use the B encoder and Donate head only.")
+    store_type = DevelopmentStore if config.get("balanced_v2") else ManifestStore
+    manifests = store_type(config, paths).fold(fold)
     model = create_model(config, paths, experiment, seed).to(device)
     baseline_frozen = frozen_digest(model, config)
     weights = {"donate": donate_class_weights(manifests["donate"]["train"], model.labels["donate"])}
+    if config.get("balanced_v2", {}).get("variant", "natural_head") != "natural_head":
+        weights["donate"] = torch.ones(len(model.labels["donate"]), dtype=torch.float32)
     if "enes" in model.trained_heads:
         weights["enes"] = enes_class_weights(manifests["enes"]["train"], model.labels["enes"])
     optimizer = make_optimizer(model, config, "warmup")
@@ -232,7 +241,11 @@ def run_fold(
                 optimizer = make_optimizer(model, config, phase)
                 optimizer_phase = phase
                 save()
-            plan = epoch_plan(manifests, seed, phase, epoch)
+            plan = (
+                development_plan(manifests, config, seed, phase, epoch)
+                if config.get("balanced_v2")
+                else epoch_plan(manifests, seed, phase, epoch)
+            )
             batch = (
                 config["training"]["warmup"]["effective_batch"]
                 if phase == "warmup"
@@ -348,6 +361,19 @@ def run_fold(
             {"metrics": best["metrics"], "predictions": best["predictions"]},
         )
         artifacts = ["best.pt", "donate_validation.json", "identity.json", "config.json"]
+        if config.get("balanced_v2"):
+            train_metrics, train_predictions = evaluate(
+                model, paths, config, "donate", manifests["donate"]["train"], device, interrupt
+            )
+            atomic_json(
+                run / "donate_train_diagnostic.json",
+                {
+                    "purpose": "TRAINING_FIT_NOT_GENERALIZATION",
+                    "metrics": train_metrics,
+                    "predictions": train_predictions,
+                },
+            )
+            artifacts.append("donate_train_diagnostic.json")
         if "enes" in model.trained_heads:
             announce("enes_validation")
             enes_metrics, enes_predictions = evaluate(
