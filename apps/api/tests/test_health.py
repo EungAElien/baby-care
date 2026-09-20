@@ -57,6 +57,44 @@ def test_liveness_only_claims_process_health(client: TestClient) -> None:
     assert response.headers["Cache-Control"] == "no-store"
 
 
+def test_browser_origin_is_explicit_and_preflight_allows_api_headers() -> None:
+    app = create_app(settings=Settings(environment="test", browser_origins="http://localhost:3001"))
+    with TestClient(app) as test_client:
+        allowed = test_client.options(
+            "/v1/babies",
+            headers={
+                "Origin": "http://localhost:3001",
+                "Access-Control-Request-Method": "GET",
+                "Access-Control-Request-Headers": "authorization",
+            },
+        )
+        denied = test_client.options(
+            "/v1/babies",
+            headers={
+                "Origin": "http://untrusted.example",
+                "Access-Control-Request-Method": "GET",
+                "Access-Control-Request-Headers": "authorization",
+            },
+        )
+        unauthenticated = test_client.get("/v1/babies", headers={"Origin": "http://localhost:3001"})
+
+    assert allowed.status_code == 200
+    assert allowed.headers["Access-Control-Allow-Origin"] == "http://localhost:3001"
+    assert "authorization" in allowed.headers["Access-Control-Allow-Headers"].lower()
+    assert denied.status_code == 400
+    assert "Access-Control-Allow-Origin" not in denied.headers
+    # This deliberately unconfigured app fails readiness before auth; CORS must
+    # still expose the response to the configured browser origin.
+    assert unauthenticated.status_code == 503
+    assert unauthenticated.headers["Access-Control-Allow-Origin"] == "http://localhost:3001"
+
+
+@pytest.mark.parametrize("origin", ["*", "http://example.test", "https://example.test/path"])
+def test_browser_origin_rejects_wildcards_and_nonlocal_http(origin: str) -> None:
+    with pytest.raises(ValueError, match="Browser origins must be exact"):
+        Settings(environment="test", browser_origins=origin)
+
+
 def test_readiness_is_fail_closed_before_auth_and_database_are_wired(
     client: TestClient,
 ) -> None:

@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
 from baby_care_api.core.config import (
@@ -17,11 +18,18 @@ from baby_care_api.core.config import (
 from baby_care_api.core.errors import install_exception_handlers
 from baby_care_api.core.logging import configure_logging
 from baby_care_api.core.request_context import install_request_context
+from baby_care_api.routes.analysis import router as analysis_router
 from baby_care_api.routes.audio import router as audio_router
 from baby_care_api.routes.b04 import router as b04_router
 from baby_care_api.routes.b07 import router as b07_router
 from baby_care_api.routes.health import router as health_router
-from baby_care_api.services.audio import PostgresAudioService
+from baby_care_api.routes.reminders import router as reminders_router
+from baby_care_api.services.analysis import (
+    ANALYSIS_REQUEST_SECONDS,
+    AnalysisPolicy,
+    FixedV1BAnalysisPolicy,
+    PostgresAnalysisService,
+)
 from baby_care_api.services.audio_decoder import AudioDecoder, FfmpegAudioDecoder
 from baby_care_api.services.auth_provider import SupabaseSessionRevocationProvider
 from baby_care_api.services.b07 import PostgresNormalizationService
@@ -52,6 +60,7 @@ from baby_care_api.services.storage import (
 
 IMPLEMENTED_OPERATIONS = [
     "acceptInvite",
+    "createAnalysis",
     "createAction",
     "createBaby",
     "createCareEntry",
@@ -65,22 +74,28 @@ IMPLEMENTED_OPERATIONS = [
     "deleteCareEvent",
     "deleteMyContributions",
     "getActiveBaby",
+    "getAnalysis",
     "getCareEntry",
     "getCareEvent",
     "getCapabilities",
     "getChanges",
     "getChildDataVerification",
     "getDeletion",
+    "getDailySummary",
+    "getPatterns",
+    "getReminderSettings",
     "getSessionRevocation",
     "getNormalization",
     "getStateObservation",
     "getTimeline",
     "listBabies",
+    "listReminders",
     "listConsents",
     "listInvites",
     "listMembers",
     "listMyCareEntries",
     "patchBaby",
+    "patchReminder",
     "patchCareEntry",
     "patchCareEvent",
     "patchMyRelationship",
@@ -90,6 +105,8 @@ IMPLEMENTED_OPERATIONS = [
     "revokeInvite",
     "revokeSessions",
     "setActiveBaby",
+    "setRecordCoverage",
+    "setReminderSetting",
     "setBabyConsent",
     "setMyTrainingConsent",
     "cancelUpload",
@@ -100,6 +117,7 @@ IMPLEMENTED_OPERATIONS = [
     "getPlayback",
     "reissueUpload",
     "confirmCareEntry",
+    "retryAnalysis",
 ]
 
 
@@ -134,6 +152,9 @@ def create_app(
     model_runtime_factory: ModelRuntimeFactory = load_configured_m2d_runtime,
     normalizer_adapter: NormalizerAdapter | None = None,
     confirmation_checkpoint: Callable[[], None] | None = None,
+    model_runtime_manager: ModelRuntimeManager | None = None,
+    analysis_policy: AnalysisPolicy | None = None,
+    analysis_timeout_seconds: float = ANALYSIS_REQUEST_SECONDS,
 ) -> FastAPI:
     active_settings = settings or get_settings()
     configure_logging(active_settings.log_level)
@@ -163,14 +184,28 @@ def create_app(
         expected_version_prefix=active_settings.audio_ffmpeg_version_prefix,
         max_concurrency=active_settings.audio_decode_concurrency,
     )
+    if (model_runtime_manager is not None or analysis_policy is not None) and (
+        active_settings.environment.value != "test"
+    ):
+        raise ValueError("Analysis runtime and policy injection is test-only")
+    model_runtime = model_runtime_manager or ModelRuntimeManager(
+        enabled=active_settings.m2d_enabled,
+        configured=m2d_configuration_complete(active_settings),
+        settings=active_settings,
+        factory=model_runtime_factory,
+    )
+    configured_analysis_policy = analysis_policy or FixedV1BAnalysisPolicy()
     b04_service = (
-        PostgresAudioService(
+        PostgresAnalysisService(
             database_url,
             invite_base_url=active_settings.invite_base_url,
             proof_secret=proof_secret,
             child_data_production_enabled=active_settings.child_data_production_enabled,
             storage=configured_storage,
             decoder=configured_decoder,
+            model_runtime=model_runtime,
+            analysis_policy=configured_analysis_policy,
+            request_timeout_seconds=analysis_timeout_seconds,
         )
         if database_url is not None and proof_secret is not None
         else None
@@ -255,12 +290,6 @@ def create_app(
         active_readiness_probes[ComponentName.DATABASE] = database.probe
     if authentication is not None:
         active_readiness_probes[ComponentName.AUTHENTICATION] = authentication.probe
-    model_runtime = ModelRuntimeManager(
-        enabled=active_settings.m2d_enabled,
-        configured=m2d_configuration_complete(active_settings),
-        settings=active_settings,
-        factory=model_runtime_factory,
-    )
     if model_runtime.enabled:
         # The service-owned model state is authoritative when this profile is
         # enabled; callers cannot replace it with an unrelated readiness probe.
@@ -284,6 +313,8 @@ def create_app(
         # A failed model load is retained as readiness=false so liveness can still
         # be served after startup; health requests never trigger a retry.
         await model_runtime.start()
+        if b04_service is not None:
+            await b04_service.startup_recover()
         try:
             yield
         finally:
@@ -297,8 +328,8 @@ def create_app(
         title="Baby Care API",
         version=SERVICE_VERSION,
         description=(
-            "B-04 account/shared-care records, B-05 private audio intake, B-07 eventless "
-            "normalization, and the B-09 durable change feed. "
+            "B-04 account/shared-care records, B-05 private audio intake, B-06 analysis, "
+            "B-07 eventless normalization, and the B-09 durable change feed. "
             "The canonical business contract is version 1.2.0 at "
             "contracts/openapi계약.json."
         ),
@@ -314,17 +345,37 @@ def create_app(
     app.state.authorization = database or UnconfiguredAuthorizationPort()
     app.state.b04_service = b04_service
     app.state.audio_service = b04_service
+    app.state.analysis_service = b04_service
     app.state.b07_service = b07_service
     app.state.normalizer_unavailable_reason = normalizer_unavailable_reason
     app.state.session_revocation = session_revocation
     app.state.idempotency = UnconfiguredIdempotencyPort()
+
+    browser_origins = [
+        origin.strip() for origin in active_settings.browser_origins.split(",") if origin.strip()
+    ]
+    if browser_origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=browser_origins,
+            allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+            allow_headers=[
+                "Authorization",
+                "Content-Type",
+                "Idempotency-Key",
+                "X-Reauthentication-Proof",
+            ],
+            expose_headers=["X-Request-ID", "Retry-After"],
+        )
 
     install_exception_handlers(app)
     install_request_context(app)
     app.include_router(health_router)
     app.include_router(b04_router)
     app.include_router(audio_router)
+    app.include_router(analysis_router)
     app.include_router(b07_router)
+    app.include_router(reminders_router)
     _install_openapi(app)
     return app
 

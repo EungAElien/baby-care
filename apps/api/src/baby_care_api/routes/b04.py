@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Literal, cast
 from uuid import UUID
 
@@ -49,6 +49,7 @@ from baby_care_api.models.b04 import (
 from baby_care_api.models.care_events import CareEvent, CreateCareEvent, PatchCareEvent
 from baby_care_api.models.changes import Changes
 from baby_care_api.models.errors import ErrorCode, ErrorDetails
+from baby_care_api.models.summary import DailySummary
 from baby_care_api.services.auth_provider import SupabaseSessionRevocationProvider
 from baby_care_api.services.b04 import PostgresBabyCareService
 from baby_care_api.services.idempotency import ensure_idempotency_key_matches
@@ -585,6 +586,27 @@ async def delete_care_entry(
         version=version,
         idempotency_key=idempotency_key,
         path=_path(request),
+    )
+
+
+@router.get(
+    "/babies/{baby_id}/summary",
+    response_model=DailySummary,
+    operation_id="getDailySummary",
+)
+async def get_daily_summary(
+    baby_id: UUID,
+    request: Request,
+    date: Annotated[date, Query()],
+    timezone: Annotated[str, Query(min_length=1)],
+    authorization: AuthorizationHeader = None,
+) -> DailySummary:
+    principal = await _principal(request, authorization)
+    return await _service(request).daily_summary(
+        principal,
+        baby_id,
+        day=date,
+        timezone=timezone,
     )
 
 
