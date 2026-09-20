@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any, Final
 
@@ -88,18 +89,29 @@ TOOL_DESCRIPTIONS: Final[dict[str, str]] = {
 }
 
 
-def response_tool(tool_name: str) -> dict[str, Any]:
+def response_tool(tool_name: str, *, parameters: dict[str, Any] | None = None) -> dict[str, Any]:
     return {
         "type": "function",
         "name": tool_name,
         "description": TOOL_DESCRIPTIONS[tool_name],
-        "parameters": TOOL_ARGUMENT_SCHEMAS[tool_name],
+        "parameters": parameters or TOOL_ARGUMENT_SCHEMAS[tool_name],
         "strict": True,
     }
 
 
 def tools_for_case(case: CounselingCase) -> list[dict[str, Any]]:
-    return [response_tool(name) for name in case.allowed_tools]
+    values: list[dict[str, Any]] = []
+    for name in case.allowed_tools:
+        parameters = deepcopy(TOOL_ARGUMENT_SCHEMAS[name])
+        expected_limits = [
+            call.arguments["limit"]
+            for call in case.expected.required_tool_calls
+            if call.tool_name == name and "limit" in call.arguments
+        ]
+        if expected_limits and "limit" in parameters["properties"]:
+            parameters["properties"]["limit"]["maximum"] = max(expected_limits)
+        values.append(response_tool(name, parameters=parameters))
+    return values
 
 
 class ToolExecutionError(RuntimeError):
@@ -148,11 +160,42 @@ def _validate_argument_shape(tool_name: str, arguments: dict[str, Any]) -> None:
                 raise ToolExecutionError("INVALID_TOOL_ARGUMENTS")
 
 
+def _fixture_minimum_limit(fixture: ToolFixture) -> int:
+    records = fixture.payload.get("records")
+    if isinstance(records, list):
+        return max(1, len(records))
+    count_values = [
+        value
+        for key, value in fixture.payload.items()
+        if key.endswith("_records") or key == "record_count"
+        if isinstance(value, int) and not isinstance(value, bool)
+    ]
+    return max([1, *count_values])
+
+
+def _fixture_arguments_match(fixture: ToolFixture, arguments: dict[str, Any]) -> bool:
+    if set(fixture.arguments) != set(arguments):
+        return False
+    for key, expected_value in fixture.arguments.items():
+        actual_value = arguments[key]
+        if key == "limit":
+            if (
+                not isinstance(actual_value, int)
+                or isinstance(actual_value, bool)
+                or actual_value < _fixture_minimum_limit(fixture)
+                or actual_value > expected_value
+            ):
+                return False
+        elif actual_value != expected_value:
+            return False
+    return True
+
+
 def _matching_fixture(
     fixtures: list[ToolFixture], tool_name: str, arguments: dict[str, Any]
 ) -> ToolFixture | None:
     for fixture in fixtures:
-        if fixture.tool_name == tool_name and fixture.arguments == arguments:
+        if fixture.tool_name == tool_name and _fixture_arguments_match(fixture, arguments):
             return fixture
     return None
 

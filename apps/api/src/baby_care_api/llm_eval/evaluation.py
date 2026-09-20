@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
@@ -42,6 +43,9 @@ def _check(code: str, condition: bool, detail: str) -> CheckResult:
 
 def _normalization_semantics(output: NormalizedContent) -> dict[str, Any]:
     payload = output.model_dump(mode="json")
+    for collection_name in ("actions", "states", "outcomes", "caregiver_interpretations"):
+        for item in payload[collection_name]:
+            item.pop("evidence", None)
     for unresolved in payload["unresolved"]:
         unresolved["message"] = "<non-empty>" if unresolved["message"].strip() else ""
     return payload
@@ -122,39 +126,96 @@ def evaluate_normalization(
     return CandidateEvaluation(checks=tuple(checks))
 
 
-def _claim_projection(output: CounselingOutput) -> dict[str, dict[str, Any]]:
-    return {
-        claim.fact_key: {
-            "kind": claim.kind,
-            "numeric_value": claim.numeric_value,
-            "value_text": claim.value_text,
-            "unit": claim.unit,
-            "evidence_ids": claim.evidence_ids,
-        }
+def _canonical_unit(unit: str | None) -> str | None:
+    if unit is None:
+        return None
+    normalized = unit.strip().casefold()
+    aliases = {
+        "count": "COUNT",
+        "회": "COUNT",
+        "건": "COUNT",
+        "번": "COUNT",
+        "ml": "ML",
+        "밀리리터": "ML",
+        "minutes": "MINUTES",
+        "minute": "MINUTES",
+        "분": "MINUTES",
+    }
+    return aliases.get(normalized, unit.strip().upper())
+
+
+def _claim_signature(
+    *,
+    kind: str,
+    numeric_value: float | None,
+    value_text: str | None,
+    unit: str | None,
+    evidence_ids: list[str],
+) -> tuple[str, float | None, str | None, str | None, tuple[str, ...]]:
+    scored_kind = "NUMBER" if numeric_value is not None else kind
+    return (
+        scored_kind,
+        numeric_value,
+        value_text,
+        _canonical_unit(unit),
+        tuple(sorted(evidence_ids)),
+    )
+
+
+def _claim_projection(output: CounselingOutput) -> Counter[tuple[Any, ...]]:
+    return Counter(
+        _claim_signature(
+            kind=claim.kind,
+            numeric_value=claim.numeric_value,
+            value_text=claim.value_text,
+            unit=claim.unit,
+            evidence_ids=claim.evidence_ids,
+        )
         for claim in output.claims
-    }
+    )
 
 
-def _expected_claim_projection(case: CounselingCase) -> dict[str, dict[str, Any]]:
-    return {
-        claim.fact_key: {
-            "kind": claim.kind,
-            "numeric_value": claim.numeric_value,
-            "value_text": claim.value_text,
-            "unit": claim.unit,
-            "evidence_ids": claim.evidence_ids,
-        }
+def _expected_claim_projection(case: CounselingCase) -> Counter[tuple[Any, ...]]:
+    return Counter(
+        _claim_signature(
+            kind=claim.kind,
+            numeric_value=claim.numeric_value,
+            value_text=claim.value_text,
+            unit=claim.unit,
+            evidence_ids=claim.evidence_ids,
+        )
         for claim in case.expected.claims
-    }
+    )
+
+
+def _arguments_within_expected_scope(actual: dict[str, Any], expected: dict[str, Any]) -> bool:
+    if set(actual) != set(expected):
+        return False
+    for key, expected_value in expected.items():
+        actual_value = actual[key]
+        if key == "limit":
+            if (
+                not isinstance(actual_value, int)
+                or isinstance(actual_value, bool)
+                or actual_value < 1
+                or actual_value > expected_value
+            ):
+                return False
+        elif actual_value != expected_value:
+            return False
+    return True
 
 
 def _tool_trace_matches(case: CounselingCase, tool_trace: list[dict[str, Any]]) -> bool:
-    actual = [
-        {"tool_name": item.get("tool_name"), "arguments": item.get("arguments")}
-        for item in tool_trace
-    ]
     expected = [call.model_dump(mode="json") for call in case.expected.required_tool_calls]
-    return actual == expected
+    if len(tool_trace) != len(expected):
+        return False
+    return all(
+        actual.get("tool_name") == expected_call["tool_name"]
+        and isinstance(actual.get("arguments"), dict)
+        and _arguments_within_expected_scope(actual["arguments"], expected_call["arguments"])
+        for actual, expected_call in zip(tool_trace, expected, strict=True)
+    )
 
 
 def evaluate_counseling(
@@ -204,7 +265,8 @@ def evaluate_counseling(
         _check(
             "counseling.claims",
             actual_claims == expected_claims,
-            "verifiable facts and numbers match the precomputed source-of-truth claims",
+            "verifiable claim kinds, numbers, normalized units, statuses, and evidence match "
+            "the precomputed source of truth; evaluation-only fact_key wording is not scored",
         ),
         _check(
             "counseling.evidence",

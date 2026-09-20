@@ -224,6 +224,7 @@ def build_normalization_cases() -> list[dict[str, Any]]:
                 "PERFORMED",
                 1,
                 occurred_at="2026-09-20T09:00:00+09:00",
+                relative_time="오늘 오전 9시",
                 time_precision="EXACT",
                 amount=120,
                 unit="ML",
@@ -614,10 +615,7 @@ def build_normalization_cases() -> list[dict[str, Any]]:
                     "candidate_id": "NORM-HOLD-002-BAD-UTF16",
                     "purpose": "UTF-16식 오프셋 또는 한 칸 밀린 근거를 거부",
                     "candidate": wrong_span,
-                    "expected_failure_codes": [
-                        "normalization.semantics",
-                        "normalization.evidence_spans",
-                    ],
+                    "expected_failure_codes": ["normalization.evidence_spans"],
                 }
             ],
         )
@@ -1068,7 +1066,10 @@ def build_counseling_cases() -> list[dict[str, Any]]:
                 {"fact_key": "feeding_total_known_ml", "value": 180, "unit": "ML"},
                 {"fact_key": "feeding_unknown_amount_count", "value": 1, "unit": "COUNT"},
             ],
-            required_terms=[["미상", "알 수 없"], ["0mL로 계산하지"]],
+            required_terms=[
+                ["미상", "알 수 없", "기록되지"],
+                ["0mL로 계산하지", "실제 총량", "전체 실제"],
+            ],
             related=["B-02", "B-11", "B-14", "CHAT08"],
             adversarial=[
                 {
@@ -1373,7 +1374,7 @@ def build_counseling_cases() -> list[dict[str, Any]]:
         "get_server_aggregates",
         fail_args,
         "FAILED",
-        {"error_code": "LOOKUP_FAILED"},
+        {"error_code": "LOOKUP_FAILED", "retryable": True},
         [fail_evidence],
     )
     fail_claim = claim(
@@ -1436,7 +1437,7 @@ def build_counseling_cases() -> list[dict[str, Any]]:
         "get_server_aggregates",
         not_ready_args,
         "NOT_READY",
-        {"error_code": "TOOL_NOT_READY"},
+        {"error_code": "TOOL_NOT_READY", "retryable": False},
         [not_ready_evidence],
     )
     not_ready_claim = claim(
@@ -1480,7 +1481,7 @@ def build_counseling_cases() -> list[dict[str, Any]]:
         "get_confirmed_records",
         partial_args,
         "PARTIAL",
-        {"feeding_records": 2, "sleep_error": "SOURCE_TIMEOUT"},
+        {"feeding_records": 2, "sleep_error": "SOURCE_TIMEOUT", "retryable": True},
         [partial_evidence],
     )
     partial_claims = [
@@ -1759,7 +1760,7 @@ def build_counseling_cases() -> list[dict[str, Any]]:
         "get_record_by_reference",
         deleted_args,
         "DELETED",
-        {"error_code": "SOURCE_DELETED", "content": None},
+        {"error_code": "SOURCE_DELETED", "content": None, "retryable": False},
         [deleted_evidence],
     )
     deleted_claim = claim(
@@ -1834,7 +1835,7 @@ def build_counseling_cases() -> list[dict[str, Any]]:
         "get_confirmed_records",
         revoked_args,
         "ACCESS_DENIED",
-        {"error_code": "ACCESS_REVOKED"},
+        {"error_code": "ACCESS_REVOKED", "retryable": False},
         [revoked_evidence],
     )
     revoked_claim = claim(

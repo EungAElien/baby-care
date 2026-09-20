@@ -40,8 +40,8 @@ def _sha256_text(value: str) -> str:
 
 
 def _prompt_metadata() -> dict[str, Any]:
-    normalization = (PROMPT_ROOT / "normalization.v1.md").read_text(encoding="utf-8")
-    counseling = (PROMPT_ROOT / "counseling.v1.md").read_text(encoding="utf-8")
+    normalization = (PROMPT_ROOT / "normalization.v2.md").read_text(encoding="utf-8")
+    counseling = (PROMPT_ROOT / "counseling.v2.md").read_text(encoding="utf-8")
     return {
         "normalization": {
             "version": NORMALIZATION_PROMPT_VERSION,
@@ -256,8 +256,8 @@ def run_live_smoke(*, allow_provider_calls: bool) -> dict[str, Any]:
         organization=os.getenv("OPENAI_ORG_ID"),
         project=os.getenv("OPENAI_PROJECT"),
     )
-    normalization_prompt = (PROMPT_ROOT / "normalization.v1.md").read_text(encoding="utf-8")
-    counseling_prompt = (PROMPT_ROOT / "counseling.v1.md").read_text(encoding="utf-8")
+    normalization_prompt = (PROMPT_ROOT / "normalization.v2.md").read_text(encoding="utf-8")
+    counseling_prompt = (PROMPT_ROOT / "counseling.v2.md").read_text(encoding="utf-8")
     case_results: list[dict[str, Any]] = []
     all_request_records: list[ProviderRequestRecord] = []
     for case in selected:  # Intentionally serial: concurrency is fixed at one.
