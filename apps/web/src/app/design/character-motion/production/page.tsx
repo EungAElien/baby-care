@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { isMockNavEnabled } from "@/lib/mock/config";
-import { ProductionReview } from "./production/review";
+import { ProductionReview } from "./review";
 
-export default function CharacterMotionPage() {
+export default function ProductionReviewPage() {
   if (process.env.NODE_ENV !== "development" && !isMockNavEnabled()) notFound();
   return <ProductionReview />;
 }

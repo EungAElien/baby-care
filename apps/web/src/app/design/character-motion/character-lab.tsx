@@ -1,7 +1,6 @@
 "use client";
 
 import { useReducer, useState } from "react";
-import { CharacterArt } from "@/components/character/character-art";
 import { CharacterPoster, CharacterScene } from "@/components/character/character-scene";
 import { poseCatalog, poseLabel, poseId, type Pose, type ObservationCode, type InferenceCode } from "@/components/character/pose-catalog";
 import { initialScene, sceneReducer } from "@/components/character/scene-state";
@@ -57,7 +56,7 @@ export function CharacterLab() {
     </div>
     <section className="character-gallery"><p className="eyebrow">Pose library / 22 studies</p><h2>같은 캐릭터, 서로 다른 의미</h2>
       <div className="character-tabs">{(["observation", "inference", "action"] as const).map((kind) => <button className="character-button" key={kind} aria-pressed={tab === kind} onClick={() => setTab(kind)}>{kind === "observation" ? "관찰 8종" : kind === "inference" ? "AI 추정 5종 + 판단 어려움" : "완료 조치 8종"}</button>)}</div>
-      <div className="character-grid">{poseCatalog.filter((pose) => pose.kind === tab).map((pose) => <article className="character-tile" key={poseId(pose)}><div className="art"><CharacterArt pose={pose} decorative /></div><p>{poseLabel(pose)}</p><div style={{ width: 64, margin: "auto" }}><CharacterPoster pose={pose} /></div><small>대표 정지 포즈 · 로그 64px</small></article>)}</div>
+      <div className="character-grid">{poseCatalog.filter((pose) => pose.kind === tab).map((pose) => <article className="character-tile" key={poseId(pose)}><div className="art"><CharacterPoster pose={pose} size={220} /></div><p>{poseLabel(pose)}</p><div style={{ width: 64, margin: "auto" }}><CharacterPoster pose={pose} /></div><small>원본별 제작 상태 · 로그 64px</small></article>)}</div>
       {tab === "action" && <p className="intro">수유는 방식 미상의 공통 안김 포즈, 환경 변경은 조명 변형, 기타는 중립 돌봄 포즈입니다. 구체적인 동작·소품은 확인된 세부 기록에 맞춰 추가해야 합니다.</p>}
     </section>
     <section className="character-log"><p className="eyebrow">Still moments / example episode</p><h2>돌봄 뒤에도 관찰은 별도로</h2><p className="intro">최근 기록부터 표시한 합성 예시입니다. 가지의 합류는 후속 관찰의 연결을 뜻합니다.</p><ol>{log.map((row) => <li className={row.pose.kind === "observation" ? "" : "branch"} key={row.time}><time>{row.time}</time><CharacterPoster pose={row.pose} /><div><p>{poseLabel(row.pose)}</p><small>{row.detail}</small></div></li>)}</ol></section>
