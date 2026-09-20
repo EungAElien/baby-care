@@ -1,7 +1,7 @@
 "use client";
 
 // SC05 빠른 기록. 선택지 CareEvent 저장은 A-04 ①에서 실제 FastAPI에 연결한다.
-// 자연어 확인은 A-07 범위이므로 여기서는 기존 목 이동만 유지한다.
+// A-07 uses its own confirmation transaction; this page never creates a second CareEvent for it.
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -39,7 +39,10 @@ export default function QuickRecordPage() {
         </ScreenSection>
       )}
 
-      <ScreenSection title="자연어로 기록">
+      {real.status === "signed-in" ? <ScreenSection title="원문·선택지 확인 기록">
+        <p className="text-sm text-muted-foreground">자연어·선택지·혼합 입력을 개인 초안으로 저장하고 내용을 확인해요. 이미 저장한 생활 기록은 다시 입력하지 않아도 돼요.</p>
+        <Link href={`/babies/${babyId}/entries`} className="flex min-h-11 items-center justify-center rounded-md border border-border px-4 text-sm">개인 초안 작성·복구</Link>
+      </ScreenSection> : <ScreenSection title="자연어로 기록">
         <textarea
           value={liveText}
           onChange={(event) => draft.setLiveText(babyId, event.target.value)}
@@ -47,7 +50,7 @@ export default function QuickRecordPage() {
           className="min-h-20 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
         />
         <p className="text-xs text-muted-foreground">자연어 정규화·확인 저장은 A-07에서 연결해요. 지금 입력은 확정 기록이 아닙니다.</p>
-      </ScreenSection>
+      </ScreenSection>}
 
       {real.status !== "signed-in" && (
         <Link

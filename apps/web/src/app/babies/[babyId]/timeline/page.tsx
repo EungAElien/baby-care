@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { CareEventCard } from "@/components/care-event-card";
+import { CareEntryObservation } from "@/components/care-entry-observation";
 import { EmptyState, ErrorState, LoadingState, PermissionState, ScreenSection } from "@/components/screen-state";
 import { useTimelineQuery } from "@/lib/api/care-events";
 import type { TimelineItem } from "@/lib/api/care-events";
@@ -18,6 +19,9 @@ function TimelineRecord({
 }: Readonly<{ item: TimelineItem; babyId: string; names: ReadonlyMap<string, string> }>) {
   if (item.kind === "CARE_EVENT" && "care_event_id" in item.resource) {
     return <CareEventCard event={item.resource} babyId={babyId} memberNames={names} linkToDetail />;
+  }
+  if (item.kind === "STATE_OBSERVATION" && "state_observation_id" in item.resource) {
+    return <CareEntryObservation observation={item.resource} />;
   }
   const label = item.kind === "EPISODE" ? "울음 사건" : "상태 관찰";
   return (
@@ -55,6 +59,7 @@ function RealTimeline({ babyId }: Readonly<{ babyId: string }>) {
   return (
     <div className="flex flex-col gap-3">
       <h1 className="text-lg font-semibold text-foreground">타임라인</h1>
+      <Link href={`/babies/${babyId}/entries`} className="text-sm text-primary underline">내 개인 초안 작성·복구</Link>
       {items.length === 0 ? (
         <EmptyState label="이 아기의 확정 기록이 아직 없어요" action={<Link href={`/babies/${babyId}/quick-record`} className="text-sm text-primary">기록하러 가기</Link>} />
       ) : items.map((item) => (
