@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = "==3.12.*"
 dependencies = [
     "fastapi==0.141.1",
+    "openai==3.16.2",
     "PyJWT[crypto]==2.10.1",
     "pydantic==2.13.5",
     "pydantic-settings==2.15.0",
@@ -26,7 +27,6 @@ dev = [
     "httpx2==2.13.0",
     "jsonschema==4.26.0",
     "mypy==2.3.1",
-    "openai==3.16.2",
     "pytest==9.1.1",
     "pytest-cov==7.1.0",
     "ruff==0.16.8",

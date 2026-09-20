@@ -6,17 +6,17 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from baby_care_api.llm_eval.models import (
-    MODEL_ID,
     CounselingCase,
     CounselingOutput,
     NormalizationCase,
-    NormalizedContent,
 )
 from baby_care_api.llm_eval.tools import (
     ToolExecutionError,
     execute_synthetic_tool,
     tools_for_case,
 )
+from baby_care_api.models.normalization import MODEL_ID, NormalizedContent
+from baby_care_api.services.provider_errors import classify_provider_error
 
 INPUT_PRICE_USD_PER_MILLION = 2.0
 CACHED_INPUT_PRICE_USD_PER_MILLION = 0.2
@@ -94,44 +94,6 @@ def _usage(response: Any) -> tuple[int | None, int | None, int | None, int | Non
     details = getattr(usage, "input_tokens_details", None)
     cached_tokens = getattr(details, "cached_tokens", None) if details is not None else None
     return input_tokens, cached_tokens, output_tokens, total_tokens
-
-
-def _error_code(exc: Exception) -> str | None:
-    direct = getattr(exc, "code", None)
-    if isinstance(direct, str):
-        return direct
-    body = getattr(exc, "body", None)
-    if isinstance(body, dict):
-        value = body.get("code")
-        if isinstance(value, str):
-            return value
-        nested = body.get("error")
-        if isinstance(nested, dict) and isinstance(nested.get("code"), str):
-            return str(nested["code"])
-    return None
-
-
-def classify_provider_error(exc: Exception) -> tuple[str, bool]:
-    name = type(exc).__name__
-    code = _error_code(exc)
-    status_code = getattr(exc, "status_code", None)
-    if name == "AuthenticationError" or status_code == 401:
-        return "AUTHENTICATION_FAILED", False
-    if name in {"PermissionDeniedError", "NotFoundError"} or status_code in {403, 404}:
-        return "MODEL_ACCESS_UNAVAILABLE", False
-    if code in {"model_not_found", "model_not_available", "unsupported_model"}:
-        return "MODEL_ACCESS_UNAVAILABLE", False
-    if name == "RateLimitError" or status_code == 429:
-        return "LIMIT_OR_QUOTA_EXCEEDED", False
-    if name == "APITimeoutError":
-        return "TIMEOUT", True
-    if name == "APIConnectionError":
-        return "CONNECTION_ERROR", True
-    if status_code in {500, 502, 503, 504} or name == "InternalServerError":
-        return "PROVIDER_SERVER_ERROR", True
-    if name == "BadRequestError" or status_code == 400:
-        return "INVALID_PROVIDER_REQUEST", False
-    return "PROVIDER_ERROR", False
 
 
 def _has_refusal(response: Any) -> bool:

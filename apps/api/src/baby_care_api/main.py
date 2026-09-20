@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Mapping
+from collections.abc import AsyncIterator, Callable, Mapping
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -19,16 +19,23 @@ from baby_care_api.core.logging import configure_logging
 from baby_care_api.core.request_context import install_request_context
 from baby_care_api.routes.audio import router as audio_router
 from baby_care_api.routes.b04 import router as b04_router
+from baby_care_api.routes.b07 import router as b07_router
 from baby_care_api.routes.health import router as health_router
 from baby_care_api.services.audio import PostgresAudioService
 from baby_care_api.services.audio_decoder import AudioDecoder, FfmpegAudioDecoder
 from baby_care_api.services.auth_provider import SupabaseSessionRevocationProvider
+from baby_care_api.services.b07 import PostgresNormalizationService
 from baby_care_api.services.idempotency import UnconfiguredIdempotencyPort
 from baby_care_api.services.model_runtime import (
     ModelRuntimeFactory,
     ModelRuntimeManager,
     load_configured_m2d_runtime,
     m2d_configuration_complete,
+)
+from baby_care_api.services.normalizer import (
+    NormalizerAdapter,
+    OpenAINormalizerAdapter,
+    openai_dependency_available,
 )
 from baby_care_api.services.postgres import PostgresAuthorizationPort
 from baby_care_api.services.readiness import ComponentName, ReadinessProbe, ReadinessService
@@ -50,6 +57,7 @@ IMPLEMENTED_OPERATIONS = [
     "createCareEntry",
     "createCareEvent",
     "createInvite",
+    "createNormalization",
     "createReauthenticationChallenge",
     "createReauthenticationProof",
     "deleteBabyData",
@@ -59,10 +67,13 @@ IMPLEMENTED_OPERATIONS = [
     "getActiveBaby",
     "getCareEntry",
     "getCareEvent",
+    "getCapabilities",
     "getChanges",
     "getChildDataVerification",
     "getDeletion",
     "getSessionRevocation",
+    "getNormalization",
+    "getStateObservation",
     "getTimeline",
     "listBabies",
     "listConsents",
@@ -85,10 +96,10 @@ IMPLEMENTED_OPERATIONS = [
     "completeUpload",
     "createEpisode",
     "createUpload",
-    "getCapabilities",
     "getEpisode",
     "getPlayback",
     "reissueUpload",
+    "confirmCareEntry",
 ]
 
 
@@ -121,6 +132,8 @@ def create_app(
     audio_storage: AudioStoragePort | None = None,
     audio_decoder: AudioDecoder | None = None,
     model_runtime_factory: ModelRuntimeFactory = load_configured_m2d_runtime,
+    normalizer_adapter: NormalizerAdapter | None = None,
+    confirmation_checkpoint: Callable[[], None] | None = None,
 ) -> FastAPI:
     active_settings = settings or get_settings()
     configure_logging(active_settings.log_level)
@@ -160,6 +173,49 @@ def create_app(
             decoder=configured_decoder,
         )
         if database_url is not None and proof_secret is not None
+        else None
+    )
+    configured_key = (
+        None
+        if active_settings.openai_api_key is None
+        else active_settings.openai_api_key.get_secret_value()
+    )
+    normalizer_unavailable_reason: str | None
+    active_normalizer: NormalizerAdapter | None = None
+    if b04_service is None:
+        normalizer_unavailable_reason = "DATABASE_UNAVAILABLE"
+    elif not active_settings.external_normalization_enabled:
+        normalizer_unavailable_reason = "DISABLED"
+    elif configured_key is None or not configured_key.strip():
+        normalizer_unavailable_reason = "CREDENTIALS_MISSING"
+    elif normalizer_adapter is not None:
+        normalizer_unavailable_reason = None
+        active_normalizer = normalizer_adapter
+    elif not openai_dependency_available():
+        normalizer_unavailable_reason = "DEPENDENCY_MISSING"
+    else:
+        normalizer_unavailable_reason = None
+        active_normalizer = OpenAINormalizerAdapter(
+            api_key=configured_key,
+            organization=active_settings.openai_organization,
+            project=active_settings.openai_project,
+            timeout_seconds=active_settings.normalization_timeout_seconds,
+        )
+    b07_service = (
+        PostgresNormalizationService(
+            b04_service,
+            adapter=active_normalizer,
+            unavailable_code=(
+                None
+                if normalizer_unavailable_reason is None
+                else f"NORMALIZATION_{normalizer_unavailable_reason}"
+                if normalizer_unavailable_reason != "DATABASE_UNAVAILABLE"
+                else "NORMALIZATION_DEPENDENCY_MISSING"
+            ),
+            lease_seconds=active_settings.normalization_lease_seconds,
+            confirmation_checkpoint=confirmation_checkpoint,
+        )
+        if b04_service is not None
         else None
     )
     database = (
@@ -222,6 +278,8 @@ def create_app(
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         if database is not None:
             await database.open()
+        if b07_service is not None:
+            await b07_service.startup_recover()
         # FastAPI does not accept HTTP traffic until lifespan startup completes.
         # A failed model load is retained as readiness=false so liveness can still
         # be served after startup; health requests never trigger a retry.
@@ -230,6 +288,8 @@ def create_app(
             yield
         finally:
             await model_runtime.close()
+            if b07_service is not None:
+                await b07_service.close()
             if database is not None:
                 await database.close()
 
@@ -237,9 +297,9 @@ def create_app(
         title="Baby Care API",
         version=SERVICE_VERSION,
         description=(
-            "B-04 account/shared-care records, B-05 private audio intake, and the B-09 "
-            "durable change feed. "
-            "The canonical business contract is version 1.1.1 at "
+            "B-04 account/shared-care records, B-05 private audio intake, B-07 eventless "
+            "normalization, and the B-09 durable change feed. "
+            "The canonical business contract is version 1.2.0 at "
             "contracts/openapi계약.json."
         ),
         lifespan=lifespan,
@@ -254,6 +314,8 @@ def create_app(
     app.state.authorization = database or UnconfiguredAuthorizationPort()
     app.state.b04_service = b04_service
     app.state.audio_service = b04_service
+    app.state.b07_service = b07_service
+    app.state.normalizer_unavailable_reason = normalizer_unavailable_reason
     app.state.session_revocation = session_revocation
     app.state.idempotency = UnconfiguredIdempotencyPort()
 
@@ -262,6 +324,7 @@ def create_app(
     app.include_router(health_router)
     app.include_router(b04_router)
     app.include_router(audio_router)
+    app.include_router(b07_router)
     _install_openapi(app)
     return app
 

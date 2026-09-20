@@ -16,7 +16,6 @@ from baby_care_api.llm_eval.evaluation import (
 from baby_care_api.llm_eval.models import (
     COUNSELING_PROMPT_VERSION,
     COUNSELING_SCHEMA_VERSION,
-    MODEL_ID,
     NORMALIZATION_PROMPT_VERSION,
     NORMALIZATION_SCHEMA_VERSION,
     CounselingCase,
@@ -30,6 +29,7 @@ from baby_care_api.llm_eval.provider import (
     ProviderRequestRecord,
     estimate_cost_usd,
 )
+from baby_care_api.models.normalization import MODEL_ID
 
 DEFAULT_LIVE_NORMALIZATION_CASES = ("NORM-DEV-001", "NORM-DEV-006", "NORM-DEV-013")
 DEFAULT_LIVE_COUNSELING_CASES = ("COUNSEL-DEV-004", "COUNSEL-DEV-011", "COUNSEL-DEV-017")

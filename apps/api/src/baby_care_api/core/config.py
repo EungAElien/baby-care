@@ -9,7 +9,7 @@ from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 API_V1_PREFIX = "/v1"
-CONTRACT_VERSION = "1.1.1"
+CONTRACT_VERSION = "1.2.0"
 SERVICE_VERSION = "0.4.0"
 
 
@@ -57,6 +57,11 @@ class Settings(BaseSettings):
     audio_ffprobe_path: Path = Path("/usr/local/bin/ffprobe")
     audio_ffmpeg_version_prefix: str = "ffmpeg version 7.1.1"
     audio_decode_concurrency: int = Field(default=2, ge=1, le=8)
+    openai_api_key: SecretStr | None = None
+    openai_organization: str | None = None
+    openai_project: str | None = None
+    normalization_timeout_seconds: float = Field(default=20.0, ge=1.0, le=20.0)
+    normalization_lease_seconds: int = Field(default=30, ge=30, le=30)
 
     # The normal API profile stays lightweight. The dedicated V1 B profile enables
     # this flag and supplies read-only, server-owned paths below.
