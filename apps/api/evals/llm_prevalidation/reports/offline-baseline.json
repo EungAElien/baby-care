@@ -633,12 +633,10 @@
         {
           "candidate_id": "NORM-HOLD-002-BAD-UTF16",
           "detected_failure_codes": [
-            "normalization.evidence_spans",
-            "normalization.semantics"
+            "normalization.evidence_spans"
           ],
           "expected_failure_codes": [
-            "normalization.evidence_spans",
-            "normalization.semantics"
+            "normalization.evidence_spans"
           ],
           "passed": true,
           "purpose": "UTF-16식 오프셋 또는 한 칸 밀린 근거를 거부"
@@ -819,7 +817,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -888,7 +886,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -957,7 +955,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1026,7 +1024,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1107,7 +1105,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1176,7 +1174,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1245,7 +1243,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1314,7 +1312,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1383,7 +1381,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1452,7 +1450,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1541,7 +1539,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1610,7 +1608,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1679,7 +1677,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1748,7 +1746,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1817,7 +1815,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1898,7 +1896,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -1980,7 +1978,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -2049,7 +2047,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -2135,7 +2133,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -2204,7 +2202,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -2273,7 +2271,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -2342,7 +2340,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -2411,7 +2409,7 @@
         },
         {
           "code": "counseling.claims",
-          "detail": "verifiable facts and numbers match the precomputed source-of-truth claims",
+          "detail": "verifiable claim kinds, numbers, normalized units, statuses, and evidence match the precomputed source of truth; evaluation-only fact_key wording is not scored",
           "passed": true
         },
         {
@@ -2464,7 +2462,7 @@
     }
   ],
   "data_origin": "SYNTHETIC",
-  "generated_at": "2026-09-19T20:42:48.684734+00:00",
+  "generated_at": "2026-09-20T10:39:05.951147+00:00",
   "limits": {
     "concurrency": 1,
     "counseling_cases": null,
@@ -2487,13 +2485,13 @@
   "prompt_and_schema": {
     "counseling": {
       "schema_version": "counseling-eval-output.v1",
-      "sha256": "4f021789598edf9828eb38c4d8ae7ecd8d706c10ea04b7d4c781f8a2e9cbd859",
-      "version": "counseling.2026-09-20.v1"
+      "sha256": "5e2c365fdcc6ccaae53904564f52f0e844f727cf066f4e2857004f206ea6d97f",
+      "version": "counseling.2026-09-20.v3"
     },
     "normalization": {
       "schema_version": "openapi-1.1.1.NormalizedContent",
-      "sha256": "c29fd122543f29aa3732959f963a43679c0c15f9b8acb6e819df8ad2c182c193",
-      "version": "normalization.2026-09-20.v1"
+      "sha256": "3afd15245b00a03b6ecf863e0f046a1a9817d2450ef4801091614503fa7b3439",
+      "version": "normalization.2026-09-20.v3"
     }
   },
   "provider_request_count": 0,

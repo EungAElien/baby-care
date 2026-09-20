@@ -41,6 +41,12 @@ markers = ["integration: requires the dedicated local Supabase database"]
 [tool.coverage.run]
 branch = true
 source = ["baby_care_api"]
+omit = [
+    # This executable synthetic-media harness is exercised in verify:container.
+    # Keeping it out of pytest coverage avoids crediting a mock for the pinned
+    # FFmpeg process that the container gate actually runs.
+    "*/audio_decoder_smoke.py",
+]
 
 [tool.coverage.report]
 exclude_also = [

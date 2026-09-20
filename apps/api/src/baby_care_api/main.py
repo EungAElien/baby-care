@@ -17,10 +17,12 @@ from baby_care_api.core.config import (
 from baby_care_api.core.errors import install_exception_handlers
 from baby_care_api.core.logging import configure_logging
 from baby_care_api.core.request_context import install_request_context
+from baby_care_api.routes.audio import router as audio_router
 from baby_care_api.routes.b04 import router as b04_router
 from baby_care_api.routes.health import router as health_router
+from baby_care_api.services.audio import PostgresAudioService
+from baby_care_api.services.audio_decoder import AudioDecoder, FfmpegAudioDecoder
 from baby_care_api.services.auth_provider import SupabaseSessionRevocationProvider
-from baby_care_api.services.b04 import PostgresBabyCareService
 from baby_care_api.services.idempotency import UnconfiguredIdempotencyPort
 from baby_care_api.services.model_runtime import (
     ModelRuntimeFactory,
@@ -35,8 +37,13 @@ from baby_care_api.services.security import (
     UnconfiguredAuthenticationPort,
     UnconfiguredAuthorizationPort,
 )
+from baby_care_api.services.storage import (
+    AudioStoragePort,
+    SupabaseAudioStorage,
+    UnconfiguredAudioStorage,
+)
 
-B04_IMPLEMENTED_OPERATIONS = [
+IMPLEMENTED_OPERATIONS = [
     "acceptInvite",
     "createAction",
     "createBaby",
@@ -74,6 +81,14 @@ B04_IMPLEMENTED_OPERATIONS = [
     "setActiveBaby",
     "setBabyConsent",
     "setMyTrainingConsent",
+    "cancelUpload",
+    "completeUpload",
+    "createEpisode",
+    "createUpload",
+    "getCapabilities",
+    "getEpisode",
+    "getPlayback",
+    "reissueUpload",
 ]
 
 
@@ -91,7 +106,7 @@ def _install_openapi(app: FastAPI) -> None:
             "source": "contracts/openapi계약.json",
             "version": CONTRACT_VERSION,
             "api_prefix": API_V1_PREFIX,
-            "implemented_operations": B04_IMPLEMENTED_OPERATIONS,
+            "implemented_operations": IMPLEMENTED_OPERATIONS,
         }
         app.openapi_schema = schema
         return schema
@@ -103,6 +118,8 @@ def create_app(
     *,
     settings: Settings | None = None,
     readiness_probes: Mapping[ComponentName, ReadinessProbe] | None = None,
+    audio_storage: AudioStoragePort | None = None,
+    audio_decoder: AudioDecoder | None = None,
     model_runtime_factory: ModelRuntimeFactory = load_configured_m2d_runtime,
 ) -> FastAPI:
     active_settings = settings or get_settings()
@@ -117,12 +134,30 @@ def create_app(
         if active_settings.reauthentication_proof_secret is None
         else active_settings.reauthentication_proof_secret.get_secret_value()
     )
+    configured_storage: AudioStoragePort = audio_storage or (
+        SupabaseAudioStorage(
+            supabase_url=active_settings.supabase_url,
+            storage_url=active_settings.supabase_storage_url,
+            service_key=active_settings.supabase_secret_key.get_secret_value(),
+        )
+        if active_settings.supabase_url is not None
+        and active_settings.supabase_secret_key is not None
+        else UnconfiguredAudioStorage()
+    )
+    configured_decoder: AudioDecoder = audio_decoder or FfmpegAudioDecoder(
+        ffmpeg_path=active_settings.audio_ffmpeg_path,
+        ffprobe_path=active_settings.audio_ffprobe_path,
+        expected_version_prefix=active_settings.audio_ffmpeg_version_prefix,
+        max_concurrency=active_settings.audio_decode_concurrency,
+    )
     b04_service = (
-        PostgresBabyCareService(
+        PostgresAudioService(
             database_url,
             invite_base_url=active_settings.invite_base_url,
             proof_secret=proof_secret,
             child_data_production_enabled=active_settings.child_data_production_enabled,
+            storage=configured_storage,
+            decoder=configured_decoder,
         )
         if database_url is not None and proof_secret is not None
         else None
@@ -202,7 +237,8 @@ def create_app(
         title="Baby Care API",
         version=SERVICE_VERSION,
         description=(
-            "B-04 account, shared-care, and record API with the B-09 durable change feed. "
+            "B-04 account/shared-care records, B-05 private audio intake, and the B-09 "
+            "durable change feed. "
             "The canonical business contract is version 1.1.1 at "
             "contracts/openapi계약.json."
         ),
@@ -217,6 +253,7 @@ def create_app(
     app.state.authentication = authentication or UnconfiguredAuthenticationPort()
     app.state.authorization = database or UnconfiguredAuthorizationPort()
     app.state.b04_service = b04_service
+    app.state.audio_service = b04_service
     app.state.session_revocation = session_revocation
     app.state.idempotency = UnconfiguredIdempotencyPort()
 
@@ -224,6 +261,7 @@ def create_app(
     install_request_context(app)
     app.include_router(health_router)
     app.include_router(b04_router)
+    app.include_router(audio_router)
     _install_openapi(app)
     return app
 

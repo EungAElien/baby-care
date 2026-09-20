@@ -73,7 +73,7 @@ select is(
            and c.relrowsecurity
            and c.relforcerowsecurity
     ),
-    39,
+    43,
     'every business table has FORCE ROW LEVEL SECURITY'
 );
 

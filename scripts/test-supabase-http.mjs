@@ -122,7 +122,7 @@ const uploads = {
   wrongUploader: makeUpload("wrong uploader", babyA, episodeA, users.owner),
   expired: makeUpload("expired", babyA, episodeA, users.owner, { grantState: "expired" }),
   canceled: makeUpload("canceled", babyA, episodeA, users.owner, { grantState: "canceled" }),
-  finalized: makeUpload("non-allocated asset", babyA, episodeA, users.owner, { assetStatus: "VERIFYING" }),
+  finalized: makeUpload("non-allocated asset", babyA, episodeA, users.owner, { assetStatus: "DELETING" }),
   sessionMismatch: makeUpload("session mismatch", babyA, episodeA, users.owner, { sessionId: randomUUID() }),
   oversize: makeUpload("oversize", babyA, episodeA, users.owner),
   afterMembershipRevoke: makeUpload("membership revoked", babyA, episodeA, users.caregiver),
