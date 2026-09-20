@@ -87,7 +87,9 @@ def test_browser_origin_is_explicit_and_preflight_allows_api_headers() -> None:
     assert "authorization" in allowed.headers["Access-Control-Allow-Headers"].lower()
     assert denied.status_code == 400
     assert "Access-Control-Allow-Origin" not in denied.headers
-    assert unauthenticated.status_code == 401
+    # This deliberately unconfigured app fails readiness before auth; CORS must
+    # still expose the response to the configured browser origin.
+    assert unauthenticated.status_code == 503
     assert unauthenticated.headers["Access-Control-Allow-Origin"] == "http://localhost:3001"
 
 
