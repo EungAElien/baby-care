@@ -21,6 +21,7 @@ import { DirectRecording, readDuration } from "@/lib/audio/recording";
 import { ActionButton } from "./seed-design/ui/action-button";
 import { Callout } from "./seed-design/ui/callout";
 import { ErrorState } from "./screen-state";
+import { BrandScene } from "./brand-scene";
 
 const initialView: IntakeView = {
   stage: "idle",
@@ -217,6 +218,7 @@ export function AudioIntakeScreen({ babyId }: Readonly<{ babyId: string }>) {
         />
       )}
       <div className="capture-panel" role="status" aria-live="polite">
+          <BrandScene />
         <span className="capture-icon">
           <Mic size={30} aria-hidden="true" />
         </span>

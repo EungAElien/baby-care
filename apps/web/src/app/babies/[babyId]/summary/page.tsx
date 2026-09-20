@@ -22,7 +22,7 @@ export default async function SummaryPage({
     return (
       <div className="flex flex-col gap-6">
         <PageHeading
-          title="기록으로 보는 하루"
+          title="오늘 요약"
           description="남긴 만큼만 살펴봐요. 빈 기록을 0으로 계산하지 않아요."
         />
         <RealSummary babyId={babyId} />
@@ -37,7 +37,7 @@ export default async function SummaryPage({
   return (
     <div className="flex flex-col gap-6">
       <PageHeading
-        title="기록으로 보는 하루"
+        title="오늘 요약"
         description="남긴 만큼만 살펴봐요. 빈 기록을 0으로 계산하지 않아요."
       />
       <DemoOnly fallback={<RealSummary babyId={babyId} />}>

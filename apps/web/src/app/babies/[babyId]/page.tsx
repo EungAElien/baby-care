@@ -11,16 +11,18 @@ export default async function BabyHomePage({
   const { babyId } = await params;
   return (
     <div className="home-grid">
+      <div className="home-observation"><HomeObservation babyId={babyId} /></div>
       <section className="brand-hero" aria-labelledby="home-title">
         <div className="hero-topline">
           <span>BABY CARE</span>
           <span>함께 돌보는 하루</span>
         </div>
+        <BrandScene />
         <div>
           <h1 id="home-title" className="hero-heading">
-            작은 신호를,
+            작은 신호도
             <br />
-            함께 알아가요.
+            함께 살펴요
           </h1>
           <p className="hero-copy">
             울음은 살펴보고, 돌봄은 남겨요.
@@ -28,7 +30,6 @@ export default async function BabyHomePage({
             아기의 하루를 보호자와 함께 이어가요.
           </p>
         </div>
-        <BrandScene />
         <div className="hero-footer">
           <ActionButton asChild>
             <Link href={`/babies/${babyId}/detect`}>
@@ -45,7 +46,6 @@ export default async function BabyHomePage({
         </div>
       </section>
       <div className="home-aside">
-        <HomeObservation babyId={babyId} />
         <RecentCareEvent babyId={babyId} />
         <section className="screen-section">
           <div>

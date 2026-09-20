@@ -78,6 +78,11 @@ describe("brand contrast and prohibited surfaces", () => {
     ["gray-700", "white"],
     ["gray-700", "gray-50"],
     ["white", "pressed"],
+    ["soft-pink", "navy"],
+    ["white", "panel"],
+    ["white", "panel-subtle"],
+    ["white", "panel-pressed"],
+    ["black", "soft-pink"],
   ])("%s on %s meets normal-text contrast", (fg, bg) => {
     expect(contrast(colors[fg]!, colors[bg]!)).toBeGreaterThanOrEqual(4.5);
   });

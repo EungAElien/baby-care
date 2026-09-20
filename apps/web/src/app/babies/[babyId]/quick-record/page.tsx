@@ -34,7 +34,7 @@ export default function QuickRecordPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeading
-        title="돌봄을 남겨요"
+        title="빠른 기록"
         description="실제로 한 일과 직접 관찰한 모습을 구분해 기록해요."
       />
       <div className="record-methods" role="group" aria-label="기록 입력 방식">

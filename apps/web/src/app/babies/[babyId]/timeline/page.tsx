@@ -162,7 +162,7 @@ export default function TimelinePage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <PageHeading
-          title="함께 이어온 하루"
+          title="타임라인"
           description="돌봄과 관찰, 누가 언제 남겼는지 한눈에 확인해요."
         />
         <ActionButton asChild>

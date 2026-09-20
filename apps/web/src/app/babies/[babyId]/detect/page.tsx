@@ -28,7 +28,7 @@ export default async function DetectPage({
         </Link>
       </ActionButton>
       <PageHeading
-        title="작은 소리에 귀 기울여요"
+        title="울음 감지"
         description="아기의 신호를 살펴볼 수 있도록 소리를 남겨 주세요."
       />
       <div className="detail-grid">

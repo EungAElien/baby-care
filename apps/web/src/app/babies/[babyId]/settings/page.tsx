@@ -64,7 +64,7 @@ function RealSettings({ babyId }: Readonly<{ babyId: string }>) {
   return (
     <div className="flex flex-col gap-6">
       <PageHeading
-        title="우리의 돌봄 설정"
+        title="설정"
         description="아기 정보와 공유 범위, 나의 선택을 관리해요."
       />
       <div className="detail-grid">
@@ -102,7 +102,7 @@ function MockSettings({ babyId }: Readonly<{ babyId: string }>) {
   return (
     <div className="flex flex-col gap-6">
       <PageHeading
-        title="우리의 돌봄 설정"
+        title="설정"
         description="아기 정보와 공유 범위, 나의 선택을 관리해요."
       />
       <div className="detail-grid">

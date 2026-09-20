@@ -23,21 +23,27 @@
   --palette-gray-700: #51515e;
   --palette-pressed: #303038;
   --palette-error: #a11b31;
-  --surface-page: var(--palette-white);
-  --surface-reading: var(--palette-white);
-  --surface-subtle: var(--palette-gray-50);
+  --palette-panel: #26214f;
+  --palette-panel-subtle: #302958;
+  --palette-panel-pressed: #403764;
+  --palette-dark-control: #aaa5bd;
+  --palette-dark-divider: #77728d;
+  --palette-error-light: #ffb9c3;
+  --surface-page: var(--palette-navy);
+  --surface-reading: var(--palette-panel);
+  --surface-subtle: var(--palette-panel-subtle);
   --surface-brand: var(--palette-pink);
   --surface-inverse: var(--palette-navy);
-  --text-primary: var(--palette-black);
-  --text-secondary: var(--palette-gray-700);
+  --text-primary: var(--palette-white);
+  --text-secondary: var(--palette-soft-pink);
   --text-inverse: var(--palette-white);
-  --action-primary: var(--palette-black);
-  --action-pressed: var(--palette-pressed);
-  --focus: var(--palette-cobalt);
-  --stroke-control: var(--palette-gray-500);
-  --stroke-divider: var(--palette-gray-300);
+  --action-primary: var(--palette-pink);
+  --action-pressed: var(--palette-soft-pink);
+  --focus: var(--palette-sky);
+  --stroke-control: var(--palette-dark-control);
+  --stroke-divider: var(--palette-dark-divider);
   --brand-accent: var(--palette-brick);
-  --feedback-error: var(--palette-error);
+  --feedback-error: var(--palette-error-light);
   /* Compatibility bridge for existing screens. */
   --background: var(--surface-page);
   --foreground: var(--text-primary);
@@ -66,15 +72,15 @@ html[data-seed][data-seed-color-mode="light-only"] {
   --seed-color-fg-neutral-muted: var(--text-secondary);
   --seed-color-fg-neutral-subtle: var(--text-secondary);
   --seed-color-fg-placeholder: var(--text-secondary);
-  --seed-color-fg-neutral-inverted: var(--text-inverse);
-  --seed-color-fg-brand: var(--text-primary);
+  --seed-color-fg-neutral-inverted: var(--palette-black);
+  --seed-color-fg-brand: var(--palette-black);
   --seed-color-fg-critical: var(--feedback-error);
   --seed-color-bg-layer-basement: var(--surface-page);
   --seed-color-bg-layer-default: var(--surface-reading);
-  --seed-color-bg-layer-default-pressed: var(--palette-gray-100);
+  --seed-color-bg-layer-default-pressed: var(--palette-panel-pressed);
   --seed-color-bg-layer-floating: var(--surface-reading);
   --seed-color-bg-neutral-weak: var(--surface-subtle);
-  --seed-color-bg-neutral-weak-pressed: var(--palette-gray-100);
+  --seed-color-bg-neutral-weak-pressed: var(--palette-panel-pressed);
   --seed-color-bg-neutral-inverted: var(--action-primary);
   --seed-color-bg-neutral-inverted-pressed: var(--action-pressed);
   --seed-color-bg-brand-solid: var(--surface-brand);
@@ -721,3 +727,49 @@ html[data-seed][data-seed-color-mode="light-only"] {
   overflow-y: auto;
   touch-action: pan-y;
 }
+
+/* September 20 supplied screen references supersede the earlier light composition.
+   Exact brand primitives stay intact; decorative artwork never represents live state. */
+.app-header, .app-nav { background: var(--surface-page); }
+.app-header { border-bottom: 0; }
+.app-identity > .brand-symbol { display: none; }
+.app-identity .font-bold { font-size: 1.5rem; }
+.app-identity .text-xs { font-size: .875rem; }
+.app-nav a { color: var(--palette-white); }
+.app-nav a[aria-current] { color: var(--palette-pink); background: transparent; }
+.app-nav a svg { width: 1.625rem; height: 1.625rem; stroke-width: 2.5; }
+.demo-notice { color: var(--palette-soft-pink); padding-block: .25rem; }
+.screen-section { background: transparent; border-width: 0 0 1px; border-radius: 0; padding: 1.25rem 0; }
+.screen-section > h2, .section-eyebrow { color: var(--palette-soft-pink); }
+.brand-hero { background: transparent; padding: .5rem 0 1.5rem; text-align: center; gap: 1.25rem; }
+.hero-topline { display: none; }
+.hero-heading { margin-inline: auto; font-size: clamp(2rem, 7vw, 3.25rem); }
+.hero-copy { margin-inline: auto; color: var(--text-secondary); }
+.brand-scene { width: min(100%, 22rem); height: auto; aspect-ratio: 1; align-self: center; color: var(--brand-accent); }
+.home-observation { grid-column: 1 / -1; text-align: center; }
+.home-observation .screen-section { border: 0; padding: .25rem 0; }
+.home-observation .flex-wrap { justify-content: center; }
+.hero-footer .seed-action-button { min-height: 3.5rem; font-size: 1.125rem; }
+.timeline-record { background: transparent; border-width: 0 0 0 3px; border-color: var(--palette-pink); border-radius: 0; padding: 1.125rem 0 1.125rem 1.25rem; margin-left: .5rem; }
+.timeline-record-icon, .candidate-number, .capture-icon, .brand-symbol { color: var(--palette-black); }
+.summary-grid { display: flex; flex-direction: column; gap: 0; }
+.summary-grid .screen-section { position: relative; padding-left: 4.5rem; min-height: 9rem; gap: .375rem; }
+.summary-grid .screen-section > svg { position: absolute; left: .25rem; top: 2.5rem; width: 3rem; height: 3rem; color: var(--palette-soft-pink); }
+.metric-value { font-size: 2.25rem; }
+.result-banner { background: var(--surface-subtle); color: var(--palette-white); }
+.record-methods button[aria-pressed="true"], .care-kind-choices input:checked + span { color: var(--palette-black); border-color: var(--palette-pink); }
+.record-methods button[aria-pressed="true"] small { color: var(--palette-navy); }
+input:not([type="checkbox"]):not([type="radio"]), select, textarea { background: var(--palette-white); color: var(--palette-black); }
+.seed-text-field { --seed-color-fg-neutral: var(--palette-black); --seed-color-fg-placeholder: var(--palette-gray-700); --seed-color-bg-layer-default: var(--palette-white); --seed-color-stroke-neutral-weak: var(--palette-gray-500); }
+.seed-text-field__input, .seed-text-field__textarea { color: var(--palette-black); }
+.seed-text-field__label, .seed-text-field__description { color: var(--palette-white); }
+.seed-action-button { border-radius: 1rem; }
+.seed-action-button:disabled { opacity: .55; }
+::selection { color: var(--palette-black); }
+@media (min-width: 800px) { .home-observation { text-align: left; } .home-observation .flex-wrap { justify-content: flex-start; } }
+@media (max-width: 799px) { .app-main { padding-top: 1rem; } .hero-copy { display: none; } .brand-hero { gap: 1.125rem; } }
+
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline-color: var(--palette-cobalt); }
+.seed-text-field__input::placeholder, .seed-text-field__textarea::placeholder { color: var(--palette-gray-700); }
+
+.capture-panel .brand-scene { width: min(100%, 15rem); }
