@@ -39,7 +39,7 @@ export function RealLogin() {
   return <EmailOtpForm />;
 }
 
-function EmailOtpForm() {
+export function EmailOtpForm() {
   const session = useRealSession();
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");

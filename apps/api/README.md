@@ -1,6 +1,6 @@
-# Baby Care API — B-04 계정·공동양육·기록 + B-09 변경 조회
+# Baby Care API — B-04 계정·기록 + B-05 음원 + B-09 변경 조회
 
-이 폴더는 계약 1.1.1 가운데 B-04 계정·공동양육·기록 경로와 B-09 공동 변경 조회를 실행하는 FastAPI 서비스입니다. 로컬 Supabase의 실제 Auth JWT/JWKS, 최소 권한 `baby_app` 트랜잭션, DB 멱등성·RLS·Storage 회수 경계를 함께 검증합니다.
+이 폴더는 계약 1.1.1 가운데 B-04 계정·공동양육·기록, B-05 private 음원 수신·품질·보관, B-09 공동 변경 조회를 실행하는 FastAPI 서비스입니다. 로컬 Supabase의 실제 Auth JWT/JWKS, 최소 권한 `baby_app` 트랜잭션, DB 멱등성·RLS·Storage 회수 경계를 함께 검증합니다.
 
 ## 현재 포함된 범위
 
@@ -8,6 +8,10 @@
 - 아기 생성·목록·선택·프로필, 구성원·초대·동의 API
 - CareEvent CRUD·타임라인, 사건 행동 연결, 작성자 전용 서버 초안
 - 아기·멤버십·CareEvent의 내구성 있는 변경 이력과 `getChanges` 폴링 복구
+- MANUAL·FILE 사건 생성, 활성 관측 세션에 연결된 AUTO 사건, 실제 연결 자료 사건 상세
+- private STANDARD/TUS 업로드 승인·재발급·취소와 실제 객체 완료 검증
+- 고정 FFmpeg의 WAV/PCM·WebM/Opus·MP4/AAC·raw AAC 검사와 source-rate PCM 파생물
+- 보관 동의·기한·현재 권한 기반 60초 재생 URL과 재시작 가능한 실제 Storage 정리 worker
 - 삭제 요청·진행 조회·재시도와 본인 기여자료 삭제 요청
 - 실제 Supabase JWT/JWKS 검증과 이메일 확인, OTP 재인증 proof, 세션 범위별 회수
 - 계약의 `ApiError` 형식과 입력 검증 오류 변환
@@ -17,7 +21,7 @@
 - liveness/readiness 분리, pytest·Ruff·mypy·컨테이너·GitHub Actions 기반
 - 별도 V1 B 프로필의 고정 M2D 레지스트리, 시작 시 1회 적재, 모델 readiness
 
-`/v1`의 기준은 저장소 루트의 `contracts/openapi계약.json`입니다. FastAPI의 `/openapi.json`은 실제 라우트만 만들고 `x-business-contract.implemented_operations`에 구현된 B-04 operationId와 `getChanges`를 표시합니다. 분석·업로드·정규화 확인 등 후속 계약 경로를 구현됐다고 노출하지 않습니다.
+`/v1`의 기준은 저장소 루트의 `contracts/openapi계약.json`입니다. FastAPI의 `/openapi.json`은 실제 라우트만 만들고 `x-business-contract.implemented_operations`에 구현된 B-04·B-05 operationId와 `getChanges`를 표시합니다. B-06 분석·정규화 확인 등 후속 계약 경로를 구현됐다고 노출하지 않습니다.
 
 ## 버전과 재현 설치
 
@@ -46,6 +50,9 @@ cp .env.example .env
 - `BABY_CARE_REAUTHENTICATION_PROOF_SECRET`: 32바이트 이상 서버 비밀. proof 원문은 DB에 저장하지 않습니다.
 - `BABY_CARE_INVITE_BASE_URL`: A의 초대 진입 주소. 토큰은 URL fragment에 붙고 최초 발급·재발급 응답에서만 반환됩니다.
 - `BABY_CARE_CHILD_DATA_PRODUCTION_ENABLED=false`: 승인된 법정대리인 확인 정책이 준비되기 전에는 그대로 둡니다.
+- `BABY_CARE_SUPABASE_SECRET_KEY`: B-05 서버가 원본을 검증하고 서명·삭제할 때만 쓰는 서버 비밀입니다. 브라우저·`NEXT_PUBLIC`에 넣지 않습니다.
+- `BABY_CARE_SUPABASE_STORAGE_URL`: hosted TUS의 직접 Storage origin입니다. 생략하면 `SUPABASE_URL`을 사용합니다.
+- `BABY_CARE_AUDIO_FFMPEG_PATH`, `...FFPROBE_PATH`, `...VERSION_PREFIX`, `...DECODE_CONCURRENCY`: digest로 고정한 7.1.1 디코더 경계입니다.
 
 잠금 파일을 갱신할 때는 Python 3.12 환경에서 `uv==0.12.17`을 사용합니다.
 
@@ -159,7 +166,23 @@ docker run --rm -p 8080:8080 baby-care-api:b01
 
 기반 이미지는 Python `3.12.12-slim-bookworm`의 확인한 multi-architecture digest로 고정했습니다. Docker healthcheck는 liveness만 사용하며, readiness 503을 프로세스 장애로 오인하지 않습니다.
 
-`verify:container`는 비루트 사용자와 digest 고정을 검사하고 미설정 상태의 liveness 200·readiness 503을 실제 HTTP로 확인합니다. `verify:integration`은 잘못된 JWKS의 readiness/API 503과 정상 로컬 Auth·DB 연결의 readiness 200·인증 목록/생성 요청을 별도로 검사합니다.
+`verify:container`는 비루트 사용자와 Python·FFmpeg digest 고정을 검사하고, 합성 WAV/PCM·WebM/Opus·MP4/AAC·raw AAC의 실제 디코딩과 거부 경계를 실행한 뒤 미설정 상태의 liveness 200·readiness 503을 실제 HTTP로 확인합니다. `verify:integration`은 잘못된 JWKS의 readiness/API 503, 정상 로컬 Auth·DB 연결, B-05 STANDARD/TUS·재생·실제 삭제를 별도로 검사합니다.
+
+## B-05 음원 수신과 정리
+
+브라우저는 FastAPI가 발급한 정확한 private object key로만 파일 바이트를 전송합니다. 서버는
+완료 요청에서 원본 크기·SHA-256·컨테이너·코덱·단일 오디오 stream·길이와 파생 PCM을
+다시 검사합니다. B-05 파생 PCM은 원본 sample rate/channel을 유지하며, V1 전처리의
+downmix·resample·정규화는 B-06만 수행합니다.
+
+내구성 있는 정리 batch는 다음처럼 한 번 실행합니다.
+
+```bash
+PYTHONPATH=src .venv/bin/python -m baby_care_api.audio_cleanup --limit 20
+```
+
+상태·HTTP 오류·품질 기준, TUS 재개, A의 endpoint 검증과 기기별 미실행 범위는
+[B-05 인계](../../docs/handoffs/b05-audio-intake.md)에 있습니다.
 
 ## B-03 연결과 B-04 처리 순서
 
@@ -192,6 +215,6 @@ A의 안전한 전체/증분 복구 순서, 쓰기별 재조회 매핑, 예시�
 - 승인된 법정대리인 확인 수단·증빙·정책. 현재 운영 아동 정보 처리는 fail-closed입니다.
 - 삭제 Job 실행기와 Storage·학습 사본·백업 실제 정리(B-12·B-13). B-04는 차단·요청·조회·재시도만 저장하며 COMPLETE를 만들지 않습니다.
 - B-07 LLM 정규화·확인 저장 전체, B-09 Realtime, B-11 집계, B-14 상담
-- B-05 TUS·업로드 완료·서버 재생 URL, M2D 분석 API·보정/유보 정책, Cloud Run 배포
+- B-06 M2D 분석 API·보정/유보 정책, hosted TUS 조각·백업 보관 확인, 운영 Scheduler와 Cloud Run 배포
 - V1 B의 Linux 실행 기반은 별도 프로필로 구현했지만 MPS 기준 대비 `1e-6` 재현 검사는 미통과입니다. 자세한 플랫폼별 차이와 후속 기준 결정은 V1 B 런타임 인계를 따릅니다.
 - A의 실제 브라우저·캐시·두 계정 화면 시험과 운영 계정/기기/외부 서비스 시험

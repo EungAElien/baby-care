@@ -17,6 +17,9 @@ import { mockBabyLabel } from "@/lib/mock/fixtures";
 import { useSyncPrivateScopeForBaby } from "@/components/app-providers";
 import { BabyShell, type OtherBaby } from "@/components/baby-shell";
 import { ErrorState, LoadingState } from "@/components/screen-state";
+import { usePrivateScope } from "@/components/app-providers";
+import { useApiClient } from "@/lib/api/real-client";
+import { revokeAndSignOut } from "@/lib/auth/session-control";
 
 function NotFoundShell() {
   return (
@@ -34,6 +37,8 @@ function RealBabyContent({ babyId, children }: Readonly<{ babyId: string; childr
   const router = useRouter();
   const real = useRealSession();
   const babies = useBabiesQuery(true);
+  const scope = usePrivateScope();
+  const client = useApiClient();
   // A-08 ①: foreground /changes polling for this baby scope. B-09 handoff §A의 안전한 폴링·복구 순서.
   useSharedChangePolling(babyId, true);
 
@@ -54,8 +59,9 @@ function RealBabyContent({ babyId, children }: Readonly<{ babyId: string; childr
       role={match.membership.role}
       otherBabies={otherBabies}
       onSignOut={async () => {
-        await real.signOut();
-        router.push("/login");
+        const outcome = await revokeAndSignOut(client, scope, real.signOut, "CURRENT");
+        if (outcome === "local-failed") throw new Error("Local sign-out was not confirmed.");
+        router.replace(`/login?logout=${outcome}`);
       }}
     >
       {children}

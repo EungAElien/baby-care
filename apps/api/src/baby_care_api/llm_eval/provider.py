@@ -363,13 +363,24 @@ class OpenAIResponsesAdapter:
         input_items.extend(getattr(response, "output", ()))
         tool_trace: list[dict[str, Any]] = []
         for call in tool_calls:
+            arguments: dict[str, Any] | None = None
             try:
-                arguments = json.loads(call.arguments)
+                parsed_arguments = json.loads(call.arguments)
+                arguments = parsed_arguments if isinstance(parsed_arguments, dict) else None
                 if not isinstance(arguments, dict):
                     raise ToolExecutionError("INVALID_TOOL_ARGUMENTS")
                 execution = execute_synthetic_tool(case, call.name, arguments)
             except (json.JSONDecodeError, ToolExecutionError) as exc:
                 code = exc.code if isinstance(exc, ToolExecutionError) else "INVALID_TOOL_ARGUMENTS"
+                tool_trace.append(
+                    {
+                        "tool_name": getattr(call, "name", None),
+                        "arguments": arguments,
+                        "status": "REJECTED",
+                        "evidence_ids": [],
+                        "failure_type": code,
+                    }
+                )
                 return ProviderCaseResult(
                     candidate=None,
                     tool_trace=tuple(tool_trace),

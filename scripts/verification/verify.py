@@ -271,6 +271,29 @@ def run_container(artifact_dir: Path) -> int:
     )
     if built:
         report.run(
+            "audio-decoder-container-smoke",
+            [
+                "docker",
+                "run",
+                "--rm",
+                "--entrypoint",
+                "python",
+                image,
+                "-m",
+                "baby_care_api.audio_decoder_smoke",
+            ],
+            verification_level="pinned-decoder-synthetic-formats",
+            evidence=(
+                "WAV/PCM",
+                "WebM/Opus",
+                "MP4/AAC",
+                "raw AAC",
+                "no resampling in B-05",
+                "malformed and multi-stream rejection",
+                "decoded-size boundary",
+            ),
+        )
+        report.run(
             "container-unconfigured-http-smoke",
             [
                 sys.executable,
@@ -418,6 +441,8 @@ def run_integration(artifact_dir: Path) -> int:
                     "AC13~AC14",
                     "AC21~AC22",
                     "AC24",
+                    "B-05 STANDARD/TUS upload lifecycle",
+                    "B-05 byte, checksum, decoder, playback, and cleanup boundaries",
                     "AC28",
                     "AC39~AC44",
                     "SEC01~SEC21 applicable subconditions",
@@ -580,12 +605,8 @@ def run_integration(artifact_dir: Path) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Run reproducible Baby Care verification suites."
-    )
-    parser.add_argument(
-        "suite", choices=("quick", "container", "integration", "failure-detection")
-    )
+    parser = argparse.ArgumentParser(description="Run reproducible Baby Care verification suites.")
+    parser.add_argument("suite", choices=("quick", "container", "integration", "failure-detection"))
     parser.add_argument("--artifact-dir", type=Path)
     args = parser.parse_args()
     artifact_dir = (args.artifact_dir or default_artifact_dir(args.suite)).resolve()

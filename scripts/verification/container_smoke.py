@@ -18,9 +18,7 @@ ROOT = Path(__file__).resolve().parents[2]
 NAME_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,62}$")
 SENSITIVE_PATTERNS = {
     "canary": re.compile(r"BABY_CARE_SECRET_CANARY_[A-Za-z0-9_-]+"),
-    "jwt": re.compile(
-        r"\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b"
-    ),
+    "jwt": re.compile(r"\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b"),
     "supabase-secret": re.compile(r"\bsb_secret_[A-Za-z0-9_-]{8,}\b"),
     "database-password": re.compile(r"postgres(?:ql)?://[^:\s/]+:[^@\s]+@"),
     "labeled-secret": re.compile(
@@ -135,9 +133,7 @@ def expect_status(
 
 
 def sensitive_findings(value: str) -> list[str]:
-    return sorted(
-        name for name, pattern in SENSITIVE_PATTERNS.items() if pattern.search(value)
-    )
+    return sorted(name for name, pattern in SENSITIVE_PATTERNS.items() if pattern.search(value))
 
 
 class DockerResources:
@@ -147,16 +143,11 @@ class DockerResources:
         self.containers: list[str] = []
 
     def prepare(self) -> None:
-        if (
-            run(["docker", "network", "inspect", self.network], check=False).returncode
-            == 0
-        ):
+        if run(["docker", "network", "inspect", self.network], check=False).returncode == 0:
             raise SmokeError("refusing to reuse an existing smoke network")
         run(["docker", "network", "create", self.network])
 
-    def start(
-        self, suffix: str, image: str, environment: dict[str, str]
-    ) -> tuple[str, str]:
+    def start(self, suffix: str, image: str, environment: dict[str, str]) -> tuple[str, str]:
         name = f"{self.prefix}-{suffix}"
         if run(["docker", "inspect", name], check=False).returncode == 0:
             raise SmokeError("refusing to reuse an existing smoke container")
@@ -198,14 +189,10 @@ class DockerResources:
 
     def is_absent(self) -> bool:
         network_absent = (
-            run(["docker", "network", "inspect", self.network], check=False).returncode
-            != 0
+            run(["docker", "network", "inspect", self.network], check=False).returncode != 0
         )
         container_absent = all(
-            run(
-                ["docker", "inspect", f"{self.prefix}-{suffix}"], check=False
-            ).returncode
-            != 0
+            run(["docker", "inspect", f"{self.prefix}-{suffix}"], check=False).returncode != 0
             for suffix in ("unconfigured", "bad-jwks", "configured")
         )
         return network_absent and container_absent
@@ -213,38 +200,37 @@ class DockerResources:
 
 def verify_image(image: str, canary: str) -> dict[str, Any]:
     dockerfile = (ROOT / "apps" / "api" / "Dockerfile").read_text(encoding="utf-8")
-    first_instruction = next(
-        (line.strip() for line in dockerfile.splitlines() if line.strip()), ""
-    )
+    from_instructions = [
+        line.strip() for line in dockerfile.splitlines() if line.strip().upper().startswith("FROM ")
+    ]
+    if len(from_instructions) != 2 or not re.fullmatch(
+        r"FROM mwader/static-ffmpeg:7\.1\.1@sha256:[0-9a-f]{64} AS ffmpeg",
+        from_instructions[0],
+    ):
+        raise SmokeError("the API FFmpeg stage is not pinned to the expected digest form")
     if not re.fullmatch(
-        r"FROM python:3\.12\.12-slim-bookworm@sha256:[0-9a-f]{64}", first_instruction
+        r"FROM python:3\.12\.12-slim-bookworm@sha256:[0-9a-f]{64}",
+        from_instructions[1],
     ):
         raise SmokeError("the API base image is not pinned to the expected digest form")
-    inspected = run(
-        ["docker", "image", "inspect", image, "--format", "{{json .Config}}"]
-    )
+    inspected = run(["docker", "image", "inspect", image, "--format", "{{json .Config}}"])
     config = json.loads(inspected.stdout)
     if not isinstance(config, dict) or config.get("User") != "app":
-        raise SmokeError(
-            "the runtime image is not configured for the non-root app user"
-        )
-    history = run(
-        ["docker", "history", "--no-trunc", "--format", "{{.CreatedBy}}", image]
-    ).stdout
+        raise SmokeError("the runtime image is not configured for the non-root app user")
+    history = run(["docker", "history", "--no-trunc", "--format", "{{.CreatedBy}}", image]).stdout
     findings = sensitive_findings(f"{inspected.stdout}\n{history}")
     if canary in inspected.stdout or canary in history or findings:
         raise SmokeError("the image metadata contains a sensitive-looking value")
     return {
         "base_image_digest_pinned": True,
+        "ffmpeg_image_digest_pinned": True,
         "runtime_user": "app",
         "metadata_scan": "passed",
     }
 
 
 def supabase_status(workdir: Path) -> dict[str, str]:
-    completed = run(
-        [npx_command(), "supabase", "--workdir", str(workdir), "status", "-o", "json"]
-    )
+    completed = run([npx_command(), "supabase", "--workdir", str(workdir), "status", "-o", "json"])
     try:
         payload = json.loads(completed.stdout)
     except json.JSONDecodeError as exc:
@@ -297,9 +283,7 @@ def create_auth_session(status: dict[str, str]) -> str:
 def container_environment(status: dict[str, str], *, jwks_url: str) -> dict[str, str]:
     api_url = required(status, "API_URL").rstrip("/")
     docker_api_url = api_url.replace("127.0.0.1", "host.docker.internal")
-    docker_database_url = required(status, "DB_URL").replace(
-        "127.0.0.1", "host.docker.internal"
-    )
+    docker_database_url = required(status, "DB_URL").replace("127.0.0.1", "host.docker.internal")
     return {
         "BABY_CARE_ENVIRONMENT": "test",
         "BABY_CARE_DATABASE_URL": docker_database_url,
@@ -335,9 +319,7 @@ def run_unconfigured(
     live = wait_for_liveness(base_url)
     if inject_failure_after_start:
         raise SmokeError("synthetic failure injected after container start")
-    ready = expect_status(
-        http_json(f"{base_url}/health/ready"), 503, "unconfigured readiness"
-    )
+    ready = expect_status(http_json(f"{base_url}/health/ready"), 503, "unconfigured readiness")
     unavailable = expect_status(
         http_json(f"{base_url}/v1/babies"),
         503,
@@ -507,9 +489,7 @@ def run_configured(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Run fail-closed API container HTTP smoke checks."
-    )
+    parser = argparse.ArgumentParser(description="Run fail-closed API container HTTP smoke checks.")
     parser.add_argument("--mode", choices=("unconfigured", "configured"), required=True)
     parser.add_argument("--image", required=True)
     parser.add_argument("--resource-prefix")
@@ -522,12 +502,8 @@ def main() -> int:
     if not NAME_PATTERN.fullmatch(prefix):
         print(json.dumps({"status": "failed", "reason": "invalid resource prefix"}))
         return 2
-    if args.mode == "configured" and (
-        args.supabase_workdir is None or not args.db_container
-    ):
-        print(
-            json.dumps({"status": "failed", "reason": "configured inputs are required"})
-        )
+    if args.mode == "configured" and (args.supabase_workdir is None or not args.db_container):
+        print(json.dumps({"status": "failed", "reason": "configured inputs are required"}))
         return 2
 
     canary = f"BABY_CARE_SECRET_CANARY_{uuid4().hex}"

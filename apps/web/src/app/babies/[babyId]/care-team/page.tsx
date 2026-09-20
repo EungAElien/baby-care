@@ -1,11 +1,8 @@
 "use client";
 
 // SC10 공동양육 — 구성원·관계·권한·초대 및 참여 상태.
-// 실제 세션이면 listMembers/removeMembership/listInvites/revokeInvite로
-// 실제 데이터를 쓴다. createInvite·reissueInvite는 계약상
-// X-Reauthentication-Proof(CREATE_INVITE)가 필수라 재인증 플로우가 생길
-// 때까지 비활성으로 둔다(값을 지어내지 않는다). 목 세션이면 기존과 같이
-// fixture로 상태 전이만 보인다.
+// 실제 세션의 초대 발급·재발급은 작업에 결합된 새 OTP proof를 사용한다.
+// 링크 원문은 이 탭 메모리에서 최초 응답에만 보인다.
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { isForBaby, mockIssuedInvite, mockRoleAssignments, getMockScenario } from "@/lib/mock/fixtures";
@@ -17,6 +14,11 @@ import { useBabiesQuery, findBabyAccess } from "@/lib/api/babies";
 import { useInvitesQuery, useMembersQuery, useRemoveMembershipMutation, useRevokeInviteMutation } from "@/lib/api/members";
 import { ContractApiError } from "@/lib/api/errors";
 import { ScreenSection, ErrorState, LoadingState } from "@/components/screen-state";
+import { ReauthenticationPanel } from "@/components/reauthentication-panel";
+import { useApiClient } from "@/lib/api/real-client";
+import { createInvite, reissueInvite } from "@/lib/api/shared-care";
+import type { IssuedInvite } from "@/lib/api/shared-care";
+import { newClientRequestId } from "@/lib/api/client";
 
 const roleLabel: Record<string, string> = { OWNER: "관리 보호자", CAREGIVER: "공동 보호자" };
 const statusLabel: Record<string, string> = { ACTIVE: "활동 중", REVOKED: "제거됨", LEFT: "나감" };
@@ -51,8 +53,16 @@ function RealCareTeam({ babyId }: Readonly<{ babyId: string }>) {
   const invites = useInvitesQuery(babyId, isOwner);
   const removeMembership = useRemoveMembershipMutation(babyId);
   const revokeInvite = useRevokeInviteMutation(babyId);
+  const client = useApiClient();
   const [confirmingLeave, setConfirmingLeave] = useState(false);
   const [leaveError, setLeaveError] = useState<string | null>(null);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteIntent, setInviteIntent] = useState<
+    | { kind: "create"; email: string; requestId: string }
+    | { kind: "reissue"; inviteId: string; requestId: string }
+    | null
+  >(null);
+  const [issued, setIssued] = useState<IssuedInvite | null>(null);
 
   if (babies.isLoading || members.isLoading) return <LoadingState label="구성원 정보를 불러오고 있어요" />;
   if (babies.isError || members.isError || !myAccess) {
@@ -70,7 +80,7 @@ function RealCareTeam({ babyId }: Readonly<{ babyId: string }>) {
       // must not discard the current caretaker's own scope or drafts.
       scope.set(real.userId, null);
       draft.clearBaby(babyId);
-      router.push("/login");
+      router.push(`/account?baby_id=${babyId}`);
     } catch (error) {
       // OWNER가 시도하면 계약상 409 OWNER_REQUIRED가 그대로 여기로 온다 — 문구를 지어내지 않고 서버 메시지를 보여준다.
       setLeaveError(errorMessage(error));
@@ -153,26 +163,71 @@ function RealCareTeam({ babyId }: Readonly<{ babyId: string }>) {
                   {invite.email} · {inviteStatusLabel[invite.status] ?? invite.status}
                 </span>
                 {invite.status === "PENDING" && (
-                  <button
-                    type="button"
-                    onClick={() => revokeInvite.mutate({ inviteId: invite.invite_id, version: invite.version })}
-                    disabled={revokeInvite.isPending}
-                    className="min-h-11 rounded-md border border-destructive/40 px-2 text-xs text-destructive disabled:opacity-50"
-                  >
-                    취소
-                  </button>
+                  <>
+                    <button type="button"
+                      onClick={() => {
+                        setIssued(null);
+                        setInviteIntent({ kind: "reissue", inviteId: invite.invite_id, requestId: newClientRequestId() });
+                      }}
+                      className="min-h-11 rounded-md border border-border px-2 text-xs text-foreground">
+                      링크 재발급
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => revokeInvite.mutate({ inviteId: invite.invite_id, version: invite.version })}
+                      disabled={revokeInvite.isPending}
+                      className="min-h-11 rounded-md border border-destructive/40 px-2 text-xs text-destructive disabled:opacity-50"
+                    >
+                      취소
+                    </button>
+                  </>
                 )}
               </li>
             ))}
           </ul>
           {revokeInvite.isError && <ErrorState label={errorMessage(revokeInvite.error)} />}
-          <button
-            type="button"
-            disabled
-            className="min-h-11 rounded-md border border-border px-4 text-sm text-muted-foreground"
-          >
-            새 초대 발급 (재인증 연동 이후)
-          </button>
+          <form onSubmit={(event) => {
+            event.preventDefault();
+            setIssued(null);
+            setInviteIntent({ kind: "create", email: inviteEmail.trim(), requestId: newClientRequestId() });
+          }} className="flex flex-col gap-2">
+            <label htmlFor="invite-email" className="text-sm text-foreground">초대할 보호자의 이메일</label>
+            <input id="invite-email" type="email" required value={inviteEmail}
+              onChange={(event) => setInviteEmail(event.target.value)}
+              className="min-h-11 rounded-md border border-border bg-background px-3 text-sm" />
+            <button type="submit" className="min-h-11 rounded-md border border-border px-4 text-sm">
+              새 초대 준비
+            </button>
+          </form>
+          {inviteIntent && (
+            <ReauthenticationPanel key={inviteIntent.requestId} babyId={babyId}
+              operation="CREATE_INVITE" title="초대 작업 재인증"
+              onProof={async (proofToken) => {
+                if (!client) throw new Error("Real API client is not configured.");
+                const result = inviteIntent.kind === "create"
+                  ? await createInvite(client, babyId, inviteIntent.email, proofToken, inviteIntent.requestId)
+                  : await reissueInvite(client, babyId, inviteIntent.inviteId, proofToken, inviteIntent.requestId);
+                setIssued(result);
+                void invites.refetch();
+              }} />
+          )}
+          {issued && (
+            <div className="flex flex-col gap-2 rounded-md border border-border p-3">
+              {issued.invite_url ? (
+                <>
+                  <p className="text-sm text-foreground">이 링크는 지금 한 번만 표시돼요. 지정한 이메일의 보호자에게 직접 전달하세요.</p>
+                  <input aria-label="초대 링크" readOnly value={issued.invite_url}
+                    className="min-h-11 w-full rounded-md border border-border bg-background px-3 text-sm" />
+                </>
+              ) : (
+                <p className="text-sm text-foreground">
+                  발급 결과는 복구했지만 링크 원문은 다시 받을 수 없어요. 위 목록에서 링크를 재발급하세요.
+                </p>
+              )}
+              <button type="button" onClick={() => { setIssued(null); setInviteIntent(null); }}
+                className="min-h-11 rounded-md border border-border px-3 text-sm">링크 숨기기</button>
+            </div>
+          )}
         </ScreenSection>
       ) : (
         <ScreenSection title="참여 관리">

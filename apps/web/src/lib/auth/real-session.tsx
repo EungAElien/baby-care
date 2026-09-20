@@ -21,7 +21,7 @@ type RealSessionValue = Readonly<{
   email: string | null;
   requestOtp: (email: string) => Promise<OtpResult>;
   verifyOtp: (email: string, token: string) => Promise<OtpResult>;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<OtpResult>;
 }>;
 
 const RealSessionContext = createContext<RealSessionValue | null>(null);
@@ -75,8 +75,11 @@ export function RealSessionProvider({ children }: Readonly<{ children: React.Rea
   );
 
   const signOut = useCallback(async () => {
-    if (!configured) return;
-    await getSupabaseClient().auth.signOut();
+    if (!configured) return { ok: false, error: "실제 Supabase 환경이 설정되지 않았어요." };
+    // The FastAPI revocation endpoint owns CURRENT/ALL scope. Supabase's default
+    // signOut is global, so only clear this browser after the server call.
+    const { error } = await getSupabaseClient().auth.signOut({ scope: "local" });
+    return { ok: !error, error: error?.message ?? null };
   }, [configured]);
 
   const value = useMemo<RealSessionValue>(
