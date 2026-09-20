@@ -5,7 +5,7 @@
 상태: **전용 도구로 대표 장면 제작·검수 중**. 전체 22종, 실제 API 연동과 A-12 전체 인수는 미완료. 실제 산출물과 검수 범위는 [v2 제작 기록](production-v2/README.md)을 따른다.
 범위: A-12 캐릭터 제작, A-07 표현, A-04 정적 로그의 디자인 접점.
 
-### 현재 제작물 (2026-09-20)
+### 현재 제작물 (2026-09-21)
 
 [v2 제작 기록](production-v2/README.md)에 Figma 부위별 원본, 실제 Creator 프로젝트, 내보낸 JSON, 대표 PNG와 검수 범위를 정리한다. `/design/character-motion`은 새 제작 검토 화면이며 `/design/character-motion/lifecycle`은 합성 입력 기반 상태 제어 시험 화면이다. [이전 웹 프로토타입](runtime-prototype.md)은 이력으로 보존하며 외형 기준으로 사용하지 않는다.
 
@@ -13,7 +13,7 @@
 
 **큰 색면과 곡선으로 관계를 보여주는 편집 일러스트에, 읽기 쉬운 표정과 짧은 돌봄 동작을 결합한다.** Inside the Head의 조형 원리와 벡터 애니메이션 제작 구조를 참고하고, 아기·부모·돌봄 장면은 독자적으로 만든다.
 
-제작 경로는 **Figma 부위별 벡터 원본 → Lottie Creator 키프레임 편집 → 표준 Lottie JSON → lottie-web**이다. After Effects에 접근할 수 없어 사용자가 제시한 대체 경로를 실제 사용했다. 웹은 재생과 상태 제어를 담당하며 CSS는 배치와 주변 UI에만 쓴다. 기존 시안의 외형을 먼저 맞추고 움직임을 추가한다.
+제작 경로는 **Figma 부위별 벡터 원본 → Lottie Creator 키프레임 편집 → 표준 JSON 또는 dotLottie 내부 JSON 추출 → lottie-web**이다. After Effects에 접근할 수 없어 사용자가 제시한 대체 경로를 실제 사용했다. 웹은 재생과 상태 제어를 담당하며 CSS는 배치와 주변 UI에만 쓴다. 기존 시안의 외형을 먼저 맞추고 움직임을 추가한다.
 
 이번 기준은 [사용자가 정한 범주 v2](../../product/baby-state-care-action-categories-v2.md)다. 참조 대화 “아기 부모 캐릭터 애니메이션 설계”의 마지막 범주 수정과 추가 답변을 확인했다. 초기 답변의 ‘기저귀 확인·재우기 시도’ 목록으로 되돌리지 않는다.
 

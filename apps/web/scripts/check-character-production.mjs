@@ -45,7 +45,11 @@ for (const asset of manifest.assets) {
     }
   }
   visit(animation.layers);
-  assert.ok(animatedLayers > 1, 'Expected body-part animation, not a single scene transform');
+  if (asset.motionPolicy === 'static-neutral') {
+    assert.equal(asset.id, 'inference-uncertain');
+    assert.equal(animatedLayers, 0, 'The uncertain pose must remain neutral and still');
+    assert.equal(asset.loop, false);
+  } else assert.ok(animatedLayers > 1, 'Expected body-part animation, not a single scene transform');
   console.log(`${asset.id}: ${animatedLayers} animated layers; editor export hash verified`);
 }
 assert.equal(exported, manifest.exported);

@@ -14,6 +14,7 @@ export type LottieAsset = {
   representativeFrame: number;
   width: number;
   height: number;
+  staticPose?: boolean;
 };
 
 const mediaQuery = "(prefers-reduced-motion: reduce)";
@@ -29,7 +30,7 @@ type StageProps = { asset: LottieAsset; animate: boolean; frame?: number; onComp
 /** Plays an editor export. Artwork and keyframes belong to the asset, never CSS. */
 export function LottieStage(props: StageProps) {
   const reduced = useSyncExternalStore(subscribeMotion, reducedSnapshot, serverSnapshot);
-  if (props.frame === undefined && (!props.animate || reduced)) return <div data-lottie-id={props.asset.id} data-lottie-static="true" style={{ width: "100%", aspectRatio: `${props.asset.width} / ${props.asset.height}` }}>
+  if (props.frame === undefined && (!props.animate || reduced || props.asset.staticPose)) return <div data-lottie-id={props.asset.id} data-lottie-static="true" style={{ width: "100%", aspectRatio: `${props.asset.width} / ${props.asset.height}` }}>
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img src={props.asset.poster} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
   </div>;

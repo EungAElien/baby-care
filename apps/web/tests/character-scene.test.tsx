@@ -8,15 +8,6 @@ import { initialScene, sceneReducer, type SceneState } from "../src/components/c
 
 const mocks = vi.hoisted(() => ({ load: vi.fn() }));
 vi.mock("lottie-web", () => ({ default: { loadAnimation: mocks.load } }));
-// Exercise future one-shot exports without publishing an unfinished production asset.
-vi.mock("../src/components/character/production-assets", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../src/components/character/production-assets")>();
-  return { ...actual, productionAsset: (pose: Parameters<typeof actual.productionAsset>[0]) =>
-    pose.kind === "action" && pose.code === "holding" ? {
-      id: "test-only-holding", animation: "/test-fixtures/holding.json", poster: "/test-fixtures/action-holding.png",
-      fps: 24, start: 0, end: 53, loop: false, representativeFrame: 0, width: 400, height: 400,
-    } : actual.productionAsset(pose) };
-});
 let reduced = false;
 let players: ReturnType<typeof makePlayer>[] = [];
 function makePlayer() {
@@ -41,6 +32,12 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe("editor-export Lottie lifecycle", () => {
+  it("keeps an uncertain inference still even when live motion is requested", async () => {
+    render(<LottieStage asset={productionAssets["inference-uncertain"]!} animate />);
+    await flush();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(mocks.load).not.toHaveBeenCalled();
+  });
   it("plays only the action segment and reports completion once", async () => {
     const dispatch = vi.fn(); const state = playing();
     render(<CharacterScene state={state} dispatch={dispatch} />); await loaded();
