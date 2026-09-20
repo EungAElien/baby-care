@@ -56,6 +56,10 @@ async function applyChange(
   babyId: string,
   change: SharedChange,
 ): Promise<void> {
+  if (["CARE_EVENT", "STATE_OBSERVATION", "BABY"].includes(change.resource_type)) {
+    await queryClient.invalidateQueries({ queryKey: ["private", scope.userId, babyId, "summary"] }, { throwOnError: true });
+    await queryClient.invalidateQueries({ queryKey: ["private", scope.userId, babyId, "patterns"] }, { throwOnError: true });
+  }
   switch (change.resource_type) {
     case "STATE_OBSERVATION":
     case "EPISODE": {

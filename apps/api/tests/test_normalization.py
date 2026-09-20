@@ -27,6 +27,7 @@ from baby_care_api.services.normalizer import (
     MODEL_ID,
     NormalizerRequest,
     OpenAINormalizerAdapter,
+    ProviderCallRecord,
 )
 from baby_care_api.services.provider_errors import classify_provider_error
 
@@ -503,8 +504,23 @@ def _response(**overrides: Any) -> Any:
     return SimpleNamespace(**values)
 
 
-def _adapter(outcomes: list[Any]) -> tuple[OpenAINormalizerAdapter, _FakeClient]:
-    adapter = OpenAINormalizerAdapter(api_key="synthetic-not-a-live-key")
+class _Observer:
+    def __init__(self, reservations: list[str | None]) -> None:
+        self.reservations = reservations
+        self.completed: list[tuple[str, ProviderCallRecord]] = []
+
+    def reserve(self, *, model: str) -> str | None:
+        assert model == MODEL_ID
+        return self.reservations.pop(0)
+
+    def complete(self, reservation_id: str, record: ProviderCallRecord) -> None:
+        self.completed.append((reservation_id, record))
+
+
+def _adapter(
+    outcomes: list[Any], *, observer: _Observer | None = None
+) -> tuple[OpenAINormalizerAdapter, _FakeClient]:
+    adapter = OpenAINormalizerAdapter(api_key="synthetic-not-a-live-key", request_observer=observer)
     client = _FakeClient(outcomes)
     adapter._client = client
     return adapter, client
@@ -526,6 +542,8 @@ def test_product_adapter_uses_exact_model_schema_and_no_tools() -> None:
     assert call["text"]["format"]["strict"] is True
     assert "tools" not in call
     assert "synthetic_data" not in json.loads(call["input"][0]["content"])
+    assert "FEEDING이 아닌 행동은 amount, unit, feeding_mode를 반드시 null" in call["instructions"]
+    assert "time_precision=RELATIVE" in call["instructions"]
 
 
 @pytest.mark.parametrize(
@@ -558,6 +576,98 @@ def test_product_adapter_retries_once_without_exceeding_request_budget() -> None
 
     assert result.content is not None
     assert len(client.responses.calls) == 2
+
+
+def test_product_adapter_records_content_free_provider_metadata() -> None:
+    observer = _Observer(["request-1"])
+    response = _response(
+        id="resp_synthetic",
+        usage=SimpleNamespace(
+            input_tokens=120,
+            output_tokens=40,
+            total_tokens=160,
+            input_tokens_details=SimpleNamespace(cached_tokens=20),
+        ),
+    )
+    adapter, _ = _adapter([response], observer=observer)
+
+    result = asyncio.run(adapter.normalize(_request()))
+
+    assert result.content is not None
+    assert len(observer.completed) == 1
+    reservation_id, record = observer.completed[0]
+    assert reservation_id == "request-1"
+    assert record == ProviderCallRecord(
+        outcome="RESPONSE",
+        latency_ms=record.latency_ms,
+        response_id="resp_synthetic",
+        response_model=MODEL_ID,
+        response_status="completed",
+        input_tokens=120,
+        cached_input_tokens=20,
+        output_tokens=40,
+        total_tokens=160,
+    )
+
+
+def test_product_adapter_records_only_schema_error_shape() -> None:
+    observer = _Observer(["request-1"])
+    adapter, _ = _adapter([_response(output_text="{}")], observer=observer)
+
+    result = asyncio.run(adapter.normalize(_request()))
+
+    assert result.failure_code == "NORMALIZATION_SCHEMA_INVALID"
+    _, record = observer.completed[0]
+    assert record.error_kind == "SCHEMA_VALIDATION"
+    assert record.validation_error_types == ("missing",) * 5
+    assert record.validation_error_locations == (
+        "actions",
+        "states",
+        "outcomes",
+        "caregiver_interpretations",
+        "unresolved",
+    )
+
+
+def test_product_adapter_repairs_only_unique_unicode_text_evidence_offsets() -> None:
+    raw_text = "🍼 분유 80mL 먹였어요"
+    payload = _content(raw_text).model_dump(mode="json")
+    payload["actions"][0]["evidence"][0]["span_start"] = 1
+    payload["actions"][0]["evidence"][0]["span_end"] = len(raw_text) + 1
+    adapter, _ = _adapter([_response(output_text=json.dumps(payload, ensure_ascii=False))])
+
+    result = asyncio.run(adapter.normalize(_request()))
+
+    assert result.content is not None
+    evidence = result.content.actions[0].evidence[0]
+    assert (evidence.span_start, evidence.span_end, evidence.quote) == (
+        0,
+        len(raw_text),
+        raw_text,
+    )
+    assert (
+        validate_normalized_content(
+            result.content,
+            raw_text=raw_text,
+            choices=[],
+            allow_user_correction=False,
+            confirmation=False,
+            eventless=True,
+        )
+        == []
+    )
+
+
+def test_product_adapter_stops_before_network_when_request_budget_is_exhausted() -> None:
+    observer = _Observer([None])
+    adapter, client = _adapter([_response()], observer=observer)
+
+    result = asyncio.run(adapter.normalize(_request()))
+
+    assert result.failure_code == "NORMALIZATION_PROVIDER_ERROR"
+    assert result.provider_call_executed is False
+    assert client.responses.calls == []
+    assert observer.completed == []
 
 
 @pytest.mark.parametrize("timeout_error", [TimeoutError, type("APITimeoutError", (Exception,), {})])

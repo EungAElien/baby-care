@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { NotebookPen, MessageSquareText } from "lucide-react";
+import { CareEntryWorkspace } from "@/components/care-entry-workspace";
 import { CareEventForm } from "@/components/care-event-form";
 import { useRealSession } from "@/lib/auth/real-session";
 import { useDraft } from "@/lib/mock/draft";
@@ -33,11 +34,11 @@ export default function QuickRecordPage() {
       <button type="button" aria-pressed={mode === "text"} onClick={() => setMode("text")}><MessageSquareText aria-hidden="true" size={22} /><span>문장으로 초안<small>확인하고 수정한 뒤 저장</small></span></button>
     </div>
     <div hidden={mode !== "structured"}><CareEventForm key={babyId} babyId={babyId} canSave={real.status === "signed-in"} /></div>
-    <div hidden={mode !== "text"}><ScreenSection title="확인 전 개인 초안">
+    <div hidden={mode !== "text"}>{real.status === "signed-in" ? <CareEntryWorkspace babyId={babyId} /> : <ScreenSection title="확인 전 개인 초안">
       <TextField label="어떤 돌봄을 했나요?" description="실제 행동과 관찰한 모습을 적어 주세요. 원인 추정은 확정된 사실로 저장하지 않아요." value={liveText} onValueChange={({ value }) => draft.setLiveText(babyId, value)}><TextFieldTextarea placeholder="예: 분유를 먹인 뒤 아기가 차분해 보였어요" /></TextField>
       <p className="text-sm text-muted-foreground">문장 분석과 확인 저장은 연결 준비 중이에요. 현재 입력은 이 화면의 개인 초안이며 공동 기록에 저장되지 않아요.</p>
       <DemoOnly><ActionButton variant="neutralWeak" asChild><Link href={`/babies/${babyId}/entries/review`}>DEMO · 확인 과정 살펴보기</Link></ActionButton></DemoOnly>
-    </ScreenSection></div>
+    </ScreenSection>}</div>
   </div>;
 }
 

@@ -16,7 +16,7 @@ function ObservationView({ observation }: Readonly<{ observation: Observation | 
     <div className="flex flex-wrap items-center gap-2"><Eye size={20} aria-hidden="true" /><p className="text-xl font-bold">{observationLabel[observation.visual_state_code]}</p><SourceBadge dataOrigin={observation.data_origin} /></div>
     <p className="text-sm text-muted-foreground">{observation.observed_at ? <><time dateTime={observation.observed_at}>{new Date(observation.observed_at).toLocaleString("ko-KR")}</time> 관찰</> : "관찰 시각 모름"}</p>
     <p className="text-sm text-muted-foreground">보호자가 확인한 모습이에요. 현재 상태나 자동 추정한 기분을 뜻하지 않아요.</p>
-  </div> : <EmptyState label="확인된 상태가 아직 없어요" />;
+  </div> : <EmptyState label="최근 조회 범위에 확인된 상태가 없어요" />;
 }
 function RealObservation({ babyId }: Readonly<{ babyId: string }>) {
   const timeline = useTimelineQuery(babyId, true);

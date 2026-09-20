@@ -60,6 +60,7 @@ function RealTimeline({ babyId }: Readonly<{ babyId: string }>) {
   const items = timeline.data?.pages.flatMap((page) => page.items) ?? [];
   return (
     <div className="flex flex-col gap-3">
+      <Link href={`/babies/${babyId}/entries`} className="text-sm underline">내 개인 초안 작성·복구</Link>
       {items.length === 0 ? (
         <EmptyState label="이 아기의 확정 기록이 아직 없어요" action={<Link href={`/babies/${babyId}/quick-record`} className="text-sm text-primary">기록하러 가기</Link>} />
       ) : items.map((item) => (

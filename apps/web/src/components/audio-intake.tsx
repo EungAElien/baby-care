@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import Link from "next/link";
+import { useCapabilitiesQuery } from "@/lib/api/capabilities";
 import { Mic, Square, Upload, FileAudio } from "lucide-react";
 import { usePrivateScope } from "@/components/app-providers";
 import { useApiClient } from "@/lib/api/real-client";
@@ -38,6 +40,8 @@ export function AudioIntakeScreen({ babyId }: Readonly<{ babyId: string }>) {
   const cancellation = useRef(false);
   const available = real.status === "signed-in" && client !== null && config !== null &&
     scopeSnapshot.userId === real.userId && scopeSnapshot.babyId === babyId;
+
+  const capabilities = useCapabilitiesQuery(available && view.stage === "ready");
 
   useEffect(() => {
     if (!available || !client || !config) return;
@@ -134,7 +138,10 @@ export function AudioIntakeScreen({ babyId }: Readonly<{ babyId: string }>) {
         {view.grant && !terminal && <ActionButton variant="ghost" disabled={view.stage === "cancelling"} onClick={() => void cancel()}>전송 중단·취소</ActionButton>}
         {terminal && <ActionButton variant="neutralWeak" onClick={() => { setView(initialView); setLocalError(""); setRevision((value) => value + 1); }}>새 음원 시작</ActionButton>}
       </div>
-      {view.stage === "ready" && <div className="flex flex-col gap-3"><Callout title="음원 준비 완료" description="분석 연결을 준비하고 있어요. 아직 모델 분석 결과는 없어요." /><ActionButton variant="neutralWeak" disabled={busy} onClick={() => void run(async (s) => { if (player.current) await s.play(player.current); })}>보관 동의 확인 후 재생</ActionButton><audio ref={player} controls controlsList="nodownload" aria-label="등록한 음원 재생" onEnded={() => intake.current?.clearPlayback()} /></div>}
+      {view.stage === "ready" && <div className="flex flex-col gap-3"><Callout title="음원 준비 완료" description="분석을 시작하면 이 음원으로 아기의 신호를 살펴봐요." />
+        {capabilities.isLoading && <p role="status">분석 가능 여부를 확인하고 있어요.</p>}
+        {capabilities.isError && <><ErrorState label="분석 가능 여부를 확인하지 못했어요." /><ActionButton variant="neutralWeak" disabled={capabilities.isFetching} onClick={() => void capabilities.refetch()}>다시 확인</ActionButton></>}
+        {capabilities.data && view.episode && view.audio && (capabilities.data.audio_model.available ? <ActionButton asChild><Link href={`/babies/${babyId}/episodes/${view.episode.episode_id}/analysis?audioId=${view.audio.audio_id}`}>분석 시작</Link></ActionButton> : <Callout title="분석 준비 중" description="서버에서 아직 모델을 준비하지 못했어요. 직접 기록은 계속할 수 있어요." />)}<ActionButton variant="neutralWeak" disabled={busy} onClick={() => void run(async (s) => { if (player.current) await s.play(player.current); })}>보관 동의 확인 후 재생</ActionButton><audio ref={player} controls controlsList="nodownload" aria-label="등록한 음원 재생" onEnded={() => intake.current?.clearPlayback()} /></div>}
     </div>
   );
 }

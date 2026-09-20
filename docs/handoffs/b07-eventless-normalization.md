@@ -12,9 +12,11 @@
 LLM/RULE/MANUAL 검토를 거쳐 허용된 CareEvent·StateObservation·확인 라벨을 원자적으로
 확정하는 흐름을 실제 FastAPI와 격리 로컬 Supabase에서 구현했다. LLM 제품 어댑터는
 OpenAI Responses API의 정확한 모델 ID `gpt-5.6-terra`와 strict Structured Outputs를
-사용한다. 다만 현재 환경에는 `OPENAI_API_KEY`가 없어 실제 Terra 호출과 품질 판정은
-실행하지 않았다. 자동 테스트의 LLM 결과는 제품용 `NormalizerAdapter` 인터페이스에 주입한
-대역이며 외부 모델 실행 증거가 아니다.
+사용한다. 2026년 9월 20일에는 별도 합성 전용 환경에서 실제 Terra 요청 6회를 실행했고,
+동결한 합성 사례 3개의 제품 HTTP 정규화·명시 확인·저장·재조회 흐름을 통과했다. 실제
+호출 결과와 재현 경계는 [B-07 Terra 제품 API 검증](b07-terra-product-verification.md)에
+분리해 기록했다. 일반 자동 테스트의 LLM 결과는 계속 제품용 `NormalizerAdapter`
+인터페이스에 주입한 대역이며 외부 모델 실행 증거가 아니다.
 
 사건 없는 범위에서 가짜 episode를 만들지 않는다. ActionAttempt·action group·Outcome과
 실제 울음 사건 연결, A의 브라우저·캐릭터 재생, 전체 B-07 인수는 남은 작업이다.
@@ -291,17 +293,20 @@ npm run verify:container
 API_PYTHON="$PWD/apps/api/.venv/bin/python" npm run verify:integration
 ```
 
-최신 `develop` 재배치 뒤 격리 로컬 Supabase와 실제 FastAPI를 사용한 API 전체 suite는
-216개 통과, 필수 integration 19/19 수집, coverage 91.02%였고 pgTAP 96개가 통과했다. Ruff와 mypy도
-통과했다. 이 수치는 로컬 DB·Auth·RLS와 주입한 LLM 대역 검증이며 실제 Terra 품질 수치가
-아니다.
+최신 `develop` 재배치 뒤 일반 회귀와 별도로 B-07 실제 제품 smoke를 실행했다. 실제
+`gpt-5.6-terra` 연결, 합성 3사례의 의미 판정, FastAPI 확인 저장·권한·복구가 모두
+통과했고 외부 요청은 실패 진단과 재검증을 포함해 6회였다. 일반 회귀의 정확한 수치와
+실행 기록은 [B-07 Terra 제품 API 검증](b07-terra-product-verification.md)에 있다. 합성
+3사례 통과는 운영 트래픽 성능이나 의료적 정확도, 실제 사용자 일반화를 증명하지 않는다.
 
 키가 준비되면 일반 테스트 프로세스와 분리한 합성 전용 서버에서만
 `BABY_CARE_EXTERNAL_NORMALIZATION_ENABLED=true`와 `BABY_CARE_OPENAI_API_KEY`를 서버 비밀로
 설정한다. `getCapabilities`가 true인지 확인한 뒤 합성 초안 최대 3개만 API 흐름으로
 호출하고, 재시도를 포함한 외부 요청이 6회를 넘기 전에 중단한다. key·원문·provider 응답
-전문은 로그나 보고서에 남기지 않고 run의 `provider_call_executed`, model/version,
-status/failure만 기록한다. 다른 모델로 바꾸거나 CI에서 이 절차를 자동 실행하지 않는다.
+전문은 로그나 보고서에 남기지 않고 내용 없는 호출 메타데이터와 run의
+`provider_call_executed`, model/version, status/failure만 기록한다. 다른 모델로 바꾸거나
+CI에서 이 절차를 자동 실행하지 않는다. 전용 실행 명령과 영속 호출 예산은 위 검증 문서를
+따른다.
 
 ## 보안·경쟁 조건
 
@@ -317,7 +322,6 @@ status/failure만 기록한다. 다른 모델로 바꾸거나 CI에서 이 절�
 
 ## 남은 범위
 
-- 실제 OpenAI 계정의 `gpt-5.6-terra` 접근, 최대 3개 합성 사례의 호출·품질·사용량 확인
 - episode가 있는 ActionAttempt·action group·Outcome, 복수 행동 후 반응과 기존 CareEvent 연결
 - A-07 실제 브라우저의 35초 대기·재조회·편집·수동 전환·오류 UI·새로고침 복구
 - A-12의 ActionAttempt/분석 후보/관찰 의미 연결, 캐릭터 자산·모션·접근성·오래된 상태 표현

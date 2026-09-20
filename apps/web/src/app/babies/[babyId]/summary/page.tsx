@@ -1,3 +1,4 @@
+import { RealSummary } from "@/components/real-summary";
 import Link from "next/link";
 import { isForBaby, mockDailySummary, mockPatterns } from "@/lib/mock/fixtures";
 import { ScreenSection } from "@/components/screen-state";
@@ -16,7 +17,7 @@ export default async function SummaryPage({ params, searchParams }: Readonly<{ p
   const patterns = isForBaby(babyId, patternFixture) ? patternFixture : null;
   return <div className="flex flex-col gap-6">
     <PageHeading title="기록으로 보는 하루" description="남긴 만큼만 살펴봐요. 빈 기록을 0으로 계산하지 않아요." />
-    <DemoOnly fallback={<ScreenSection title="요약 연결 준비 중"><p>아직 이 화면에서 실제 요약을 조회할 수 없어요. 확인한 기록은 타임라인에서 볼 수 있어요.</p><ActionButton asChild><Link href={`/babies/${babyId}/timeline`}>타임라인 보기</Link></ActionButton></ScreenSection>}>
+    <DemoOnly fallback={<RealSummary babyId={babyId} />}>
       <SummaryOverview summary={summary} babyId={babyId} />
       <ScreenSection title="다음 돌봄 준비">
         {patterns?.items.map((item) => <div key={item.kind} className="status-note"><p className="font-semibold">{item.status === "ON_HOLD" ? "패턴을 살펴볼 기록이 더 필요해요" : "준비 시점을 참고할 수 있어요"}</p><p className="text-sm text-muted-foreground">유효 기록 {item.valid_days}일 · {item.interval_count}개 간격</p></div>) ?? <p>이 아기의 패턴 자료가 아직 없어요.</p>}
