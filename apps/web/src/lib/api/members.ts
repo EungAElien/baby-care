@@ -12,7 +12,7 @@ import { newClientRequestId, idempotencyHeaders } from "@/lib/api/client";
 import { requireData } from "@/lib/api/errors";
 import type { components } from "@/lib/api/generated";
 
-function membersKey(babyId: string) {
+export function membersKey(babyId: string) {
   return ["real", "members", babyId] as const;
 }
 

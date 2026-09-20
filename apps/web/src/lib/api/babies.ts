@@ -16,11 +16,11 @@ export type CreateBabyInput = Readonly<{
   timezone: string;
 }>;
 
-function babiesKey(userId: string | null) {
+export function babiesKey(userId: string | null) {
   return ["real", userId, "babies"] as const;
 }
 
-function activeBabyKey(userId: string | null) {
+export function activeBabyKey(userId: string | null) {
   return ["real", userId, "active-baby"] as const;
 }
 

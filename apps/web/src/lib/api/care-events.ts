@@ -178,11 +178,11 @@ export async function getTimelinePage(client: ApiClient, babyId: string, cursor?
   return result;
 }
 
-function timelineKey(snapshot: PrivateScopeSnapshot, babyId: string) {
+export function timelineKey(snapshot: PrivateScopeSnapshot, babyId: string) {
   return privateQueryKey(snapshot, "timeline", { babyId });
 }
 
-function careEventKey(snapshot: PrivateScopeSnapshot, babyId: string, careEventId: string) {
+export function careEventKey(snapshot: PrivateScopeSnapshot, babyId: string, careEventId: string) {
   return privateQueryKey(snapshot, "care-event", { babyId, careEventId });
 }
 
