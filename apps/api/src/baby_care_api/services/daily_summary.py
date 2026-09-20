@@ -126,8 +126,12 @@ def build_daily_summary(
             record_count=feeds,
             known_amount_count=known_amounts,
             unknown_amount_count=unknown_amounts,
-            total_recorded_ml=total_ml if known_amounts else None,
-            breastfeeding_minutes=breastfeeding_minutes,
+            total_recorded_ml=total_ml
+            if known_amounts or (feeds == 0 and "FEEDING" in confirmed)
+            else None,
+            breastfeeding_minutes=(
+                0.0 if feeds == 0 and "FEEDING" in confirmed else breastfeeding_minutes
+            ),
         ),
         sleep=SleepSummary(
             record_count=sleeps,

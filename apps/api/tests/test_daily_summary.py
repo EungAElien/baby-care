@@ -87,7 +87,8 @@ def test_empty_day_and_confirmed_zero_are_distinct() -> None:
     zero = summary([], coverage=covered)
     assert zero.has_records is False
     assert zero.missing_fields == []
-    assert zero.feeding.total_recorded_ml is None
+    assert zero.feeding.total_recorded_ml == 0
+    assert zero.feeding.breastfeeding_minutes == 0
     assert zero.record_coverage == covered
 
 
