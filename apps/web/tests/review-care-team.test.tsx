@@ -120,7 +120,7 @@ describe("A-03 real membership loss", () => {
     act(() => draft.setLiveText(accepted.baby.baby_id, "다시 입력한 원문"));
 
     fireEvent.click(screen.getByRole("button", { name: "나가기 확정" }));
-    await waitFor(() => expect(api.push).toHaveBeenCalledWith("/login"));
+    await waitFor(() => expect(api.push).toHaveBeenCalledWith(`/account?baby_id=${accepted.baby.baby_id}`));
 
     expect(api.delete).toHaveBeenCalledTimes(1);
     expect(scope.snapshot()).toMatchObject({ userId: api.userId, babyId: null });
