@@ -121,6 +121,22 @@ CareEvent와 StateObservation만 B-09 피드에 같은 트랜잭션으로 기록
 대역 결과와 별도로 기록합니다. 구체적인 A 흐름·예시·남은 범위는
 [B-07 인계](../../docs/handoffs/b07-eventless-normalization.md)에 있습니다.
 
+실제 smoke는 Git에서 제외된 `apps/api/.env`의 `BABY_CARE_OPENAI_API_KEY`와 두 개의
+명시적 opt-in을 모두 요구합니다. 도구가 프로세스 재시작에도 유지되는 호출 원장을 먼저
+예약하므로 재시도를 포함해 6회를 넘지 않습니다.
+
+```bash
+chmod 600 apps/api/.env
+BABY_CARE_B07_LIVE_SMOKE=1 \
+PYTHONPATH=apps/api/src \
+apps/api/.venv/bin/python scripts/verification/b07_live_terra_smoke.py \
+  --allow-provider-calls
+```
+
+CI에서 이 명령을 실행하거나 호출 예산 원장을 지워 재실행하지 않습니다. 2026년 9월 20일
+실제 실행 결과와 키·결과 저장 경계는
+[B-07 Terra 제품 API 검증](../../docs/handoffs/b07-terra-product-verification.md)에 있습니다.
+
 ## V1 B M2D 실행 프로필
 
 일반 API는 `BABY_CARE_M2D_ENABLED=false`가 기본이며 기존 경량 이미지와 잠금 파일을
@@ -275,7 +291,7 @@ A의 안전한 전체/증분 복구 순서, 쓰기별 재조회 매핑, 예시�
 - 운영 Supabase migration 적용, 배포별 runtime/관리 로그인 발급과 운영 Auth 설정 검증
 - 승인된 법정대리인 확인 수단·증빙·정책. 현재 운영 아동 정보 처리는 fail-closed입니다.
 - 삭제 Job 실행기와 Storage·학습 사본·백업 실제 정리(B-12·B-13). B-04는 차단·요청·조회·재시도만 저장하며 COMPLETE를 만들지 않습니다.
-- B-07 실제 Terra 계정 호출·품질 판정, 사건 연결 ActionAttempt/action group/Outcome와 A-07·A-12 브라우저 인수, B-09 Realtime, B-11 집계, B-14 상담
+- B-07 실제 Terra 합성 3사례는 통과했으며, 사건 연결 ActionAttempt/action group/Outcome와 A-07·A-12 브라우저 인수, 운영 일반화, B-09 Realtime, B-14 상담은 남아 있습니다.
 - B-06 실제 제품 판단 정책 승인과 모델 활성화, hosted TUS 조각·백업 보관 확인, 운영 Scheduler와 Cloud Run 배포
 - V1 B의 Linux 실행 기반은 별도 프로필로 구현했지만 MPS 기준 대비 `1e-6` 재현 검사는 미통과입니다. 자세한 플랫폼별 차이와 후속 기준 결정은 V1 B 런타임 인계를 따릅니다.
 - A의 실제 브라우저·캐시·두 계정 화면 시험과 운영 계정/기기/외부 서비스 시험
