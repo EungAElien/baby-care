@@ -54,6 +54,17 @@
     "revoked_membership_existing_jwt_blocked": true,
     "shared_change_feed_omits_raw_and_normalized_content": true
   },
+  "regression": {
+    "quick_api_unit_passed": 221,
+    "integration_total_passed": 241,
+    "required_integration_collected": 20,
+    "required_integration_executed": 20,
+    "required_integration_skipped": 0,
+    "coverage_percent": 90.66,
+    "pgtap_passed": 96,
+    "auth_data_storage_http_passed": 23,
+    "artifact_sensitive_findings": 0
+  },
   "not_verified": [
     "production Supabase or deployment",
     "A-07 real browser flow",

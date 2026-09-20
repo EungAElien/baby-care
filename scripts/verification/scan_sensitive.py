@@ -9,6 +9,7 @@ from pathlib import Path
 
 RULES = {
     "synthetic-secret-canary": re.compile(r"BABY_CARE_SECRET_CANARY_[A-Za-z0-9_-]+"),
+    "openai-api-key": re.compile(r"\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{16,}\b"),
     "private-key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     "supabase-secret-key": re.compile(r"\bsb_secret_[A-Za-z0-9_-]{8,}\b"),
     "bearer-token": re.compile(
