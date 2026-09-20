@@ -22,6 +22,7 @@ from baby_care_api.routes.audio import router as audio_router
 from baby_care_api.routes.b04 import router as b04_router
 from baby_care_api.routes.b07 import router as b07_router
 from baby_care_api.routes.health import router as health_router
+from baby_care_api.routes.reminders import router as reminders_router
 from baby_care_api.services.audio import PostgresAudioService
 from baby_care_api.services.audio_decoder import AudioDecoder, FfmpegAudioDecoder
 from baby_care_api.services.auth_provider import SupabaseSessionRevocationProvider
@@ -72,16 +73,21 @@ IMPLEMENTED_OPERATIONS = [
     "getChanges",
     "getChildDataVerification",
     "getDeletion",
+    "getDailySummary",
+    "getPatterns",
+    "getReminderSettings",
     "getSessionRevocation",
     "getNormalization",
     "getStateObservation",
     "getTimeline",
     "listBabies",
+    "listReminders",
     "listConsents",
     "listInvites",
     "listMembers",
     "listMyCareEntries",
     "patchBaby",
+    "patchReminder",
     "patchCareEntry",
     "patchCareEvent",
     "patchMyRelationship",
@@ -91,6 +97,8 @@ IMPLEMENTED_OPERATIONS = [
     "revokeInvite",
     "revokeSessions",
     "setActiveBaby",
+    "setRecordCoverage",
+    "setReminderSetting",
     "setBabyConsent",
     "setMyTrainingConsent",
     "cancelUpload",
@@ -340,6 +348,7 @@ def create_app(
     app.include_router(b04_router)
     app.include_router(audio_router)
     app.include_router(b07_router)
+    app.include_router(reminders_router)
     _install_openapi(app)
     return app
 

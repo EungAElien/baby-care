@@ -1,12 +1,13 @@
-# Baby Care API — B-04 기록 + B-05 음원 + B-07 정규화 + B-09 변경 조회
+# Baby Care API — B-04 계정·기록 + B-05 음원 + B-07 정규화 + B-09 변경 조회 + B-11 날짜 집계
 
-이 폴더는 계약 1.2.0 가운데 B-04 계정·공동양육·기록, B-05 private 음원 수신·품질·보관, B-07 사건 없는 정규화·확인 저장 1차와 B-09 공동 변경 조회를 실행하는 FastAPI 서비스입니다. 로컬 Supabase의 실제 Auth JWT/JWKS, 최소 권한 `baby_app` 트랜잭션, DB 멱등성·RLS·Storage 회수 경계를 함께 검증합니다.
+이 폴더는 계약 1.2.0 가운데 B-04 계정·공동양육·기록, B-05 private 음원 수신·품질·보관, B-07 사건 없는 정규화·확인 저장 1차, B-09 공동 변경 조회, B-11 날짜별 기록 집계를 실행하는 FastAPI 서비스입니다. 로컬 Supabase의 실제 Auth JWT/JWKS, 최소 권한 `baby_app` 트랜잭션, DB 멱등성·RLS·Storage 회수 경계를 함께 검증합니다.
 
 ## 현재 포함된 범위
 
 - FastAPI 실행 진입점, 환경 설정, 라우터, 공통 오류 처리, 요청별 `request_id`
 - 아기 생성·목록·선택·프로필, 구성원·초대·동의 API
 - CareEvent CRUD·타임라인, 사건 행동 연결, 작성자 전용 서버 초안
+- 아기 시간대 기준 날짜별 수유·수면·기저귀 요약. 확인 범위가 없으면 기록 부재를 실제 0으로 단정하지 않고, 진행 중 수면은 조회 시각까지만 계산합니다. B-11 준비 알림과 B-07 상태 관찰 연동은 후속입니다.
 - CHOICE·TEXT·MIXED 초안의 LLM/RULE/MANUAL 확인과 사건 없는 CareEvent·StateObservation·확인 라벨의 원자 저장
 - `gpt-5.6-terra` Responses API 제품 어댑터, 20초 전체 기한·30초 lease·동일 run 복구와 서버 외부 처리 게이트
 - Unicode 코드포인트 근거, 수행 여부·코드·시각·수량·선택 충돌 의미 검사와 수정 기록 lineage
@@ -24,7 +25,7 @@
 - liveness/readiness 분리, pytest·Ruff·mypy·컨테이너·GitHub Actions 기반
 - 별도 V1 B 프로필의 고정 M2D 레지스트리, 시작 시 1회 적재, 모델 readiness
 
-`/v1`의 기준은 저장소 루트의 `contracts/openapi계약.json`입니다. FastAPI의 `/openapi.json`은 실제 라우트만 만들고 `x-business-contract.implemented_operations`에 구현된 B-04·B-05·B-07 1차 operationId와 `getChanges`를 표시합니다. B-06 분석과 사건 연결 행동·반응 등 후속 계약 경로를 구현됐다고 노출하지 않습니다.
+`/v1`의 기준은 저장소 루트의 `contracts/openapi계약.json`입니다. FastAPI의 `/openapi.json`은 실제 라우트만 만들고 `x-business-contract.implemented_operations`에 구현된 B-04·B-05·B-07 1차 operationId와 `getChanges`, `getDailySummary`를 표시합니다. B-06 분석과 사건 연결 행동·반응 등 후속 계약 경로를 구현됐다고 노출하지 않습니다.
 
 ## 버전과 재현 설치
 
