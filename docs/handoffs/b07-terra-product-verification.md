@@ -87,6 +87,11 @@ apps/api/.venv/bin/python scripts/verification/b07_live_terra_smoke.py \
 로컬 원본 증거는 Git에서 제외된 `.artifacts/b07-terra-product-smoke/`에 있다. 호출 예산은
 소진됐으므로 이 원장을 지우거나 우회해 같은 검증을 다시 실행하지 않는다.
 
+최신 `develop` 재배치 후 일반 빠른 회귀는 API 단위 221개와 계약·생성물·Ruff·mypy·웹
+타입/테스트/빌드를 통과했다. 격리 통합 회귀는 241개 전체 테스트, 필수 integration
+20/20, coverage 90.66%, pgTAP 96개, Auth/Data API/Storage HTTP 23개를 통과했다. 두
+회귀의 산출물과 B-07 실제 호출 산출물 모두 민감정보 shape scan 결과 0건이었다.
+
 ## 검증 경계
 
 이 결과는 합성 한국어 3사례와 로컬 격리 환경에 한정된다. 운영 Supabase·배포 비밀 저장,
