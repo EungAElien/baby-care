@@ -29,6 +29,7 @@ from baby_care_api.models.audio import (
     Episode,
     EpisodeDetail,
     ModelInfo,
+    NormalizerUnavailableReason,
     Outcome,
     Playback,
     Recommendation,
@@ -1710,9 +1711,12 @@ class PostgresAudioService(PostgresBabyCareService):
             expires_at=issued_at + timedelta(seconds=PLAYBACK_SECONDS),
         )
 
-    async def capabilities(self, principal: AuthenticatedPrincipal) -> Capabilities:
-        async with self.transaction(principal):
-            pass
+    def capabilities(
+        self,
+        *,
+        normalizer_available: bool,
+        normalizer_unavailable_reason: NormalizerUnavailableReason | None,
+    ) -> Capabilities:
         audio_ready = self._storage.configured and self._decoder.configured
         return Capabilities(
             audio_model=ModelInfo(
@@ -1724,7 +1728,8 @@ class PostgresAudioService(PostgresBabyCareService):
                 inference_mode="STUB",
             ),
             supported_mime_types=list(SUPPORTED_MIME_TYPES) if audio_ready else [],
-            normalizer_available=False,
+            normalizer_available=normalizer_available,
+            normalizer_unavailable_reason=normalizer_unavailable_reason,
             automatic_detection_supported=False,
             detector=DetectorInfo(
                 available=False,

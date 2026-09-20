@@ -1,19 +1,19 @@
 # Baby Care
 
-아기 돌봄 기록·분석 서비스를 위한 A/B 공동 개발 저장소입니다. 현재는 v2 기획 문서, API 계약 1.1.1, 웹 앱의 초기 기반과 B-01 FastAPI 기반, B-03 로컬 Supabase 권한 계층, B-04 계정·공동양육·기록 API, B-09 공동 변경 조회가 있습니다. 모델·정규화 전체 흐름과 운영 배포는 아직 구현 중입니다.
+아기 돌봄 기록·분석 서비스를 위한 A/B 공동 개발 저장소입니다. 현재는 v2 기획 문서, API 계약 1.2.0, 웹 앱의 초기 기반과 B-01 FastAPI 기반, B-03 로컬 Supabase 권한 계층, B-04 계정·공동양육·기록 API, B-07 사건 없는 정규화·확인 저장 1차, B-09 공동 변경 조회가 있습니다. 실제 울음 사건 연결·전체 정규화 인수와 운영 배포는 아직 구현 중입니다.
 
 ## 작업 기준
 
 작업 전에 [코딩 및 협업 컨벤션](docs/project-rule/coding-conventions.md), [개발 원칙](DEVELOPMENT_PRINCIPLES.md), [저장소 지침](AGENTS.md)을 확인합니다. 일반 작업은 최신 `develop`에서 목적별 브랜치로 시작하고 `develop` 대상 PR로 검토합니다. 제품·API 변경은 [개발계약](contracts/개발계약.md)과 [OpenAPI](contracts/openapi계약.json)를 함께 확인합니다.
 
-최신 업무 분담은 [A 기준본](docs/baby-care-implementation-tasks-A-v2.md)과 [B 기준본](docs/baby-care-implementation-tasks-B-v2.md)의 v2.1입니다. 보안 자료는 [보안 설계](docs/security/보안%20설계서.md), [A·B 연결표](docs/security/AB%20보안%20작업%20연결표.md), [62개 시험표](docs/security/62개%20보안%20시험표.md)에 있습니다. OpenAPI 1.1.1에는 B-04 재인증·세션 회수·아동 처리 게이트와 B-09 변경 조회 의미가 반영됐지만 상담 API와 초안 자동 만료 등은 여전히 후속 계약 항목입니다.
+최신 업무 분담은 [A 기준본](docs/baby-care-implementation-tasks-A-v2.md)과 [B 기준본](docs/baby-care-implementation-tasks-B-v2.md)의 v2.1입니다. 보안 자료는 [보안 설계](docs/security/보안%20설계서.md), [A·B 연결표](docs/security/AB%20보안%20작업%20연결표.md), [62개 시험표](docs/security/62개%20보안%20시험표.md)에 있습니다. OpenAPI 1.2.0에는 B-04 재인증·세션 회수·아동 처리 게이트, B-09 변경 조회 의미와 B-07 사건 없는 정규화·확인 저장 경계가 반영됐습니다. 상담 API, 사건 연결 행동·반응, 초안 자동 만료 등은 여전히 후속 계약 항목입니다.
 
 기획·구현 계획·보안·모델 연구·이전 버전은 [문서 안내](docs/README.md)에서 찾습니다. [문서 이관 기록](docs/migrations/2026-09-19-documents.md)에 가져온 자료, 기존 기준본과의 대응, 검증 범위를 남겼습니다.
 
 ## 폴더
 
 - `apps/web/`: Next.js 웹 앱(A 담당)
-- `apps/api/`: FastAPI 실행 기반과 B-04 계정·공동양육·기록 업무 API(B 담당)
+- `apps/api/`: FastAPI 실행 기반과 B-04 계정·공동양육·기록, B-07 사건 없는 정규화·확인, B-09 변경 조회 API(B 담당)
 - `contracts/`: OpenAPI, 합성 목 응답, 계약 생성·검증 코드
 - `docs/`: PRD, 기능명세, A/B 작업표, 보안 문서
 - `supabase/`: B-03/B-04 로컬 설정, migration, 합성 seed, DB·RLS·Auth/Storage/API 통합 시험. [재현 안내](supabase/README.md)

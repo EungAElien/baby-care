@@ -12,6 +12,8 @@ from baby_care_api.core.config import Settings
 from baby_care_api.core.logging import SafeJsonFormatter
 from baby_care_api.main import create_app
 from baby_care_api.models.care_events import CreateCareEvent
+from baby_care_api.routes.audio import router as audio_router
+from baby_care_api.routes.b07 import router as b07_router
 
 
 def _client_with_test_routes() -> TestClient:
@@ -158,16 +160,28 @@ def test_safe_log_formatter_does_not_render_arbitrary_messages() -> None:
 def test_openapi_is_honest_about_implemented_business_operations(client: TestClient) -> None:
     schema = client.get("/openapi.json").json()
 
+    capability_routes = [
+        route
+        for route in [*audio_router.routes, *b07_router.routes]
+        if getattr(route, "operation_id", None) == "getCapabilities"
+    ]
+    assert len(capability_routes) == 1
+
     business_contract = schema["x-business-contract"]
     assert business_contract["source"] == "contracts/openapi계약.json"
-    assert business_contract["version"] == "1.1.1"
+    assert business_contract["version"] == "1.2.0"
     assert business_contract["api_prefix"] == "/v1"
     assert "createBaby" in business_contract["implemented_operations"]
     assert "getChanges" in business_contract["implemented_operations"]
     assert "revokeSessions" in business_contract["implemented_operations"]
+    assert "createNormalization" in business_contract["implemented_operations"]
+    assert "confirmCareEntry" in business_contract["implemented_operations"]
+    assert "getStateObservation" in business_contract["implemented_operations"]
     assert "/v1/babies" in schema["paths"]
     assert "/v1/babies/{baby_id}/changes" in schema["paths"]
     assert "/v1/auth/session-revocations" in schema["paths"]
+    assert "/v1/care-entries/{entry_id}/normalizations" in schema["paths"]
+    assert "/v1/state-observations/{state_observation_id}" in schema["paths"]
 
     contract_path = Path(__file__).resolve().parents[3] / "contracts" / "openapi계약.json"
     canonical = json.loads(contract_path.read_text(encoding="utf-8"))

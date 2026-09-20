@@ -11,10 +11,9 @@ from pydantic import ValidationError
 from baby_care_api.llm_eval.models import (
     CounselingCase,
     CounselingOutput,
-    Evidence,
     NormalizationCase,
-    NormalizedContent,
 )
+from baby_care_api.models.normalization import Evidence, NormalizedContent
 
 
 @dataclass(frozen=True)

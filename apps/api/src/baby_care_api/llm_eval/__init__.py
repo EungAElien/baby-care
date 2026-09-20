@@ -4,6 +4,6 @@ This package is intentionally separate from the production API routes.  It does 
 grant database access, persist conversations, or enable external processing.
 """
 
-from baby_care_api.llm_eval.models import MODEL_ID
+from baby_care_api.models.normalization import MODEL_ID
 
 __all__ = ["MODEL_ID"]

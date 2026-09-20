@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Literal
 from uuid import UUID
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -17,6 +17,7 @@ from pydantic import (
 
 from baby_care_api.models.base import ContractModel
 from baby_care_api.models.care_events import CareEvent, CareEventValue, DataOrigin, LifecycleStatus
+from baby_care_api.models.normalization import ConfirmedResources, NormalizedContent
 
 
 class FeedingMode(StrEnum):
@@ -420,10 +421,10 @@ class CareEntry(ContractModel):
     input_revision: PositiveInt
     status: CareEntryStatus
     normalization_run_id: UUID | None
-    normalized_content: dict[str, Any] | None
+    normalized_content: NormalizedContent | None
     supersedes_entry_id: UUID | None
     base_record_versions: list[RecordVersion]
-    confirmed_resources: dict[str, Any] | None
+    confirmed_resources: ConfirmedResources | None
     confirmed_by_user_id: UUID | None
     confirmed_at: AwareDatetime | None
     data_origin: DataOrigin

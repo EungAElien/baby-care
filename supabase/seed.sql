@@ -455,10 +455,16 @@ insert into baby_data.state_observations (
     source_entry_id,
     phase,
     observed_at,
+    time_precision,
     state_codes,
-    source,
+    observation_source,
+    confirmation_status,
+    visual_state_code,
+    visual_mapping_version,
     created_by_user_id,
+    updated_by_user_id,
     confirmed_by_user_id,
+    data_origin,
     version
 )
 values (
@@ -468,10 +474,16 @@ values (
     '10000000-0000-4000-8000-000000000703',
     'AFTER',
     clock_timestamp() - interval '5 minutes',
+    'EXACT',
     array['CALM'],
-    'NORMALIZED_TEXT',
+    'SELF_REPORTED',
+    'USER_CONFIRMED',
+    'CALM',
+    'care-visual-v1',
     '10000000-0000-4000-8000-000000000002',
     '10000000-0000-4000-8000-000000000002',
+    '10000000-0000-4000-8000-000000000002',
+    'DEMO',
     1
 );
 
