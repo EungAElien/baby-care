@@ -16,8 +16,8 @@ export function AudioMeasureScreen() {
   });
   const sessionRef = useRef<AudioMeasurementSession | null>(null);
   const subscribe = useCallback((listener: () => void) => scope.subscribe(listener), [scope]);
-  const getGeneration = useCallback(() => scope.snapshot().generation, [scope]);
-  const scopeGeneration = useSyncExternalStore(subscribe, getGeneration, getGeneration);
+  const getScopeSnapshot = useCallback(() => scope.snapshot(), [scope]);
+  const scopeSnapshot = useSyncExternalStore(subscribe, getScopeSnapshot, getScopeSnapshot);
 
   useEffect(() => {
     // An effect setup owns one session. Strict Mode may clean up and set up again
@@ -27,11 +27,18 @@ export function AudioMeasureScreen() {
     const stopForVisibility = () => {
       if (document.visibilityState === "hidden") session.abort("화면이 숨겨져 측정을 중단했어요. 복귀 후 직접 다시 시작해 주세요.");
     };
+    const stopForBlur = () => {
+      if (session.snapshot().status === "listening") {
+        session.abort("브라우저를 벗어나 측정을 중단했어요. 돌아온 뒤 직접 다시 시작해 주세요.");
+      }
+    };
     const stopForPageExit = () => session.abort("화면 이탈로 측정을 중단했어요.");
     document.addEventListener("visibilitychange", stopForVisibility);
+    window.addEventListener("blur", stopForBlur);
     window.addEventListener("pagehide", stopForPageExit);
     return () => {
       document.removeEventListener("visibilitychange", stopForVisibility);
+      window.removeEventListener("blur", stopForBlur);
       window.removeEventListener("pagehide", stopForPageExit);
       sessionRef.current = null;
       session.dispose();
@@ -41,8 +48,13 @@ export function AudioMeasureScreen() {
   useEffect(() => {
     const session = sessionRef.current;
     if (!session) return;
-    return scope.registerCleanup(() => session.clearScope());
-  }, [scope, scopeGeneration]);
+    const registeredUserId = scopeSnapshot.userId;
+    const registeredBabyId = scopeSnapshot.babyId;
+    return scope.registerCleanup(() => {
+      const current = scope.snapshot();
+      if (current.userId !== registeredUserId || current.babyId !== registeredBabyId) session.clearScope();
+    });
+  }, [scope, scopeSnapshot]);
 
   const running = state.status === "requesting" || state.status === "listening";
   return (
