@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "generate:api": "openapi-typescript ../../contracts/openapi계약.json -o src/lib/api/generated.d.ts",
-    "generate:fixtures": "node scripts/generate-fixtures.mjs"
+    "generate:fixtures": "node scripts/generate-fixtures.mjs",
+    "generate:characters": "node scripts/export-character-posters.mjs",
+    "check:characters": "node scripts/export-character-posters.mjs --check"
   },
   "dependencies": {
     "@hookform/resolvers": "5.9.1",
