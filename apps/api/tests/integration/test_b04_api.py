@@ -13,6 +13,7 @@ from urllib.error import HTTPError
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 from uuid import UUID, uuid4
+from zoneinfo import ZoneInfo
 
 import psycopg
 import pytest
@@ -647,6 +648,24 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
         assert event_replays[0].json() == event_replays[1].json()
         caregiver_event = event_replays[0]
         event_id = caregiver_event.json()["care_event_id"]
+        local_day = datetime.fromisoformat(occurred_at).astimezone(ZoneInfo("Asia/Seoul")).date()
+        summary_url = f"/v1/babies/{baby_id}/summary?date={local_day}&timezone=Asia/Seoul"
+        summary_response = client.get(summary_url, headers=_headers(owner_otp))
+        assert summary_response.status_code == 200
+        assert summary_response.json()["feeding"]["record_count"] == 1
+        assert summary_response.json()["feeding"]["total_recorded_ml"] == 90
+        assert "sleep" in summary_response.json()["missing_fields"]
+        _assert_error(
+            client.get(summary_url, headers=_headers(outsider)), 404, "RESOURCE_NOT_FOUND"
+        )
+        _assert_error(
+            client.get(
+                f"/v1/babies/{baby_id}/summary?date={local_day}&timezone=UTC",
+                headers=_headers(owner_otp),
+            ),
+            409,
+            "VERSION_CONFLICT",
+        )
         owner_patch_id = uuid4()
         owner_edit = client.patch(
             f"/v1/care-events/{event_id}",
@@ -666,6 +685,9 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
         assert owner_edit.status_code == 200
         assert owner_edit.json()["created_by_user_id"] == str(caregiver.user_id)
         assert owner_edit.json()["updated_by_user_id"] == str(owner.user_id)
+        caregiver_summary = client.get(summary_url, headers=_headers(caregiver))
+        assert caregiver_summary.status_code == 200, caregiver_summary.json()
+        assert caregiver_summary.json()["feeding"]["total_recorded_ml"] == 100
         stale_event_id = uuid4()
         stale_event = client.patch(
             f"/v1/care-events/{event_id}",
@@ -725,6 +747,12 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
         assert conflicted_update.json()["details"]["current_resource"] == successful_update.json()
         fetched_event = client.get(f"/v1/care-events/{event_id}", headers=_headers(caregiver))
         assert fetched_event.status_code == 200 and fetched_event.json() == successful_update.json()
+        assert (
+            client.get(summary_url, headers=_headers(owner_otp)).json()["feeding"][
+                "total_recorded_ml"
+            ]
+            == successful_update.json()["event"]["payload"]["amount_ml"]
+        )
 
         disposable_id = uuid4()
         disposable = client.post(
@@ -742,6 +770,10 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
             },
         )
         assert disposable.status_code == 201
+        assert (
+            client.get(summary_url, headers=_headers(owner_otp)).json()["diaper"]["change_count"]
+            == 1
+        )
         disposable_event_id = disposable.json()["care_event_id"]
         stale_delete_id = uuid4()
         stale_delete = client.delete(
@@ -756,6 +788,10 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
             headers=_headers(caregiver, request_id=delete_event_id),
         )
         assert deleted_event.status_code == 202
+        assert (
+            client.get(summary_url, headers=_headers(owner_otp)).json()["diaper"]["change_count"]
+            == 0
+        )
         replay_deleted_event = client.delete(
             f"/v1/care-events/{disposable_event_id}?version=1",
             headers=_headers(caregiver, request_id=delete_event_id),
@@ -1276,6 +1312,9 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
         )
         _assert_error(replay_left, 404, "RESOURCE_NOT_FOUND")
         assert client.get("/v1/babies", headers=_headers(caregiver)).json() == {"items": []}
+        _assert_error(
+            client.get(summary_url, headers=_headers(caregiver)), 404, "RESOURCE_NOT_FOUND"
+        )
         hidden_request_id = uuid4()
         hidden_latest = client.patch(
             f"/v1/care-events/{event_id}",
@@ -1384,6 +1423,9 @@ def test_b04_real_jwt_otp_shared_records_revocation_and_deletion_boundaries() ->
         )
         assert removed_rejoined.status_code == 200
         assert removed_rejoined.json()["status"] == "REVOKED"
+        _assert_error(
+            client.get(summary_url, headers=_headers(caregiver)), 404, "RESOURCE_NOT_FOUND"
+        )
 
         spare_membership = next(item for item in members if item["user_id"] == str(spare.user_id))
         remove_id = uuid4()
