@@ -731,6 +731,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/state-observations/{state_observation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * getStateObservation
+         * @description Current members can refetch a confirmed observation named by the B-09 change feed.
+         */
+        get: operations["getStateObservation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/episodes/{episode_id}/observations": {
         parameters: {
             query?: never;
@@ -1198,7 +1218,7 @@ export interface components {
         };
         Capabilities: {
             /** @constant */
-            contract_version: "1.1.1";
+            contract_version: "1.2.0";
             audio_model: components["schemas"]["ModelInfo"];
             supported_mime_types: string[];
             /** @constant */
@@ -1206,6 +1226,7 @@ export interface components {
             /** @constant */
             upload_max_seconds: 60;
             normalizer_available: boolean;
+            normalizer_unavailable_reason: ("DISABLED" | "CREDENTIALS_MISSING" | "DEPENDENCY_MISSING" | "DATABASE_UNAVAILABLE") | null;
             automatic_detection_supported: boolean;
             detector: components["schemas"]["DetectorInfo"];
         };
@@ -1637,7 +1658,7 @@ export interface components {
         };
         Failure: {
             /** @enum {string} */
-            code: "ANALYSIS_TIMEOUT" | "ANALYSIS_LEASE_EXPIRED" | "INFERENCE_ERROR" | "NORMALIZATION_TIMEOUT" | "NORMALIZATION_LEASE_EXPIRED" | "NORMALIZATION_SCHEMA_INVALID" | "NORMALIZATION_PROVIDER_ERROR" | "CLEANUP_FAILED" | "SOURCE_DELETED" | "ACCESS_REVOKED";
+            code: "ANALYSIS_TIMEOUT" | "ANALYSIS_LEASE_EXPIRED" | "INFERENCE_ERROR" | "NORMALIZATION_DISABLED" | "NORMALIZATION_CREDENTIALS_MISSING" | "NORMALIZATION_DEPENDENCY_MISSING" | "NORMALIZATION_TIMEOUT" | "NORMALIZATION_LEASE_EXPIRED" | "NORMALIZATION_REFUSED" | "NORMALIZATION_INCOMPLETE" | "NORMALIZATION_SCHEMA_INVALID" | "NORMALIZATION_PROVIDER_ERROR" | "CLEANUP_FAILED" | "SOURCE_DELETED" | "ACCESS_REVOKED";
             message: string;
             retryable: boolean;
         };
@@ -2002,6 +2023,10 @@ export interface components {
             visual_mapping_version: string;
             /** Format: uuid */
             created_by_user_id: string;
+            /** Format: uuid */
+            updated_by_user_id: string;
+            /** Format: uuid */
+            confirmed_by_user_id: string;
             /** @enum {string} */
             data_origin: "USER" | "DEMO";
             version: number;
@@ -2213,6 +2238,7 @@ export interface components {
             lease_expires_at: string | null;
             /** @enum {string} */
             execution_mode: "REAL" | "STUB";
+            provider_call_executed: boolean;
             provider: string | null;
             model: string | null;
             prompt_version: string;
@@ -4242,6 +4268,37 @@ export interface operations {
         responses: {
             /** @description Success. */
             201: {
+                headers: {
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateObservation"];
+                };
+            };
+            401: components["responses"]["Error401"];
+            403: components["responses"]["Error403"];
+            404: components["responses"]["Error404"];
+            409: components["responses"]["Error409"];
+            422: components["responses"]["Error422"];
+            429: components["responses"]["Error429"];
+            500: components["responses"]["Error500"];
+            503: components["responses"]["Error503"];
+        };
+    };
+    getStateObservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                state_observation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. Current members can refetch a confirmed observation named by the B-09 change feed. */
+            200: {
                 headers: {
                     "X-Request-ID"?: string;
                     [name: string]: unknown;
