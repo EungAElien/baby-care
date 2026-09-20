@@ -7,7 +7,7 @@ import json
 import secrets
 from collections.abc import AsyncIterator, Mapping
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any, Literal, cast
 from urllib.parse import quote
 from uuid import UUID, uuid4
@@ -62,6 +62,8 @@ from baby_care_api.models.care_events import (
 )
 from baby_care_api.models.changes import Change, Changes
 from baby_care_api.models.errors import ErrorCode, ErrorDetails
+from baby_care_api.models.summary import DailySummary, RecordCoverage
+from baby_care_api.services.daily_summary import build_daily_summary, day_bounds
 from baby_care_api.services.security import (
     AuthenticatedPrincipal,
     BabyAccessContext,
@@ -2517,6 +2519,97 @@ class PostgresBabyCareService:
             recorded_at=row["recorded_at"],
             updated_at=row["updated_at"],
         )
+
+    async def daily_summary(
+        self,
+        principal: AuthenticatedPrincipal,
+        baby_id: UUID,
+        *,
+        day: date,
+        timezone: str,
+    ) -> DailySummary:
+        if day == date.max:
+            raise ApiException(ErrorCode.VALIDATION_ERROR, "The requested date is out of range.")
+        async with self.transaction(principal) as connection:
+            # Record writers advance babies.context_revision. Holding a share lock
+            # keeps the revision and source rows consistent for this response.
+            cursor = await connection.execute(
+                """
+                select b.timezone, b.context_revision, b.version,
+                       clock_timestamp() as as_of
+                  from baby_data.babies b
+                  join baby_data.baby_memberships m on m.baby_id = b.baby_id
+                 where b.baby_id = %s and b.status = 'ACTIVE'
+                   and m.user_id = %s and m.status = 'ACTIVE'
+                 for share of b, m
+                """,
+                (baby_id, principal.user_id),
+            )
+            baby = await cursor.fetchone()
+            if baby is None:
+                raise self._not_found()
+            if timezone != baby["timezone"]:
+                raise ApiException(
+                    ErrorCode.VERSION_CONFLICT,
+                    "The baby's timezone changed. Request the summary with the current timezone.",
+                    details=ErrorDetails.empty().model_copy(
+                        update={
+                            "current_version": baby["version"],
+                            "current_resource": {"timezone": baby["timezone"]},
+                            "resource_type": "BABY",
+                        }
+                    ),
+                )
+            start, end = day_bounds(day, timezone)
+            as_of = baby["as_of"]
+            cursor = await connection.execute(
+                """
+                select care_event_id, baby_id, event_type::text as event_type,
+                       occurred_at, ended_at, time_precision::text as time_precision,
+                       payload, source_entry_id, status::text as status,
+                       created_by_user_id, updated_by_user_id,
+                       data_origin::text as data_origin, version, recorded_at, updated_at
+                  from baby_data.care_events
+                 where baby_id = %s and status = 'ACTIVE'
+                   and occurred_at is not null and occurred_at < %s
+                   and (
+                       occurred_at >= %s
+                       or (event_type = 'SLEEP' and (ended_at is null or ended_at > %s))
+                   )
+                 order by occurred_at, care_event_id
+                """,
+                (baby_id, min(end, as_of), start, start),
+            )
+            events = [self._care_event(row) for row in await cursor.fetchall()]
+            cursor = await connection.execute(
+                """
+                select kind::text as kind, confirmed, created_by_user_id, version
+                  from baby_data.record_coverage
+                 where baby_id = %s and date = %s
+                 order by kind, created_by_user_id
+                """,
+                (baby_id, day),
+            )
+            coverage = [
+                RecordCoverage(
+                    baby_id=baby_id,
+                    date=day,
+                    type="SLEEP" if row["kind"] == "SLEEP_PREPARATION" else row["kind"],
+                    confirmed=row["confirmed"],
+                    updated_by_user_id=row["created_by_user_id"],
+                    version=row["version"],
+                )
+                for row in await cursor.fetchall()
+            ]
+            return build_daily_summary(
+                baby_id=baby_id,
+                day=day,
+                timezone=timezone,
+                as_of=as_of,
+                context_revision=baby["context_revision"],
+                events=events,
+                coverage=coverage,
+            )
 
     async def timeline(
         self,

@@ -62,6 +62,7 @@ IMPLEMENTED_OPERATIONS = [
     "getChanges",
     "getChildDataVerification",
     "getDeletion",
+    "getDailySummary",
     "getSessionRevocation",
     "getTimeline",
     "listBabies",
