@@ -14,13 +14,14 @@ B-14 상담 API·DB·화면·장기 기억·운영 배포의 완료 증거가 �
 | `datasets/normalization.v1.jsonl` | 정규화 20건. 현재 OpenAPI 1.1.1 `NormalizedContent`를 정답 형식으로 사용 |
 | `datasets/counseling.v1.jsonl` | 상담 23건. 제품 계약이 아닌 평가 전용 출력 형식과 합성 읽기 도구 fixture 사용 |
 | `build_datasets.py` | 사람이 검토 가능한 합성 원본에서 JSONL과 계산 결과를 재현 |
-| `prompts/normalization.v1.md`~`normalization.v3.md` | v1·v2 smoke 이력과 v3 활성 정규화 역할·의미·Unicode·입력 지시문 규칙 |
-| `prompts/counseling.v1.md`~`counseling.v3.md` | v1·v2 smoke 이력과 v3 활성 읽기 전용 상담·권한·수치·실패 규칙 |
+| `prompts/normalization.v1.md`~`normalization.v3.md` | v1~v3 smoke 이력과 v3 활성 정규화 역할·의미·Unicode·입력 지시문 규칙 |
+| `prompts/counseling.v1.md`~`counseling.v3.md` | v1~v3 smoke 이력과 v3 활성 읽기 전용 상담·권한·수치·실패 규칙 |
 | `baby_care_api.llm_eval` | 로더, Pydantic 입력·출력 검사, 판정기, 합성 도구, Responses API 어댑터, CLI |
 | `reports/offline-baseline.json` | 외부 호출 0건의 사례별 자동 판정 기준선 |
 | `reports/live-smoke-v1-2026-09-20.json` | 최초 실제 v1 호출의 합성 후보·도구 trace·사용량을 포함한 원본 보고서 |
 | `reports/live-smoke-v2-2026-09-20.json` | v2 프롬프트 실제 재호출의 합성 후보·도구 trace·사용량을 포함한 원본 보고서 |
-| `reports/live-smoke-status.json` | v1·v2 실제 호출과 외부 호출 없는 보정 재판정 상태 요약 |
+| `reports/live-smoke-v3-2026-09-20.json` | v3 프롬프트 실제 재호출의 합성 후보·도구 trace·사용량을 포함한 원본 보고서 |
+| `reports/live-smoke-status.json` | v1~v3 실제 호출과 외부 호출 없는 보정 재판정 상태 요약 |
 
 ## 데이터 형식
 
@@ -118,8 +119,20 @@ v2에서 입력 지시문 거부와 도구 왕복·실패 구조는 개선됐다
 누락, 질문하지 않은 부가 수치 claim이다. 숫자 claim이 `numeric_value`를 가졌는데도
 부가 `value_text` 때문에 실패하던 판정기 오류 1건은 정답 수치를 바꾸지 않고
 v3 판정기에서 제거했다. v3 프롬프트는 span 자기검사, 다중 행동 귀속, 미상·0 및
-실패·기록 없음의 명시적 구분, 필요한 claim만 생성하는 규칙을 강화했다. v3 실제
-재실행 전이므로 연결 성공이나 v2의 일부 개선을 전체 smoke 통과로 표현하지 않는다.
+실패·기록 없음의 명시적 구분, 필요한 claim만 생성하는 규칙을 강화했다.
+
+v3 실제 재실행은 합성 6사례, 외부 요청 9회로 완료했다. 모든 요청이 완료됐고
+요청·응답 모델은 `gpt-5.6-terra`로 일치했다. 입력 20,639토큰(캐시 12,827),
+출력 2,094토큰, 합계 22,733토큰, 합계 지연 36,089ms, 최대 지연 8,530ms였으며
+공식 확인 단가 기준 추정 비용은 USD 0.0433174였다. 자동 통과는 4/6으로 개선됐지만
+결정은 `SMOKE_NOT_PASSED`이며 사람 검토 6건은 계속 대기다.
+
+남은 실제 실패는 `NORM-DEV-006`의 Unicode span 끝 위치와
+`COUNSEL-DEV-004`의 `PARTIAL`/`VERIFIED_RECORDS` 상태 및 미상 건수 claim 형식이다.
+후자의 답변 문구 `미기록`은 사전 의도와 동치인데 필수 문구 목록에 빠져 있던
+거짓 실패이므로 사실·수치·근거를 바꾸지 않고 허용 표현만 보정했다. 추가 유료
+prompt-tuning 호출은 중단하며 연결 성공이나 4/6 통과를 전체 품질 통과로 표현하지
+않는다.
 
 ## 설치와 오프라인 실행
 

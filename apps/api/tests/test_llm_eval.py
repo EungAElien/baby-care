@@ -316,6 +316,24 @@ def test_counseling_claim_aliases_and_localized_units_do_not_fail_numeric_scorin
     assert evaluation.passed
 
 
+def test_counseling_required_terms_accept_equivalent_missing_value_wording() -> None:
+    case = _case("COUNSEL-DEV-004")
+    assert isinstance(case, CounselingCase)
+    candidate = case.offline_candidate.model_dump(mode="json")
+    candidate["answer"] = candidate["answer"].replace("미상", "미기록")
+    candidate["limitations"] = [
+        limitation.replace("미상", "미기록") for limitation in candidate["limitations"]
+    ]
+
+    evaluation = evaluate_counseling(
+        case,
+        candidate,
+        tool_trace=_offline_trace(case),
+    )
+
+    assert evaluation.passed
+
+
 def test_scoped_tool_rejects_identity_expansion_and_unknown_calls() -> None:
     case = _case("COUNSEL-DEV-004")
     assert isinstance(case, CounselingCase)

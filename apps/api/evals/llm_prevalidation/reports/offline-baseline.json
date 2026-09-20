@@ -2462,7 +2462,7 @@
     }
   ],
   "data_origin": "SYNTHETIC",
-  "generated_at": "2026-09-20T10:27:34.583452+00:00",
+  "generated_at": "2026-09-20T10:39:05.951147+00:00",
   "limits": {
     "concurrency": 1,
     "counseling_cases": null,

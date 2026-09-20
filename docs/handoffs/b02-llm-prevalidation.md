@@ -16,7 +16,8 @@ v1 자동 판정은 `SMOKE_NOT_PASSED`였다. 이 결과로 평가 계약의 거
 모델 실패를 분리해 v2 프롬프트·판정기·합성 도구를 보정했다. v2 실제 재실행도
 요청·응답 모델 `gpt-5.6-terra`, 합성 6사례, 외부 요청 9회로 끝냈지만 자동 통과는
 1/6이라 `SMOKE_NOT_PASSED`다. v2 결과에서 확인한 span·다중 행동 귀속·한계 문구
-문제를 반영한 v3 프롬프트의 실제 재실행과 사람 검토는 남아 있다.
+문제를 반영한 v3 실제 재실행은 4/6으로 개선됐지만 여전히
+`SMOKE_NOT_PASSED`다. 사람 검토는 남아 있다.
 
 이 결과는 **B-02 일부 선검증 산출물**이다. B-02 전체를 완료로 표시하지 않는다.
 현재 OpenAPI 1.1.1에는 상담 경로가 없으며, 이 작업에서 실제 상담 API·DB·웹,
@@ -26,9 +27,9 @@ v1 자동 판정은 `SMOKE_NOT_PASSED`였다. 이 결과로 평가 계약의 거
 
 | 대상 | 재사용 자산 | 현재 검증 경계 |
 | --- | --- | --- |
-| B-07 정규화 | 활성 `normalization.v3.md`, v1·v2 관측 이력, OpenAPI `NormalizedContent` 미러, schema/의미/Unicode 근거 판정 | 합성 입력과 계약 형식. 제한된 실제 LLM 연결만 확인했고 endpoint·초안 저장·확인은 미구현 |
+| B-07 정규화 | 활성 `normalization.v3.md`, v1~v3 관측 이력, OpenAPI `NormalizedContent` 미러, schema/의미/Unicode 근거 판정 | 합성 입력과 계약 형식. 제한된 실제 LLM 연결만 확인했고 endpoint·초안 저장·확인은 미구현 |
 | B-11 집계 | 기록 없음/미상/실제 0/부분/실패를 분리한 합성 aggregate 사례와 수치 정답 | 서버 집계 의미의 테스트 벡터. 실제 집계 API·DB는 미검증 |
-| B-14 상담 | 활성 `counseling.v3.md`, v1·v2 관측 이력, 근거 claim, 실패 상태, 기록 후보, 범위 고정 읽기 도구, Responses 어댑터 | 내부 평가 형식. 합성 도구 왕복만 확인했고 제품 API 계약이나 실제 권한 구현이 아님 |
+| B-14 상담 | 활성 `counseling.v3.md`, v1~v3 관측 이력, 근거 claim, 실패 상태, 기록 후보, 범위 고정 읽기 도구, Responses 어댑터 | 내부 평가 형식. 합성 도구 왕복만 확인했고 제품 API 계약이나 실제 권한 구현이 아님 |
 | A-13 화면 | `answer_mode`, `personalization_status`, 근거·제한·확인 질문의 합성 결과 | 화면 시안/상태 논의용. 필드·enum을 현재 계약으로 간주하면 안 됨 |
 
 평가 코드 위치는 `apps/api/src/baby_care_api/llm_eval`, 데이터·프롬프트·명령은
@@ -133,7 +134,33 @@ v2 후보의 `COUNSEL-DEV-004` 숫자·단위·근거는 맞았지만 숫자 cla
 않았다. v3 프롬프트는 span 절단 자기검사, 다중 행동 반응의 `MULTI` 귀속,
 미상/실패 경계 문구, 질문에 필요한 claim만 생성을 강화했다.
 
-두 실제 실행의 원본 합성 후보와 요청별 사용량은 각각
+v1·v2 실제 실행의 원본 합성 후보와 요청별 사용량은 각각
 `apps/api/evals/llm_prevalidation/reports/live-smoke-v1-2026-09-20.json`과
 `apps/api/evals/llm_prevalidation/reports/live-smoke-v2-2026-09-20.json`에 보존했다.
-v3 실제 재실행과 6건의 사람 검토는 아직 수행하지 않았다.
+
+v3 실제 재실행 결과는 다음과 같다.
+
+- 실행 시각: 2026-09-20T10:35:29Z
+- 외부 요청: 9회, 입력 20,639토큰(캐시 12,827), 출력 2,094토큰
+- 지연: 합계 36,089ms, 최대 8,530ms
+- 공식 확인 단가 기준 추정 비용: USD 0.0433174
+- v3 결정: `SMOKE_NOT_PASSED`, 자동 통과 4/6, 사람 검토 6건 대기
+- 제공자 오류·모델 불일치·불완전 응답·스키마 위반: 0건
+
+`NORM-DEV-001`, `NORM-DEV-013`, `COUNSEL-DEV-011`, `COUNSEL-DEV-017`이
+통과했다. `NORM-DEV-006`은 행동·반응 의미 구조는 맞았지만 두 quote의 Unicode
+코드포인트 끝 위치가 틀렸다. B-07은 모델 offset을 신뢰하지 말고 원문 slice를
+검증하며, 일치하지 않으면 자동 저장 없이 초안 오류로 처리해야 한다.
+
+`COUNSEL-DEV-004`는 답변의 수치와 한계 설명은 맞았지만 완전한 `OK` 집계를
+`personalization_status=PARTIAL`로 바꾸고, 미상 건수 1을 숫자 claim 대신 문자열
+한계로 표현했다. `PARTIAL`은 도구의 일부 결과 상태에만 사용하고, 완전한 집계에서
+값이 미상인 필드는 `VERIFIED_RECORDS`와 별도 숫자 claim으로 유지하는 내부 평가
+규칙을 B-14 계약 후보에서 명확히 해야 한다. `미기록`을 허용하지 않았던 필수 문구
+검사는 동치 표현을 추가해 오프라인 보정했으나 사실·수치·근거와 4/6 결정은
+바꾸지 않았다.
+
+v3 원본은
+`apps/api/evals/llm_prevalidation/reports/live-smoke-v3-2026-09-20.json`에 보존했다.
+추가 유료 prompt-tuning 호출은 중단했다. 6건의 사람 검토, 마지막 확인용 12사례,
+실제 B-07/B-14 API·DB·권한·삭제 검증은 아직 수행하지 않았다.

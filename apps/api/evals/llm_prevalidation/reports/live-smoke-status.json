@@ -2,6 +2,118 @@
   "actual_model_executed": true,
   "latest_live_run": {
     "actual_model_executed": true,
+    "calibrated_replay": {
+      "actual_model_rerun": false,
+      "automated_pass_count": 4,
+      "cases": [
+        {
+          "case_id": "NORM-DEV-001",
+          "decision": "PASS"
+        },
+        {
+          "case_id": "NORM-DEV-006",
+          "decision": "FAIL",
+          "failure_codes": [
+            "normalization.evidence_spans"
+          ]
+        },
+        {
+          "case_id": "NORM-DEV-013",
+          "decision": "PASS"
+        },
+        {
+          "case_id": "COUNSEL-DEV-004",
+          "decision": "FAIL",
+          "failure_codes": [
+            "counseling.answer_mode",
+            "counseling.claims"
+          ]
+        },
+        {
+          "case_id": "COUNSEL-DEV-011",
+          "decision": "PASS"
+        },
+        {
+          "case_id": "COUNSEL-DEV-017",
+          "decision": "PASS"
+        }
+      ],
+      "decision": "4_PASS_2_FAIL",
+      "note": "The v3 candidates were replayed offline after accepting the equivalent Korean missing-value term 미기록. Facts, numbers, evidence, and the live-run decision were not changed."
+    },
+    "cases": [
+      {
+        "automated_pass": true,
+        "case_id": "NORM-DEV-001",
+        "failed_checks": []
+      },
+      {
+        "automated_pass": false,
+        "case_id": "NORM-DEV-006",
+        "failed_checks": [
+          "normalization.evidence_spans"
+        ]
+      },
+      {
+        "automated_pass": true,
+        "case_id": "NORM-DEV-013",
+        "failed_checks": []
+      },
+      {
+        "automated_pass": false,
+        "case_id": "COUNSEL-DEV-004",
+        "failed_checks": [
+          "counseling.answer_mode",
+          "counseling.claims",
+          "counseling.required_terms"
+        ]
+      },
+      {
+        "automated_pass": true,
+        "case_id": "COUNSEL-DEV-011",
+        "failed_checks": []
+      },
+      {
+        "automated_pass": true,
+        "case_id": "COUNSEL-DEV-017",
+        "failed_checks": []
+      }
+    ],
+    "decision": "SMOKE_NOT_PASSED",
+    "generated_at": "2026-09-20T10:35:29.520115+00:00",
+    "human_review_pending_count": 6,
+    "pricing": {
+      "estimate_status": "ESTIMATED_FROM_REPORTED_TOKENS",
+      "estimated_cost_usd": 0.0433174
+    },
+    "prompt_and_schema": {
+      "counseling": {
+        "schema_version": "counseling-eval-output.v1",
+        "sha256": "5e2c365fdcc6ccaae53904564f52f0e844f727cf066f4e2857004f206ea6d97f",
+        "version": "counseling.2026-09-20.v3"
+      },
+      "normalization": {
+        "schema_version": "openapi-1.1.1.NormalizedContent",
+        "sha256": "3afd15245b00a03b6ecf863e0f046a1a9817d2450ef4801091614503fa7b3439",
+        "version": "normalization.2026-09-20.v3"
+      }
+    },
+    "provider_request_count": 9,
+    "provider_usage": {
+      "max_latency_ms": 8530,
+      "total_cached_input_tokens": 12827,
+      "total_input_tokens": 20639,
+      "total_latency_ms": 36089,
+      "total_output_tokens": 2094,
+      "total_tokens": 22733
+    },
+    "requested_model": "gpt-5.6-terra",
+    "response_models": [
+      "gpt-5.6-terra"
+    ]
+  },
+  "v2_live_run": {
+    "actual_model_executed": true,
     "cases": [
       {
         "automated_pass": false,
@@ -230,7 +342,7 @@
     "total_output_tokens": 2200,
     "total_tokens": 17033
   },
-  "report_version": "baby-care.llm-eval.live-status.v3",
+  "report_version": "baby-care.llm-eval.live-status.v4",
   "requested_model": "gpt-5.6-terra",
   "response_models": [
     "gpt-5.6-terra"

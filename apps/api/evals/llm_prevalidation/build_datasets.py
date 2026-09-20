@@ -1067,7 +1067,7 @@ def build_counseling_cases() -> list[dict[str, Any]]:
                 {"fact_key": "feeding_unknown_amount_count", "value": 1, "unit": "COUNT"},
             ],
             required_terms=[
-                ["미상", "알 수 없", "기록되지"],
+                ["미상", "미기록", "알 수 없", "기록되지"],
                 ["0mL로 계산하지", "실제 총량", "전체 실제"],
             ],
             related=["B-02", "B-11", "B-14", "CHAT08"],
