@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import Link from "next/link";
 import { usePrivateScope } from "@/components/app-providers";
 import { useApiClient } from "@/lib/api/real-client";
+import { useCapabilitiesQuery } from "@/lib/api/capabilities";
 import { supabaseAuthAdapter } from "@/lib/auth/api-auth-adapter";
 import { useRealSession } from "@/lib/auth/real-session";
 import { tryReadPublicConfig } from "@/lib/public-config";
@@ -29,6 +31,9 @@ export function AudioIntakeScreen({ babyId }: Readonly<{ babyId: string }>) {
   const player = useRef<HTMLAudioElement | null>(null);
   const available = real.status === "signed-in" && client !== null && config !== null &&
     scopeSnapshot.userId === real.userId && scopeSnapshot.babyId === babyId;
+  // A-06 ①: the real analysis start action stays hidden until the server's
+  // own product gate (capabilities.audio_model.available) is open.
+  const capabilities = useCapabilitiesQuery(available && view.stage === "ready");
 
   useEffect(() => {
     if (!available || !client || !config) return;
@@ -119,7 +124,22 @@ export function AudioIntakeScreen({ babyId }: Readonly<{ babyId: string }>) {
         {terminal && <button type="button" onClick={() => { setView(initialView); setLocalError(""); setRevision((value) => value + 1); }} className="min-h-11 rounded-md border px-4 text-sm">새 음원 시작</button>}
       </div>
       {view.stage === "ready" && <div className="flex flex-col gap-2">
-        <button type="button" disabled className="min-h-11 rounded-md border px-4 text-sm opacity-50">분석 시작 · B-06 분석 API가 아직 준비되지 않았어요</button>
+        {capabilities.isLoading && <p className="text-sm text-muted-foreground">분석 가능 여부를 확인하고 있어요.</p>}
+        {capabilities.isError && <p className="text-sm text-destructive">분석 가능 여부를 확인하지 못했어요. 같은 음원으로 다시 확인해 주세요.</p>}
+        {capabilities.data && view.episode && view.audio && (
+          capabilities.data.audio_model.available ? (
+            <Link
+              href={`/babies/${babyId}/episodes/${view.episode.episode_id}/analysis?audioId=${view.audio.audio_id}`}
+              className="flex min-h-11 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
+            >
+              분석 시작
+            </Link>
+          ) : (
+            <button type="button" disabled className="min-h-11 rounded-md border px-4 text-sm opacity-50">
+              분석 시작 · 서버가 아직 모델을 준비하지 못했어요 (MODEL_NOT_READY)
+            </button>
+          )
+        )}
         <button type="button" onClick={() => void play()} className="min-h-11 rounded-md border px-4 text-sm">보관 동의 확인 후 재생</button>
         <audio ref={player} controls controlsList="nodownload" onEnded={() => intake.current?.clearPlayback()} />
       </div>}
