@@ -52,31 +52,31 @@ export async function getChanges(
  * (EPISODE/ANALYSIS/RECOMMENDATION/STATE_OBSERVATION/OUTCOME/DELETION) have no cached resource
  * to invalidate yet and are left for the slice that adds them.
  */
-function applyChange(
+async function applyChange(
   queryClient: QueryClient,
   scope: PrivateScopeSnapshot,
   babyId: string,
   change: SharedChange,
-): void {
+): Promise<void> {
   switch (change.resource_type) {
     case "CARE_EVENT": {
       const key = careEventKey(scope, babyId, change.resource_id);
       if (change.deleted) {
         queryClient.removeQueries({ queryKey: key, exact: true });
       } else {
-        void queryClient.invalidateQueries({ queryKey: key, exact: true });
+        await queryClient.invalidateQueries({ queryKey: key, exact: true }, { throwOnError: true });
       }
-      void queryClient.invalidateQueries({ queryKey: timelineKey(scope, babyId) });
+      await queryClient.invalidateQueries({ queryKey: timelineKey(scope, babyId) }, { throwOnError: true });
       return;
     }
     case "BABY": {
       if (!scope.userId) return;
-      void queryClient.invalidateQueries({ queryKey: babiesKey(scope.userId) });
-      void queryClient.invalidateQueries({ queryKey: activeBabyKey(scope.userId) });
+      await queryClient.invalidateQueries({ queryKey: babiesKey(scope.userId) }, { throwOnError: true });
+      await queryClient.invalidateQueries({ queryKey: activeBabyKey(scope.userId) }, { throwOnError: true });
       return;
     }
     case "MEMBERSHIP": {
-      void queryClient.invalidateQueries({ queryKey: membersKey(babyId) });
+      await queryClient.invalidateQueries({ queryKey: membersKey(babyId) }, { throwOnError: true });
       return;
     }
     default:
@@ -84,15 +84,15 @@ function applyChange(
   }
 }
 
-function applyChanges(
+async function applyChanges(
   queryClient: QueryClient,
   scope: PrivateScopeSnapshot,
   babyId: string,
   changes: readonly SharedChange[],
-): void {
+): Promise<void> {
   // Tombstones first, per B-09 handoff §A의 안전한 폴링·복구 순서 step 5.
-  for (const change of changes) if (change.deleted) applyChange(queryClient, scope, babyId, change);
-  for (const change of changes) if (!change.deleted) applyChange(queryClient, scope, babyId, change);
+  for (const change of changes) if (change.deleted) await applyChange(queryClient, scope, babyId, change);
+  for (const change of changes) if (!change.deleted) await applyChange(queryClient, scope, babyId, change);
 }
 
 function clearBabyScopeCache(queryClient: QueryClient, scope: PrivateScopeSnapshot, babyId: string): void {
@@ -194,7 +194,10 @@ export function useSharedChangePolling(babyId: string, enabled: boolean): void {
         const result = await getChanges(client, babyId, sinceRevision);
         if (cancelled) return { kind: "error" };
         if (result.resync_required) return { kind: "resync" };
-        applyChanges(queryClient, scopeSnapshot, babyId, result.changes);
+        // Keep the previous revision when an active resource refetch fails; the next tick
+        // must replay this coalesced range instead of silently losing its change.
+        await applyChanges(queryClient, scopeSnapshot, babyId, result.changes);
+        if (cancelled) return { kind: "error" };
         backoffMs = POLL_INTERVAL_MS;
         return { kind: "ok", revision: result.current_revision };
       } catch (error) {
