@@ -156,6 +156,39 @@ describe("A-08 ① useSharedChangePolling", () => {
     ]);
   });
 
+  it("replays a change when its active resource refetch fails before revision advances", async () => {
+    state.get
+      .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
+      .mockResolvedValueOnce(jsonStep(changes(8, [])));
+    renderHook(() => useSharedChangePolling(babyId, true), { wrapper: Wrapper });
+    setScope();
+    await flush();
+    await flush();
+
+    const invalidations = vi.spyOn(capturedQueryClient, "invalidateQueries");
+    invalidations.mockRejectedValueOnce(new Error("synthetic resource refetch failure"));
+    state.get.mockResolvedValueOnce(jsonStep(changes(9, [
+      { resource_type: "CARE_EVENT", resource_id: careEventId, version: 2, deleted: false },
+    ])));
+    await flush(5000);
+    expect(state.get.mock.calls[2]![1].params.query.since_revision).toBe(8);
+    expect(invalidations.mock.calls[0]![1]).toEqual({ throwOnError: true });
+
+    state.get.mockResolvedValueOnce(jsonStep(changes(9, [
+      { resource_type: "CARE_EVENT", resource_id: careEventId, version: 2, deleted: false },
+    ])));
+    await flush(5000);
+    expect(state.get.mock.calls[3]![1].params.query.since_revision).toBe(8);
+    expect(invalidations).toHaveBeenCalledWith(
+      { queryKey: timelineKey({ userId, babyId, generation: 0 }, babyId) },
+      { throwOnError: true },
+    );
+
+    state.get.mockResolvedValueOnce(jsonStep(changes(9, [])));
+    await flush(5000);
+    expect(state.get.mock.calls[4]![1].params.query.since_revision).toBe(9);
+  });
+
   it("pauses while hidden and polls immediately on return", async () => {
     state.get
       .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
