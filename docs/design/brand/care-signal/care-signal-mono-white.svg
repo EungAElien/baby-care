@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="416" height="416" viewBox="48 48 416 416" role="img" aria-label="돌봄의 울림 심볼">
+  <title>돌봄의 울림 — 흰색 단색</title>
+  <desc>작은 신호의 원, 울림의 짧은 곡선, 이를 감싸는 돌봄의 곡선으로 이루어진 글자 없는 심볼.</desc>
+  <g transform="rotate(-55 256 256)"><path fill="#FFFFFF" d="M 400.99 357.523 A 177 177 0 1 1 298.82 84.258 A 32 32 0 0 1 283.337 146.357 A 113 113 0 1 0 348.564 320.814 A 32 32 0 0 1 400.99 357.523 Z"/><path fill="#FFFFFF" d="M 320.57 165.955 A 113 113 0 0 1 362.283 274.622 A 24 24 0 0 1 315.013 266.287 A 65 65 0 0 0 291.018 203.779 A 24 24 0 0 1 320.57 165.955 Z"/><circle fill="#FFFFFF" cx="222" cy="237" r="34"/></g>
+</svg>
