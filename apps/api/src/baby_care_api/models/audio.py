@@ -248,6 +248,17 @@ class Analysis(ContractModel):
     completed_at: AwareDatetime | None
 
 
+class CreateAnalysis(ContractModel):
+    client_request_id: UUID
+    analysis_id: UUID
+    audio_id: UUID
+
+
+class RetryAnalysis(ContractModel):
+    client_request_id: UUID
+    expected_attempt: PositiveInt
+
+
 class ActionGroup(ContractModel):
     action_group_id: UUID
     baby_id: UUID

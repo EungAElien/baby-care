@@ -10,6 +10,7 @@ import pytest
 from baby_care_api.core.config import Settings
 from baby_care_api.services.model_runtime import (
     ModelNotReadyError,
+    ModelRuntimeBusyError,
     ModelRuntimeManager,
 )
 
@@ -103,3 +104,27 @@ def test_inference_before_successful_start_is_rejected_without_loading() -> None
         asyncio.run(manager.infer_audio(Path("probe.wav")))
 
     assert manager.load_attempts == 0
+
+
+def test_timed_out_thread_keeps_slot_and_queue_is_bounded() -> None:
+    async def exercise() -> tuple[int, int]:
+        runtime = BlockingRuntime()
+        manager = _manager(runtime)
+        await manager.start()
+        first = manager.submit_inference(Path("first.wav"), deadline=time.monotonic() + 1)
+        with pytest.raises(TimeoutError):
+            await first.wait_until(time.monotonic() + 0.005)
+        assert first.started is True
+
+        second = manager.submit_inference(Path("second.wav"), deadline=time.monotonic() + 1)
+        with pytest.raises(ModelRuntimeBusyError):
+            manager.submit_inference(Path("third.wav"), deadline=time.monotonic() + 1)
+
+        assert await second.wait_until(time.monotonic() + 1) == "second.wav"
+        await manager.close()
+        return runtime.maximum_active, runtime.calls
+
+    maximum_active, calls = asyncio.run(exercise())
+
+    assert maximum_active == 1
+    assert calls == 2

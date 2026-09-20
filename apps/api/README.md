@@ -1,6 +1,6 @@
-# Baby Care API — B-04 계정·기록 + B-05 음원 + B-07 정규화 + B-09 변경 조회 + B-11 날짜 집계
+# Baby Care API — B-04 기록 + B-05 음원 + B-06 분석 + B-07 정규화 + B-09 변경 조회 + B-11 날짜 집계
 
-이 폴더는 계약 1.2.0 가운데 B-04 계정·공동양육·기록, B-05 private 음원 수신·품질·보관, B-07 사건 없는 정규화·확인 저장 1차, B-09 공동 변경 조회, B-11 날짜별 기록 집계를 실행하는 FastAPI 서비스입니다. 로컬 Supabase의 실제 Auth JWT/JWKS, 최소 권한 `baby_app` 트랜잭션, DB 멱등성·RLS·Storage 회수 경계를 함께 검증합니다.
+이 폴더는 계약 1.2.0 가운데 B-04 계정·공동양육·기록, B-05 private 음원 수신·품질·보관, B-06 분석 실행 상태·복구, B-07 사건 없는 정규화·확인 저장 1차, B-09 공동 변경 조회와 B-11 날짜별 기록 집계를 실행하는 FastAPI 서비스입니다. 로컬 Supabase의 실제 Auth JWT/JWKS, 최소 권한 `baby_app` 트랜잭션, DB 멱등성·RLS·Storage 회수 경계를 함께 검증합니다.
 
 ## 현재 포함된 범위
 
@@ -24,8 +24,9 @@
 - 민감정보를 입력으로 받지 않는 허용 목록 기반 JSON 로그
 - liveness/readiness 분리, pytest·Ruff·mypy·컨테이너·GitHub Actions 기반
 - 별도 V1 B 프로필의 고정 M2D 레지스트리, 시작 시 1회 적재, 모델 readiness
+- B-06 요청 내 분석, 45초 제한, 60초 lease, 실행 토큰 fencing, 명시적 FAILED 재시도
 
-`/v1`의 기준은 저장소 루트의 `contracts/openapi계약.json`입니다. FastAPI의 `/openapi.json`은 실제 라우트만 만들고 `x-business-contract.implemented_operations`에 구현된 B-04·B-05·B-07 1차 operationId와 `getChanges`, `getDailySummary`를 표시합니다. B-06 분석과 사건 연결 행동·반응 등 후속 계약 경로를 구현됐다고 노출하지 않습니다.
+`/v1`의 기준은 저장소 루트의 `contracts/openapi계약.json`입니다. FastAPI의 `/openapi.json`은 실제 라우트만 만들고 `x-business-contract.implemented_operations`에 구현된 B-04·B-05·B-06·B-07 1차 operationId와 `getChanges`, B-11 집계·알림 operationId를 표시합니다. 사건 연결 행동·반응 등 후속 계약 경로를 구현됐다고 노출하지 않습니다.
 
 ## 버전과 재현 설치
 
@@ -229,6 +230,21 @@ PYTHONPATH=src .venv/bin/python -m baby_care_api.audio_cleanup --limit 20
 상태·HTTP 오류·품질 기준, TUS 재개, A의 endpoint 검증과 기기별 미실행 범위는
 [B-05 인계](../../docs/handoffs/b05-audio-intake.md)에 있습니다.
 
+## B-06 분석 실행과 제품 게이트
+
+`POST /v1/episodes/{episode_id}/analyses`, `GET /v1/analyses/{analysis_id}`와
+`POST /v1/analyses/{analysis_id}/retry`가 현재 계약 1.2.0에 유지된 요청 내 분석·응답 유실 복구·명시적
+재시도를 구현합니다. B-05가 검증한 `PCM_S16LE_SOURCE_RATE` 파생물만 내려받고, 모델의
+고정 전처리가 downmix·resample·정규화를 맡습니다. 실행은 프로세스당 1개와 대기 1개로
+제한하며 요청은 최대 45초, lease는 60초입니다. attempt와 실행 토큰이 이전 실행의 늦은
+결과를 차단합니다.
+
+현재 고정 V1 B는 Linux CPU 실행 자체는 확인했지만 `1e-6` 재현 기준, 보정, cry 판정,
+제품 라벨, 유보 임계값과 추천 정책이 검증되지 않았습니다. 따라서 실제 설정에서는 분석
+생성 전에 `MODEL_NOT_READY`를 반환하고 분석 행이나 STUB 결과를 만들지 않습니다. 완주
+시험용 정책·런타임 주입은 `ENVIRONMENT=TEST`에서만 허용됩니다. 상세 상태·복구 흐름과
+A/B 인계는 [B-06 분석 인계](../../docs/handoffs/b06-m2d-analysis.md)를 따릅니다.
+
 ## B-03 연결과 B-04 처리 순서
 
 연결 순서는 `JWT 검증 → 회수 세션 확인 → 현재 DB 멤버십·아기 상태·객체 권한 → 멱등성 예약 → 업무 처리 → 저장·응답 전 권한/삭제 상태 재검사`입니다.
@@ -260,6 +276,6 @@ A의 안전한 전체/증분 복구 순서, 쓰기별 재조회 매핑, 예시�
 - 승인된 법정대리인 확인 수단·증빙·정책. 현재 운영 아동 정보 처리는 fail-closed입니다.
 - 삭제 Job 실행기와 Storage·학습 사본·백업 실제 정리(B-12·B-13). B-04는 차단·요청·조회·재시도만 저장하며 COMPLETE를 만들지 않습니다.
 - B-07 실제 Terra 계정 호출·품질 판정, 사건 연결 ActionAttempt/action group/Outcome와 A-07·A-12 브라우저 인수, B-09 Realtime, B-11 집계, B-14 상담
-- B-06 M2D 분석 API·보정/유보 정책, hosted TUS 조각·백업 보관 확인, 운영 Scheduler와 Cloud Run 배포
+- B-06 실제 제품 판단 정책 승인과 모델 활성화, hosted TUS 조각·백업 보관 확인, 운영 Scheduler와 Cloud Run 배포
 - V1 B의 Linux 실행 기반은 별도 프로필로 구현했지만 MPS 기준 대비 `1e-6` 재현 검사는 미통과입니다. 자세한 플랫폼별 차이와 후속 기준 결정은 V1 B 런타임 인계를 따릅니다.
 - A의 실제 브라우저·캐시·두 계정 화면 시험과 운영 계정/기기/외부 서비스 시험
