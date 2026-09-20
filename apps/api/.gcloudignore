@@ -1,0 +1,11 @@
+# Cloud Run source deploy: upload only the ordinary API image inputs.
+# Model bundles use the separate, reviewed Dockerfile.m2d workflow.
+*
+!Dockerfile
+!.dockerignore
+!requirements.lock
+!src/
+!src/**
+src/**/__pycache__/
+src/**/*.pyc
+src/**/*.pyo
