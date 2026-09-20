@@ -46,6 +46,11 @@ export default async function DetectPage({ params }: Readonly<{ params: Promise<
           ))}
         </ul>
       </ScreenSection>
+      {process.env.NODE_ENV === "development" && (
+        <Link href={`/babies/${babyId}/audio-measure`} className="text-sm text-primary underline">
+          개발용 오디오 측정 화면 열기
+        </Link>
+      )}
     </div>
   );
 }
