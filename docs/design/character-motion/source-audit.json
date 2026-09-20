@@ -1,0 +1,111 @@
+{
+  "checked_at": "2026-09-20",
+  "repository_base": "22e3d02",
+  "openapi_version": "1.1.1",
+  "scope": "Read-only visual and public-source inspection; no source art reused",
+  "sources": [
+    {
+      "url": "https://www.awwwards.com/sites/inside-the-head-publication",
+      "role": "historical listing",
+      "award_date": "2017-09-21"
+    },
+    {
+      "url": "https://insidethehead.co/",
+      "role": "live site"
+    },
+    {
+      "url": "https://insidethehead.co/static/js/app.898ed3d9550642af4806.js",
+      "sha256": "f65008b9b74af827ce4079c2ef08d569ac71d84825acde185571d0f3b25a07ed",
+      "role": "animation wrapper, embedded shape keyframes, chapter navigation"
+    },
+    {
+      "url": "https://insidethehead.co/static/js/vendor.c6fbded86e1de7863189.js",
+      "sha256": "68b3ea20ce9b6e5357a3920aa47b65f23f4582d1458ca5b88dadfed10e349636",
+      "role": "Vue, Swiper and Bodymovin/Lottie runtime"
+    },
+    {
+      "url": "https://insidethehead.co/static/css/app.8ea166c46ab19c3b2fad4b2ff951f872.css",
+      "sha256": "bd51022ee4ed132df2022c8181bef1a12132df5b30ea77dd1ac6c77e8c7878e6",
+      "role": "route opacity transitions, responsive animation selection"
+    }
+  ],
+  "verified": {
+    "renderer": "svg",
+    "runtime_dom": {
+      "svg_elements": 11,
+      "canvas_elements": 0,
+      "video_elements": 0,
+      "page": "/chapters",
+      "note": "Observed default narrow in-app browser viewport. Counts are for this page state, not a whole-site audit."
+    },
+    "animation_data_count": 9,
+    "authoring_fps": 24,
+    "observed_composition_sizes": [
+      [
+        1440,
+        900
+      ],
+      [
+        720,
+        900
+      ]
+    ],
+    "observed_frame_ranges": [
+      144,
+      192,
+      239,
+      240,
+      480
+    ],
+    "inferred_duration_seconds": "6 to 20 from frame range / fps; display frame rate was not profiled",
+    "animation_primitives": [
+      "shape paths",
+      "translation",
+      "rotation",
+      "animated vector paths",
+      "nested compositions"
+    ],
+    "wrapper_defaults": {
+      "loop": true,
+      "autoplay": true
+    },
+    "navigation": {
+      "library": "Swiper",
+      "explicit_slide_speed_ms": 500,
+      "inputs": [
+        "pagination",
+        "drag/swipe",
+        "keyboard arrows"
+      ]
+    },
+    "css_route_transition_seconds": 0.4,
+    "mobile_breakpoint_px": 960,
+    "mobile_variants": {
+      "body": "distinct data",
+      "mind": "distinct data",
+      "love": "separate instance reusing same animation data"
+    },
+    "svg_fit_modes": [
+      "xMidYMid meet",
+      "xMidYMid slice"
+    ],
+    "body_motion": "Different poses observed in two live screenshots taken at different times"
+  },
+  "inference": {
+    "probable_authoring_path": "After Effects / Bodymovin-style pipeline based on animation format and AE shape identifiers",
+    "authoring_project_confirmed": false
+  },
+  "not_verified": [
+    "Original authoring source files",
+    "Designer production process",
+    "Whole-site performance",
+    "All breakpoints and devices",
+    "Creator MCP connection",
+    "Animation export round trip"
+  ],
+  "project_constraints": {
+    "existing_scope": "observation 8, AI causes 5 + abstention, completed care 8",
+    "contract_modified": false,
+    "product_code_modified": false
+  }
+}
