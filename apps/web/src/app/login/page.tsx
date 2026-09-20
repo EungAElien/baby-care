@@ -5,6 +5,7 @@
 // 피커를 추가로 보여준다 — 실제 로그인 없이 SC01~SC10 화면 이동만
 // 미리 보고 싶을 때 쓰는 개발자 전용 경로다.
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRealSession } from "@/lib/auth/real-session";
 import { useMockSession } from "@/lib/mock/session";
@@ -48,6 +49,8 @@ export default function LoginPage() {
         </p>
       </div>
 
+      <LogoutNotice />
+
       {realSession.configured ? (
         <RealLogin />
       ) : (
@@ -64,6 +67,25 @@ export default function LoginPage() {
       {mockNavEnabled && <MockLoginPreview />}
     </main>
   );
+}
+
+function LogoutNotice() {
+  const [outcome, setOutcome] = useState<string | null>(null);
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const value = url.searchParams.get("logout");
+    if (!value) return;
+    url.searchParams.delete("logout");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+    queueMicrotask(() => setOutcome(value));
+  }, []);
+  if (!outcome) return null;
+  const message = outcome === "complete"
+    ? "이 기기의 로그아웃과 서버 세션 회수를 확인했어요."
+    : outcome === "provider-pending"
+      ? "이 기기에서는 로그아웃했어요. 제공자 세션 회수가 끝나지 않아 새 로그인 뒤 모든 기기 회수를 다시 요청할 수 있어요."
+      : "이 기기에서는 로그아웃했어요. 서버 회수 결과는 확인하지 못했습니다.";
+  return <p role="status" className="rounded-md border border-border p-3 text-sm text-foreground">{message}</p>;
 }
 
 function MockLoginPreview() {
