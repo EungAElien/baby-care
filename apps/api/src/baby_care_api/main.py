@@ -337,7 +337,10 @@ def create_app(
             allow_origins=browser_origins,
             allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
             allow_headers=[
-                "Authorization", "Content-Type", "Idempotency-Key", "X-Reauthentication-Proof"
+                "Authorization",
+                "Content-Type",
+                "Idempotency-Key",
+                "X-Reauthentication-Proof",
             ],
             expose_headers=["X-Request-ID", "Retry-After"],
         )

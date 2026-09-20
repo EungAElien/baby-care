@@ -58,9 +58,7 @@ def test_liveness_only_claims_process_health(client: TestClient) -> None:
 
 
 def test_browser_origin_is_explicit_and_preflight_allows_api_headers() -> None:
-    app = create_app(
-        settings=Settings(environment="test", browser_origins="http://localhost:3001")
-    )
+    app = create_app(settings=Settings(environment="test", browser_origins="http://localhost:3001"))
     with TestClient(app) as test_client:
         allowed = test_client.options(
             "/v1/babies",
@@ -78,9 +76,7 @@ def test_browser_origin_is_explicit_and_preflight_allows_api_headers() -> None:
                 "Access-Control-Request-Headers": "authorization",
             },
         )
-        unauthenticated = test_client.get(
-            "/v1/babies", headers={"Origin": "http://localhost:3001"}
-        )
+        unauthenticated = test_client.get("/v1/babies", headers={"Origin": "http://localhost:3001"})
 
     assert allowed.status_code == 200
     assert allowed.headers["Access-Control-Allow-Origin"] == "http://localhost:3001"
