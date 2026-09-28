@@ -1,0 +1,11 @@
+{
+  "status": "paused",
+  "pid": 55321,
+  "device": "cpu",
+  "cpu_threads": 1,
+  "completed": 146048,
+  "total": 170336,
+  "compute_seconds": 6494.9061322867055,
+  "session_wall_seconds": 6559.662270792003,
+  "updated_unix": 1789800742.575347
+}

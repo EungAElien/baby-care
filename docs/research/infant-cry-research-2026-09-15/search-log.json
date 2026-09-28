@@ -1,0 +1,721 @@
+{
+  "searchedAt": "2026-09-15",
+  "requestedResults": 125,
+  "returnedEntries": 125,
+  "uniqueURLCount": 105,
+  "queries": [
+    {
+      "stream": "meaning",
+      "query": "empirical causes vs graded distress",
+      "numResults": 10
+    },
+    {
+      "stream": "pain",
+      "query": "human listeners pain and parental experience",
+      "numResults": 10
+    },
+    {
+      "key": "ai",
+      "stream": "AI 분류와 데이터 검증",
+      "numResults": 10,
+      "query": "category:research paper infant cry reason classification hunger tired discomfort machine learning validation unseen infants data leakage generalization dataset 2024 2025 2026"
+    },
+    {
+      "key": "development",
+      "stream": "발달과 울음 정보",
+      "numResults": 10,
+      "query": "category:research paper newborn cry melody native language Mampe 2009 prenatal learning French German infants mother tongue"
+    },
+    {
+      "key": "classic",
+      "stream": "울음의 원인과 의미",
+      "numResults": 10,
+      "query": "category:research paper infant crying graded distress signal distinct hunger pain cries experimental evidence 1968 1998 Dunstan baby language validation"
+    },
+    {
+      "key": "painMechanism",
+      "stream": "통증과 사람의 판별",
+      "numResults": 10,
+      "query": "category:research paper The acoustic space of pain cries as indicators of distress recovering dynamics pre-verbal infants Koutseff 2017 study sample roughness Bellieni cry features reflect pain intensity alarm threshold"
+    },
+    {
+      "key": "identity",
+      "stream": "발달과 울음 정보",
+      "numResults": 10,
+      "query": "category:research paper Fathers are just as good as mothers at recognizing cries baby 2013 29 fathers mothers four hours exposure newborn infant identity"
+    },
+    {
+      "key": "dunstan",
+      "stream": "울음의 원인과 의미",
+      "numResults": 10,
+      "query": "category:research paper independent validation Dunstan baby language five sounds neh eh owh eairh heh infant cry needs classification blinded accuracy empirical study"
+    },
+    {
+      "key": "clinicalAI",
+      "stream": "AI 분류와 데이터 검증",
+      "query": "Gorin self supervised clinical labels 1150 cries 74.5 AUC",
+      "numResults": 5
+    },
+    {
+      "key": "clinicalMetrics",
+      "stream": "AI 분류와 데이터 검증",
+      "query": "Gorin 2023 Table 4 74.5 AUC triggers verification",
+      "numResults": 5
+    },
+    {
+      "key": "emotionMeanings",
+      "stream": "울음의 의미에 관한 직접 연구",
+      "numResults": 10,
+      "query": "category:research paper Infant Crying Pattern of Weeping and Recognition of Emotion anger fear pain Choliz Fernandez Abascal Martinez Sanchez eyes open closed 2012 2013"
+    },
+    {
+      "key": "hungerMeaning",
+      "stream": "울음의 의미에 관한 직접 연구",
+      "numResults": 10,
+      "query": "category:research paper acoustic characteristics infant hunger cry compared pain anger meaning rhythmic basic cry hunger experimental newborns Wasz Hockert Wolff 1969"
+    },
+    {
+      "key": "needsMeaning",
+      "stream": "울음의 의미에 관한 직접 연구",
+      "numResults": 10,
+      "query": "category:research paper infant cries acoustic evidence physiological hunger sleepiness discomfort specific needs meaning fundamental frequency temporal rhythm controlled study"
+    },
+    {
+      "key": "fullerMeaning",
+      "stream": "울음의 의미에 관한 직접 연구",
+      "query": "category:research paper Differences in fundamental frequency jitter shimmer among four types infant vocalizations Fuller Horii 1986 pain hunger fussiness cooing",
+      "numResults": 5
+    }
+  ],
+  "entries": [
+    {
+      "search": "meaning",
+      "title": "Infant cries convey both stable and dynamic information about age and identity",
+      "url": "https://doi.org/10.1038/s44271-023-00022-z"
+    },
+    {
+      "search": "meaning",
+      "title": "Pain cues override identity cues in baby cries",
+      "url": "https://doi.org/10.1016/j.isci.2024.110375"
+    },
+    {
+      "search": "meaning",
+      "title": "Defining and distinguishing infant behavioral states using acoustic cry analysis: is colic painful? | Pediatric Research",
+      "url": "https://www.nature.com/articles/s41390-019-0592-4"
+    },
+    {
+      "search": "meaning",
+      "title": "Newborns Crying in Different Contexts: Discrete or Graded Signals?",
+      "url": "https://journals.sagepub.com/doi/10.2466/pms.1998.86.3c.1123"
+    },
+    {
+      "search": "meaning",
+      "title": "Decoding of Baby Calls: Can Adult Humans Identify the Eliciting Situation from Emotional Vocalizations of Preverbal Infants? | PLOS One",
+      "url": "https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0124317"
+    },
+    {
+      "search": "meaning",
+      "title": "Infant cries convey both stable and dynamic information about ...",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11332224/"
+    },
+    {
+      "search": "meaning",
+      "title": "Decoding of Baby Calls: Can Adult Humans Identify the Eliciting Situation from Emotional Vocalizations of Preverbal Infants?",
+      "url": "https://doi.org/10.1371/journal.pone.0124317"
+    },
+    {
+      "search": "meaning",
+      "title": "The acoustic space of pain: cries as indicators of distress recovering dynamics in pre-verbal infants",
+      "url": "https://scispace.com/pdf/the-acoustic-space-of-pain-cries-as-indicators-of-distress-1m2nhrjd8q.pdf"
+    },
+    {
+      "search": "meaning",
+      "title": "Listeners can extract meaning from non-linguistic infant vocalisations cross-culturally",
+      "url": "https://doi.org/10.1038/srep41016"
+    },
+    {
+      "search": "meaning",
+      "title": "Pain cues override identity cues in baby cries",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11269312/"
+    },
+    {
+      "search": "pain",
+      "title": "Adults learn to identify pain in babies’ cries",
+      "url": "https://doi.org/10.1016/j.cub.2022.06.076"
+    },
+    {
+      "search": "pain",
+      "title": "Adults learn to identify pain in babies' cries",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35944479/"
+    },
+    {
+      "search": "pain",
+      "title": "Adults learn to identify pain in babies' cries",
+      "url": "https://hal.science/hal-03814821/document"
+    },
+    {
+      "search": "pain",
+      "title": "Adults learn to identify pain in babies' cries | Request PDF",
+      "url": "https://www.researchgate.net/publication/362561301_Adults_learn_to_identify_pain_in_babies'_cries"
+    },
+    {
+      "search": "pain",
+      "title": "Deciphering a baby's cries of pain is not an innate ability and must be learned",
+      "url": "https://medicalxpress.com/news/2022-08-deciphering-baby-cries-pain-innate.html"
+    },
+    {
+      "search": "pain",
+      "title": "Deciphering a baby's cries of pain is not an innate ability ...",
+      "url": "https://www.sciencedaily.com/releases/2022/08/220808161630.htm"
+    },
+    {
+      "search": "pain",
+      "title": "Adults learn to identify pain in babies’ cries",
+      "url": "https://www.crnl.fr/en/actualite/adults-learn-identify-pain-babies-cries"
+    },
+    {
+      "search": "pain",
+      "title": "Deciphering a baby's cries down to experience, research ...",
+      "url": "https://www.theguardian.com/science/2022/aug/08/deciphering-a-babys-cries-down-to-experience-research-finds"
+    },
+    {
+      "search": "pain",
+      "title": "Deciphering a Baby’s Cries of Pain Is Not an Innate Ability and Must Be Learned - Neuroscience News",
+      "url": "https://neurosciencenews.com/pain-cry-learned-21198/"
+    },
+    {
+      "search": "pain",
+      "title": "Babies’ cries contain important information encoded in their acoustic structure",
+      "url": "https://www.news-medical.net/news/20220809/Babiese28099-cries-contain-important-information-encoded-in-their-acoustic-structure.aspx"
+    },
+    {
+      "search": "ai",
+      "title": "[2608.08989] How Far Do Foundation Models Transfer to Infant Signals? A Cross-Dataset Transfer Audit with a Unified Need Ontology",
+      "url": "https://arxiv.org/abs/2608.08989"
+    },
+    {
+      "search": "ai",
+      "title": "Explainable Infant Cry Recognition Using Reinforcement-Learned Feature Fusion and SHAP Interpretation",
+      "url": "https://doi.org/10.1007/s11760-026-05491-3"
+    },
+    {
+      "search": "ai",
+      "title": "[2608.30456] Self-Supervised Pretext Tasks for Infant Cry Analysis: A Controlled Comparison and a Cautionary Result on Donateacry",
+      "url": "https://arxiv.org/abs/2608.30456"
+    },
+    {
+      "search": "ai",
+      "title": "Machine learning-based infant crying interpretation",
+      "url": "https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2024.1337356/full"
+    },
+    {
+      "search": "ai",
+      "title": "Adaptive infant cry classification using multi-armed bandit modality selection in an attentive convolutional recurrent neural network model | Complex & Intelligent Systems | Springer Nature Link",
+      "url": "https://link.springer.com/article/10.1007/s40747-025-02000-w"
+    },
+    {
+      "search": "ai",
+      "title": "Paper Title (use style: paper title)",
+      "url": "https://arxiv.org/pdf/2512.16271"
+    },
+    {
+      "search": "ai",
+      "title": "Evaluating Convolutional Neural Networks and Vision Transformers for Baby Cry Sound Analysis",
+      "url": "https://doi.org/10.3390/fi16070242"
+    },
+    {
+      "search": "ai",
+      "title": "InfantCryNet: A Data-driven Framework for Intelligent Analysis of Infant Cries",
+      "url": "https://proceedings.mlr.press/v260/hong25a.html"
+    },
+    {
+      "search": "ai",
+      "title": "Baby Cry Classification Using Structure-Tuned Artificial Neural Networks with Data Augmentation and MFCC Features",
+      "url": "https://www.mdpi.com/2076-3417/15/5/2648"
+    },
+    {
+      "search": "ai",
+      "title": "Machine learning-based infant crying interpretation",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10882089/"
+    },
+    {
+      "search": "development",
+      "title": "Newborns' cry melody is shaped by their native language",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/19896378/"
+    },
+    {
+      "search": "development",
+      "title": "Newborns• Cry Melody Is Shaped by Their Native Language",
+      "url": "http://sapience.dec.ens.fr/babylab/resultats/publis/2009_mampe.pdf"
+    },
+    {
+      "search": "development",
+      "title": "Newborns' cry melody is shaped by their native language. - Abstract - Europe PMC",
+      "url": "https://europepmc.org/article/med/19896378"
+    },
+    {
+      "search": "development",
+      "title": "Newborns• Cry Melody Is Shaped by Their Native Language",
+      "url": "https://cognitionandculture.net/wp-content/uploads/PIIS0960982209018247.pdf"
+    },
+    {
+      "search": "development",
+      "title": "Newborns' cry melody is shaped by their native language | View | MPG.PuRe",
+      "url": "https://pure.mpg.de/view/item_725001"
+    },
+    {
+      "search": "development",
+      "title": "Report Newborns' Cry Melody Is Shaped by Their Native Language",
+      "url": "http://utdallas.edu/~assmann/hcs6367/mampe_friederici_christophe_wermke09.pdf"
+    },
+    {
+      "search": "development",
+      "title": "Newborns' Cry Melody Is Shaped by Their Native Language - ADS",
+      "url": "https://ui.adsabs.harvard.edu/abs/2009CBio...19.1994M/abstract"
+    },
+    {
+      "search": "development",
+      "title": "(PDF) Newborns' Cry Melody Is Shaped by Their Native Language",
+      "url": "https://www.academia.edu/89711992/Newborns_Cry_Melody_Is_Shaped_by_Their_Native_Language"
+    },
+    {
+      "search": "development",
+      "title": "Newborns may start honing their mother tongue with their first cries | Scientific American",
+      "url": "https://www.scientificamerican.com/blog/observations/newborns-may-start-honing-their-mother-tongue-with-their-first-cries/"
+    },
+    {
+      "search": "development",
+      "title": "Babies with an accent",
+      "url": "https://www.mpg.de/591229/babies-with-an-accent"
+    },
+    {
+      "search": "classic",
+      "title": "Newborns Crying in Different Contexts: Discrete or Graded Signals?",
+      "url": "https://journals.sagepub.com/doi/10.2466/pms.1998.86.3c.1123"
+    },
+    {
+      "search": "classic",
+      "title": "Cry Features Reflect Pain Intensity in Term Newborns: An Alarm Threshold",
+      "url": "https://doi.org/10.1203/01.pdr.0000099793.99608.cb"
+    },
+    {
+      "search": "classic",
+      "title": "Infant cry as a graded signal: Experimental modifications of durations of pauses and expiratory sounds alter mothers' perceptions",
+      "url": "https://onlinelibrary.wiley.com/doi/10.1002/edp.2430020204"
+    },
+    {
+      "search": "classic",
+      "title": "Infant cries convey both stable and dynamic information about age and identity",
+      "url": "https://doi.org/10.1038/s44271-023-00022-z"
+    },
+    {
+      "search": "classic",
+      "title": "Decoding of Baby Calls: Can Adult Humans Identify the Eliciting Situation from Emotional Vocalizations of Preverbal Infants? | PLOS One",
+      "url": "https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0124317"
+    },
+    {
+      "search": "classic",
+      "title": "An ethological analysis of human infant crying: Answering Tinbergen's four questions",
+      "url": "https://onlinelibrary.wiley.com/doi/10.1002/dev.1005"
+    },
+    {
+      "search": "classic",
+      "title": "Perceptual Dimensions of Infant Cry Signals: A Semantic Differential Analysis",
+      "url": "https://doi.org/10.2466/pms.1983.57.2.575"
+    },
+    {
+      "search": "classic",
+      "title": "Defining and distinguishing infant behavioral states using acoustic cry analysis: is colic painful? | Pediatric Research",
+      "url": "https://www.nature.com/articles/s41390-019-0592-4"
+    },
+    {
+      "search": "classic",
+      "title": "The significance of an infant's cry: a narrative review ...",
+      "url": "https://www.frontiersin.org/journals/pediatrics/articles/10.3389/fped.2025.1558951/full"
+    },
+    {
+      "search": "classic",
+      "title": "Infant cries convey both stable and dynamic information about age and identity",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11332224/"
+    },
+    {
+      "search": "painMechanism",
+      "title": "The acoustic space of pain: cries as indicators of distress recovering dynamics in pre-verbal infants",
+      "url": "https://doi.org/10.1080/09524622.2017.1344931"
+    },
+    {
+      "search": "painMechanism",
+      "title": "The acoustic space of pain: Cries as indicators of distress recovering dynamics in preverbal infants | Bioacoustics journal",
+      "url": "https://www.bioacoustics.info/article/acoustic-space-pain-cries-indicators-distress-recovering-dynamics-preverbal-infants"
+    },
+    {
+      "search": "painMechanism",
+      "title": "Cry Features Reflect Pain Intensity in Term Newborns: An Alarm Threshold",
+      "url": "https://doi.org/10.1203/01.pdr.0000099793.99608.cb"
+    },
+    {
+      "search": "painMechanism",
+      "title": "The acoustic space of pain: cries as indicators of distress recovering dynamics in pre-verbal infants",
+      "url": "https://scispace.com/pdf/the-acoustic-space-of-pain-cries-as-indicators-of-distress-1m2nhrjd8q.pdf"
+    },
+    {
+      "search": "painMechanism",
+      "title": "The acoustic space of pain: cries as indicators of distress recovering dynamics in pre-verbal infants",
+      "url": "https://doi.org/10.6084/m9.figshare.5146738"
+    },
+    {
+      "search": "painMechanism",
+      "title": "Acoustics of Infant Pain Cries: Fundamental Frequency as a Measure of Arousal",
+      "url": "https://doi.org/10.1044/ssod23.1.18"
+    },
+    {
+      "search": "painMechanism",
+      "title": "Newborn infants' cry after heel-prick: analysis with sound spectrogram",
+      "url": "https://onlinelibrary.wiley.com/doi/10.1111/j.1651-2227.2000.tb01190.x"
+    },
+    {
+      "search": "painMechanism",
+      "title": "Newborns Crying in Different Contexts: Discrete or Graded Signals?",
+      "url": "https://journals.sagepub.com/doi/10.2466/pms.1998.86.3c.1123"
+    },
+    {
+      "search": "painMechanism",
+      "title": "Pain cues override identity cues in baby cries",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11269312/"
+    },
+    {
+      "search": "painMechanism",
+      "title": "The newborn pain cry: Descriptive acoustic spectrographic analysis",
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/S0165587606004800"
+    },
+    {
+      "search": "identity",
+      "title": "Fathers are just as good as mothers at recognizing the cries of their baby",
+      "url": "https://doi.org/10.1038/ncomms2713"
+    },
+    {
+      "search": "identity",
+      "title": "Fathers are just as good as mothers at recognizing ...",
+      "url": "https://www.nature.com/articles/ncomms2713"
+    },
+    {
+      "search": "identity",
+      "title": "N/A",
+      "url": "http://www.nature.com/articles/ncomms2713.pdf"
+    },
+    {
+      "search": "identity",
+      "title": "Fathers are just as good as mothers at recognizing the cries of their baby",
+      "url": "https://hal.archives-ouvertes.fr/hal-00879675"
+    },
+    {
+      "search": "identity",
+      "title": "Mum and dad equally good at recognising baby's cry, study ...",
+      "url": "https://medicalxpress.com/news/2013-04-mum-dad-equally-good-recognising.html"
+    },
+    {
+      "search": "identity",
+      "title": "Fathers Recognize Their Babies’ Cries Just as Well as Mothers",
+      "url": "https://www.smithsonianmag.com/science-nature/fathers-recognize-their-babies-cries-just-as-well-as-mothers-23500912/"
+    },
+    {
+      "search": "identity",
+      "title": "Dad tunes into baby's cry same as mum",
+      "url": "https://www.abc.net.au/science/articles/2013/04/17/3739025.htm?WT.mc_id=science_twitterfeed_latest"
+    },
+    {
+      "search": "identity",
+      "title": "Dad tunes into baby's cry same as mum  › News in Science (ABC Science)",
+      "url": "http://abc.net.au/science/articles/2013/04/17/3739025.htm?site=science&topic=latest"
+    },
+    {
+      "search": "identity",
+      "title": "Who's got better baby sense: Mom or dad? | Fox News",
+      "url": "https://www.foxnews.com/health/whos-got-better-baby-sense-mom-or-dad"
+    },
+    {
+      "search": "identity",
+      "title": "Fathers are just as good as mothers at recognizing the cries of their baby | APedia",
+      "url": "https://www.apedia.attachmentparenting.org/node/3341"
+    },
+    {
+      "search": "dunstan",
+      "title": "Testing the Universal Baby Language Hypothesis - Automatic Infant Speech Recognition with CNNs",
+      "url": "https://doi.org/10.1109/tsp.2018.8441412"
+    },
+    {
+      "search": "dunstan",
+      "title": "Dunstan Baby Language Classification with CNN",
+      "url": "https://doi.org/10.1109/sped53181.2021.9587374"
+    },
+    {
+      "search": "dunstan",
+      "title": "Analysis of acoustic and voice quality features for the classification ...",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9435967/"
+    },
+    {
+      "search": "dunstan",
+      "title": "The Study of Learning System for Infant Cry Classification Using Discrete Wavelet Transform and Extreme Machine Learning",
+      "url": "https://doi.org/10.18280/isi.270309"
+    },
+    {
+      "search": "dunstan",
+      "title": "An ensemble multi-stream classifier for infant needs detection",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10130778/"
+    },
+    {
+      "search": "dunstan",
+      "title": "Evaluating Noise-Robustness of Convolutional and Recurrent Neural Networks for Baby Cry Recognition",
+      "url": "https://doi.org/10.14569/ijacsa.2024.0150660"
+    },
+    {
+      "search": "dunstan",
+      "title": "Paper 2057 Detail Information",
+      "url": "https://epapers2.org/iscas2026/ESR/paper_details.php?paper_id=2057"
+    },
+    {
+      "search": "dunstan",
+      "title": "The Study of Learning System for Infant Cry Classification Using Discrete Wavelet Transform and Extreme Machine Learning | IIETA",
+      "url": "https://www.iieta.org/journals/isi/paper/10.18280/isi.270309"
+    },
+    {
+      "search": "dunstan",
+      "title": "Infant cries convey both stable and dynamic information about age and identity",
+      "url": "https://doi.org/10.1038/s44271-023-00022-z"
+    },
+    {
+      "search": "dunstan",
+      "title": "Identifikasi Arti Tangisan Bayi Versi Dunstan Baby Language Menggunakan Jarak Terpendek Dari Jarak Mahalanobis (Infant Cries Identification of Dunstan Baby Language Version using the Shortest Distance of Mahalanobis)",
+      "url": "https://doi.org/10.29244/jstsv.3.1.27-34"
+    },
+    {
+      "search": "clinicalAI",
+      "title": "Self-Supervised Learning for Infant Cry Analysis",
+      "url": "https://doi.org/10.1109/icasspw59220.2023.10193421"
+    },
+    {
+      "search": "clinicalAI",
+      "title": "Self-supervised learning for infant cry analysis",
+      "url": "https://doi.org/10.48550/arxiv.2305.01578"
+    },
+    {
+      "search": "clinicalAI",
+      "title": "N/A",
+      "url": "https://export.arxiv.org/pdf/2305.01578v1.pdf"
+    },
+    {
+      "search": "clinicalAI",
+      "title": "[PDF] self-supervised learning for infant cry analysis - IEEE SigPort",
+      "url": "https://sigport.org/sites/default/files/docs/Paper_SSL_for_cry_analysis.pdf"
+    },
+    {
+      "search": "clinicalAI",
+      "title": "[2608.30456] Self-Supervised Pretext Tasks for Infant Cry Analysis: A Controlled Comparison and a Cautionary Result on Donateacry",
+      "url": "https://arxiv.org/abs/2608.30456"
+    },
+    {
+      "search": "clinicalMetrics",
+      "title": "Self-supervised learning for infant cry analysis",
+      "url": "https://doi.org/10.48550/arxiv.2305.01578"
+    },
+    {
+      "search": "clinicalMetrics",
+      "title": "Self-Supervised Learning for Infant Cry Analysis",
+      "url": "https://doi.org/10.1109/icasspw59220.2023.10193421"
+    },
+    {
+      "search": "clinicalMetrics",
+      "title": "SELF-SUPERVISED LEARNING FOR INFANT CRY ANALYSIS",
+      "url": "https://sigport.org/sites/default/files/docs/Paper_SSL_for_cry_analysis.pdf"
+    },
+    {
+      "search": "clinicalMetrics",
+      "title": "[2305.01578] Self-supervised learning for infant cry analysis",
+      "url": "https://ar5iv.labs.arxiv.org/html/2305.01578"
+    },
+    {
+      "search": "clinicalMetrics",
+      "title": "Self-supervised learning for infant cry analysis | SigPort",
+      "url": "https://sigport.org/documents/self-supervised-learning-infant-cry-analysis"
+    },
+    {
+      "search": "emotionMeanings",
+      "title": "Infant Crying: Pattern of Weeping, Recognition of Emotion and Affective Reactions in Observers",
+      "url": "https://doi.org/10.5209/rev_sjop.2012.v15.n3.39389"
+    },
+    {
+      "search": "emotionMeanings",
+      "title": "Infant Crying: Pattern of Weeping, Recognition of Emotion and Affective Reactions in Observers",
+      "url": "https://www.redalyc.org/pdf/172/17224489011.pdf"
+    },
+    {
+      "search": "emotionMeanings",
+      "title": "Infant crying: pattern of weeping, recognition of emotion ...",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23156907/"
+    },
+    {
+      "search": "emotionMeanings",
+      "title": "Infant Crying: Pattern of Weeping, Recognition of Emotion ...",
+      "url": "https://www.cambridge.org/core/journals/spanish-journal-of-psychology/article/infant-crying-pattern-of-weeping-recognition-of-emotion-and-affective-reactions-in-observers/D5769DA127D5AD302168DEF8E3957A2F"
+    },
+    {
+      "search": "emotionMeanings",
+      "title": "Infant Crying: Pattern of Weeping, Recognition of Emotion and Affective Reactions in Observers",
+      "url": "https://www.cambridge.org/core/journals/spanish-journal-of-psychology/article/abs/infant-crying-pattern-of-weeping-recognition-of-emotion-and-affective-reactions-in-observers/D5769DA127D5AD302168DEF8E3957A2F"
+    },
+    {
+      "search": "emotionMeanings",
+      "title": "Infant crying: pattern of weeping, recognition of emotion and affective reactions in observers | Documents - Universitat de València",
+      "url": "https://producciocientifica.uv.es/documentos/5eb09ea8299952764113b536?lang=en"
+    },
+    {
+      "search": "emotionMeanings",
+      "title": "Infant crying: pattern of weeping, recognition of emotion and affective reactions in observers | Documents - Universidad de Murcia",
+      "url": "https://portalinvestigacion.um.es/documentos/5eb09ea8299952764113b536?lang=en"
+    },
+    {
+      "search": "emotionMeanings",
+      "title": "Infant crying: pattern of weeping, recognition of emotion and affective reactions in observers.",
+      "url": "https://fitforthem.unipa.it/rep:6533b821fe1ef96bd127b776"
+    },
+    {
+      "search": "emotionMeanings",
+      "title": "Fear, anger or pain: Why do babies cry?",
+      "url": "https://www.sciencedaily.com/releases/2013/02/130219090649.htm"
+    },
+    {
+      "search": "emotionMeanings",
+      "title": "Infant crying: pattern of weeping, recognition of emotion and affective reactions in observers | Dokumentuak - Universitat de València",
+      "url": "https://producciocientifica.uv.es/documentos/5eb09ea8299952764113b536?lang=eu"
+    },
+    {
+      "search": "hungerMeaning",
+      "title": "Newborns Crying in Different Contexts: Discrete or Graded Signals?",
+      "url": "https://journals.sagepub.com/doi/10.2466/pms.1998.86.3c.1123"
+    },
+    {
+      "search": "hungerMeaning",
+      "title": "The identification of some specific meanings in infant vocalization",
+      "url": "https://doi.org/10.1007/bf02150709"
+    },
+    {
+      "search": "hungerMeaning",
+      "title": "Acoustic and Physiologic Characteristics of Newborn Infants' Communication Intent via Crying",
+      "url": "https://doi.org/10.13064/ksss.2013.5.3.055"
+    },
+    {
+      "search": "hungerMeaning",
+      "title": "Perceptual Dimensions of Infant Cry Signals: A Semantic Differential Analysis",
+      "url": "https://doi.org/10.2466/pms.1983.57.2.575"
+    },
+    {
+      "search": "hungerMeaning",
+      "title": "Rhythmic organization of the sound of infant crying",
+      "url": "https://onlinelibrary.wiley.com/doi/10.1002/dev.420260603"
+    },
+    {
+      "search": "hungerMeaning",
+      "title": "Neonates: Fundamental Frequency",
+      "url": "https://research.ijcaonline.org/iceice/number3/iceice022.pdf"
+    },
+    {
+      "search": "hungerMeaning",
+      "title": "Perceptual dimensions of infants' cry signals : a dissertation present in partial fulfilment of the requirements for the degree of Master of Philosophy in Education at Massey University",
+      "url": "http://hdl.handle.net/10179/13189"
+    },
+    {
+      "search": "hungerMeaning",
+      "title": "Defining and distinguishing infant behavioral states using acoustic cry analysis: is colic painful? | Pediatric Research",
+      "url": "https://www.nature.com/articles/s41390-019-0592-4"
+    },
+    {
+      "search": "hungerMeaning",
+      "title": "Infant cry as a graded signal: Experimental modifications of durations of pauses and expiratory sounds alter mothers' perceptions",
+      "url": "https://doi.org/10.1002/edp.2430020204"
+    },
+    {
+      "search": "hungerMeaning",
+      "title": "PS 007 419 Acoustics; Behavior Patterns",
+      "url": "https://files.eric.ed.gov/fulltext/ED095994.pdf"
+    },
+    {
+      "search": "needsMeaning",
+      "title": "Infant cries convey both stable and dynamic information about age and identity | Communications Psychology",
+      "url": "https://preview-www.nature.com/articles/s44271-023-00022-z"
+    },
+    {
+      "search": "needsMeaning",
+      "title": "Acoustic and Physiologic Characteristics of Newborn Infants' Communication Intent via Crying",
+      "url": "https://doi.org/10.13064/ksss.2013.5.3.055"
+    },
+    {
+      "search": "needsMeaning",
+      "title": "Defining and distinguishing infant behavioral states using acoustic cry analysis: is colic painful? | Pediatric Research",
+      "url": "https://www.nature.com/articles/s41390-019-0592-4"
+    },
+    {
+      "search": "needsMeaning",
+      "title": "Multi-modal analysis of infant cry types characterization: Acoustics, body language and brain signals",
+      "url": "https://cris.unibo.it/retrieve/bdccc1e0-3037-4982-93c9-6c60624ecc89/1-s2.0-S0010482523010910-main-2.pdf"
+    },
+    {
+      "search": "needsMeaning",
+      "title": "Longitudinal study of the fundamental frequency of hunger cries along the first 6 months of healthy babies",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/16730945/"
+    },
+    {
+      "search": "needsMeaning",
+      "title": "How can cry acoustics associate newborns' distress levels with ...",
+      "url": "https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2023.1266873/full"
+    },
+    {
+      "search": "needsMeaning",
+      "title": "A Database of Infant Cry Sounds to Study the Likely Cause of Cry",
+      "url": "https://aclanthology.org/W15-5917.pdf"
+    },
+    {
+      "search": "needsMeaning",
+      "title": "How can cry acoustics associate newborns’ distress levels with neurophysiological and behavioral signals?",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10547902/"
+    },
+    {
+      "search": "needsMeaning",
+      "title": "Infant cry as a graded signal: Experimental modifications of durations of pauses and expiratory sounds alter mothers' perceptions",
+      "url": "https://onlinelibrary.wiley.com/doi/10.1002/edp.2430020204"
+    },
+    {
+      "search": "needsMeaning",
+      "title": "Cry analysis for early detection of infantile colic: Integrating behavioral and acoustic cry patterns using machine learning",
+      "url": "https://https-sage-cnpereading-com-443.webvpn1.xju.edu.cn/doi/10.1177/20552076261416321"
+    },
+    {
+      "search": "fullerMeaning",
+      "title": "Differences in fundamental frequency, jitter, and shimmer among four types of infant vocalizations",
+      "url": "https://doi.org/10.1016/0021-9924(86)90019-5"
+    },
+    {
+      "search": "fullerMeaning",
+      "title": "Spectral energy distribution in four types of infant vocalizations",
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/0021992488900330"
+    },
+    {
+      "search": "fullerMeaning",
+      "title": "Spectral energy distribution in four types of infant ...",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/3417883/"
+    },
+    {
+      "search": "fullerMeaning",
+      "title": "Acoustic Correlates and Adult Perceptions of Distress in ...",
+      "url": "https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2019.01154/full"
+    },
+    {
+      "search": "fullerMeaning",
+      "title": "Acoustic Discrimination of Three Types of Infant Cries",
+      "url": "https://doi.org/10.1097/00006199-199105000-00007"
+    }
+  ],
+  "scope": "Revised after user clarification: prioritize studies concluding what infant cry patterns mean or what states they express. ML accuracy literature is background.",
+  "selectedCoreStudies": 10,
+  "additionalDunstanStudies": 2,
+  "note": "Search results are counted with duplicates. Unique URLs are not unique studies. Selected literature is summarized in report.ko.md. Full copyrighted pages are not reproduced in this log."
+}

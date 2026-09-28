@@ -1,0 +1,58 @@
+{
+  "created_at": "2026-09-20",
+  "artifacts": [
+    {
+      "id": "hero",
+      "generated_source": "/Users/iyejun/.codex/generated_images/01a0be4c-c09d-7163-8e0a-2f9e03eca02c/exec-d5375137-ede6-499e-b720-cb7b1911d747.png",
+      "file": "concepts/00-character-key-art.png",
+      "tool": "built-in image_gen",
+      "status": "concept raster, not a layered animation asset",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1286375,
+      "sha256": "d42e3ef83c2d94fd03b5852fb3d4c49445082ec08fa7713b2eff70a8ecf0164a"
+    },
+    {
+      "id": "observations_final",
+      "generated_source": "/Users/iyejun/.codex/generated_images/01a0be4c-c09d-7163-8e0a-2f9e03eca02c/exec-7e269a66-d2c9-4437-aaca-ab3a7c7df481.png",
+      "file": "concepts/01-observation-states.png",
+      "tool": "built-in image_gen",
+      "status": "concept raster, not a layered animation asset",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1313246,
+      "sha256": "2518afee846cf126c0bff0899b3dc4b98b70a55dd6aef2e593b88a4fe7cd4d32"
+    },
+    {
+      "id": "inferences_final",
+      "generated_source": "/Users/iyejun/.codex/generated_images/01a0be4c-c09d-7163-8e0a-2f9e03eca02c/exec-2cba9c8e-00e7-45cd-86d2-dba85c745d34.png",
+      "file": "concepts/02-ai-inferences.png",
+      "tool": "built-in image_gen",
+      "status": "concept raster, not a layered animation asset",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1294680,
+      "sha256": "9b4091a8a9748e273e66b4059d897fcbbe2c1944a84e472e341ab29cca088e28",
+      "revised_at": "2026-09-20",
+      "revision_description": "Direct embodied baby poses; thought bubbles and floating symbols removed",
+      "superseded_version": {
+        "generated_source": "/Users/iyejun/.codex/generated_images/01a0be4c-c09d-7163-8e0a-2f9e03eca02c/exec-5d254da4-266b-42b1-b6f7-24da3e1ed597.png",
+        "sha256": "41677aeb1ed7035cf177a28482e8ef00340b0b393cb7fb089591cec06a7374b2",
+        "bytes": 1394114,
+        "repository_commit": "452afc58561af110879c4c1bb1683cdc88e9b23c",
+        "description": "Superseded bubble-based pose sheet"
+      }
+    },
+    {
+      "id": "actions_final",
+      "generated_source": "/Users/iyejun/.codex/generated_images/01a0be4c-c09d-7163-8e0a-2f9e03eca02c/exec-fedb9b49-9926-4731-86d3-7f9b9f17c272.png",
+      "file": "concepts/03-care-actions.png",
+      "tool": "built-in image_gen",
+      "status": "concept raster, not a layered animation asset",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1450510,
+      "sha256": "bb6831160401d1479bd0882f18268642047151344f9758fcc2f6aa90337a4550"
+    }
+  ]
+}

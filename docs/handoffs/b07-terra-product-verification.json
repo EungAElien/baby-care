@@ -1,0 +1,76 @@
+{
+  "schema_version": "baby-care.b07-terra-product-verification.v1",
+  "verified_at": "2026-09-20T22:10:59+09:00",
+  "provider_call_base_commit": "1b8611265ffd9389e7ceb35dd8b2fc3a04efc93a",
+  "final_regression_base_commit": "e251a247aaa4a67961653f3cc135b0e78cdc266b",
+  "contract_version": "1.2.0",
+  "synthetic_only": true,
+  "provider": "openai",
+  "model": "gpt-5.6-terra",
+  "provider_request_limit_including_retries": 6,
+  "provider_requests_used": 6,
+  "provider_responses_completed": 6,
+  "secrets_or_full_provider_content_stored": false,
+  "verdicts": {
+    "connection": "PASS",
+    "model_semantics": "PASS",
+    "confirmation_authorization_recovery": "PASS"
+  },
+  "cases": [
+    {
+      "case_id": "B07-LIVE-001",
+      "normalization_status": "COMPLETE",
+      "model_semantic_pass": true,
+      "confirmation_source": "MODEL_ORIGINAL",
+      "care_event_count": 1,
+      "state_observation_count": 1,
+      "data_origin": "USER",
+      "storage_refetch_pass": true
+    },
+    {
+      "case_id": "B07-LIVE-002",
+      "normalization_status": "COMPLETE",
+      "model_semantic_pass": true,
+      "confirmation_source": "MODEL_ORIGINAL",
+      "care_event_count": 1,
+      "state_observation_count": 0,
+      "data_origin": "USER",
+      "storage_refetch_pass": true
+    },
+    {
+      "case_id": "B07-LIVE-003",
+      "normalization_status": "COMPLETE",
+      "model_semantic_pass": true,
+      "blocking_conflict_rejected": true,
+      "confirmation_source": "TEST_USER_EDIT",
+      "care_event_count": 1,
+      "state_observation_count": 0,
+      "data_origin": "USER",
+      "storage_refetch_pass": true
+    }
+  ],
+  "negative_probes": {
+    "eventless_outcome_rejected_without_persistence": true,
+    "nonmember_refetch_blocked": true,
+    "revoked_membership_existing_jwt_blocked": true,
+    "shared_change_feed_omits_raw_and_normalized_content": true
+  },
+  "regression": {
+    "quick_api_unit_passed": 234,
+    "integration_total_passed": 259,
+    "required_integration_collected": 25,
+    "required_integration_executed": 25,
+    "required_integration_skipped": 0,
+    "coverage_percent": 90.52,
+    "pgtap_passed": 97,
+    "auth_data_storage_http_passed": 23,
+    "artifact_sensitive_findings": 0
+  },
+  "not_verified": [
+    "production Supabase or deployment",
+    "A-07 real browser flow",
+    "real caregiver, baby, or audio data",
+    "episode-linked ActionAttempt or Outcome",
+    "load, cost, medical accuracy, or user generalization"
+  ]
+}

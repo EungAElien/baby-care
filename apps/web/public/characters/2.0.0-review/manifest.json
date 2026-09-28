@@ -1,0 +1,497 @@
+{
+  "version": "2.0.0-review",
+  "created": "2026-09-20",
+  "updated": "2026-09-21",
+  "scope": 22,
+  "exported": 8,
+  "sourceOnly": 0,
+  "notStarted": 14,
+  "figma": "https://www.figma.com/design/etV160fUzbwxOEUwgK4g00",
+  "creator": "https://creator.lottiefiles.com/?fileId=3ef2a7bd-3603-4157-ba93-6db315053602",
+  "runtime": "lottie-web 5.13.0 SVG",
+  "assets": [
+    {
+      "id": "observation-CRYING",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "observation-FUSSING",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "observation-CALM",
+      "version": "2.0.0-review",
+      "status": "exported-review",
+      "file": "observation-calm",
+      "source": "sources/observation-calm.svg",
+      "figmaNode": "6:2",
+      "sourceSize": [
+        270,
+        334
+      ],
+      "sourceSha256": "c3a6148254a6caccc258eb4ec9198815734b0e2a64dc3710dc820d213ad1e7e9",
+      "poster": "observation-calm.png",
+      "posterOrigin": "lottie-web frame 0",
+      "logSizes": [
+        56,
+        64,
+        72
+      ],
+      "visualApproval": "not-final",
+      "apiIntegrated": false,
+      "realDeviceTested": false,
+      "animation": "observation-calm.json",
+      "exportOrigin": "Lottie Creator standard JSON download (unmodified)",
+      "fps": 24,
+      "segment": [
+        0,
+        96
+      ],
+      "loop": true,
+      "representativeFrame": 0,
+      "reviewFrames": [
+        0,
+        30,
+        43,
+        95
+      ],
+      "canvas": [
+        360,
+        400
+      ],
+      "dependencies": [],
+      "sha256": "e4eb991d1888c135b039ad91b69fa68b6871f1d464f8133443005e57dee95a01",
+      "motionPolicy": "body-parts"
+    },
+    {
+      "id": "observation-CHEERFUL_APPEARING",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "observation-AWAKE",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "observation-SLEEPY_APPEARING",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "observation-ASLEEP",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "observation-UNKNOWN",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "inference-hungry",
+      "version": "2.0.0-review",
+      "status": "exported-review",
+      "file": "ai-hungry",
+      "source": "sources/ai-hungry.svg",
+      "figmaNode": "6:47",
+      "sourceSize": [
+        262,
+        326
+      ],
+      "sourceSha256": "18f176e37a2b31a334c30b84989a634148e3739c6d22647d9ca4cf1e1a3e48af",
+      "poster": "ai-hungry.png",
+      "posterOrigin": "lottie-web frame 0",
+      "logSizes": [
+        56,
+        64,
+        72
+      ],
+      "visualApproval": "not-final",
+      "apiIntegrated": false,
+      "realDeviceTested": false,
+      "animation": "ai-hungry.json",
+      "exportOrigin": "Lottie Creator standard JSON download (unmodified)",
+      "fps": 24,
+      "segment": [
+        0,
+        96
+      ],
+      "loop": true,
+      "representativeFrame": 0,
+      "reviewFrames": [
+        0,
+        34,
+        55
+      ],
+      "canvas": [
+        360,
+        400
+      ],
+      "dependencies": [],
+      "sha256": "9fa79f0abc5819de47cc4926edfa41a4f06760d77974beaa2ae1c4dd57408eda",
+      "motionPolicy": "body-parts"
+    },
+    {
+      "id": "inference-tired",
+      "version": "2.0.0-review",
+      "status": "exported-review",
+      "file": "ai-tired",
+      "source": "sources/ai-tired.svg",
+      "figmaNode": "19:2",
+      "sourceSize": [
+        281,
+        310
+      ],
+      "sourceSha256": "e5c021df62bb401843c38c6e751354ae72ff3c15dc6058c8cf7309df39123294",
+      "poster": "ai-tired.png",
+      "posterOrigin": "lottie-web frame 34",
+      "logSizes": [
+        56,
+        64,
+        72
+      ],
+      "visualApproval": "not-final",
+      "apiIntegrated": false,
+      "realDeviceTested": false,
+      "animation": "ai-tired.json",
+      "exportOrigin": "Lottie Creator standard dotLottie download, a/ai-tired.json extracted byte-for-byte",
+      "fps": 24,
+      "segment": [
+        0,
+        96
+      ],
+      "loop": true,
+      "representativeFrame": 34,
+      "reviewFrames": [
+        0,
+        30,
+        34,
+        95
+      ],
+      "canvas": [
+        360,
+        400
+      ],
+      "dependencies": [],
+      "sha256": "e0db4fe1993ae075c0788889ae841b3fef9ea27016a30c0b95387320827306db",
+      "motionPolicy": "body-parts"
+    },
+    {
+      "id": "inference-burping",
+      "version": "2.0.0-review",
+      "status": "exported-review",
+      "file": "ai-burping",
+      "source": "sources/ai-burping.svg",
+      "figmaNode": "21:10",
+      "sourceSize": [
+        274,
+        327
+      ],
+      "sourceSha256": "53bcc1cee558ce5d41095a9faaafda82ac737698fca5059f7316ef734b3f1525",
+      "poster": "ai-burping.png",
+      "posterOrigin": "lottie-web frame 0",
+      "logSizes": [
+        56,
+        64,
+        72
+      ],
+      "visualApproval": "not-final",
+      "apiIntegrated": false,
+      "realDeviceTested": false,
+      "animation": "ai-burping.json",
+      "exportOrigin": "Lottie Creator standard dotLottie download, a/ai-burping.json extracted byte-for-byte",
+      "fps": 24,
+      "segment": [
+        0,
+        96
+      ],
+      "loop": true,
+      "representativeFrame": 0,
+      "reviewFrames": [
+        0,
+        32,
+        55,
+        95
+      ],
+      "canvas": [
+        360,
+        400
+      ],
+      "dependencies": [],
+      "sha256": "bc90febb37a539e2db424a6e157b1631c6034e70e69e6c1f84487950533f5f98",
+      "motionPolicy": "body-parts"
+    },
+    {
+      "id": "inference-belly_pain",
+      "version": "2.0.0-review",
+      "status": "exported-review",
+      "file": "ai-belly-pain",
+      "source": "sources/ai-belly-pain.svg",
+      "figmaNode": "21:73",
+      "sourceSize": [
+        245,
+        319
+      ],
+      "sourceSha256": "3eff043350424e16295ba9e93f55912f83bb70b3702e89df23c5817db0bccfce",
+      "poster": "ai-belly-pain.png",
+      "posterOrigin": "lottie-web frame 0",
+      "logSizes": [
+        56,
+        64,
+        72
+      ],
+      "visualApproval": "not-final",
+      "apiIntegrated": false,
+      "realDeviceTested": false,
+      "animation": "ai-belly-pain.json",
+      "exportOrigin": "Lottie Creator standard dotLottie download, a/ai-belly-pain.json extracted byte-for-byte",
+      "fps": 24,
+      "segment": [
+        0,
+        96
+      ],
+      "loop": true,
+      "representativeFrame": 0,
+      "reviewFrames": [
+        0,
+        36,
+        44,
+        95
+      ],
+      "canvas": [
+        360,
+        400
+      ],
+      "dependencies": [],
+      "sha256": "bf9c5b401541c8dbfefd9f88b5b03a419a9c86e21f688af16fa12d58047bb278",
+      "motionPolicy": "body-parts"
+    },
+    {
+      "id": "inference-discomfort",
+      "version": "2.0.0-review",
+      "status": "exported-review",
+      "file": "ai-discomfort",
+      "source": "sources/ai-discomfort.svg",
+      "figmaNode": "23:2",
+      "sourceSize": [
+        295,
+        321
+      ],
+      "sourceSha256": "6c37647db02be9d56d5f0fb068eaf48dec58df4a33e5acdf7c351a6699c4e05a",
+      "poster": "ai-discomfort.png",
+      "posterOrigin": "lottie-web frame 0",
+      "logSizes": [
+        56,
+        64,
+        72
+      ],
+      "visualApproval": "not-final",
+      "apiIntegrated": false,
+      "realDeviceTested": false,
+      "animation": "ai-discomfort.json",
+      "exportOrigin": "Lottie Creator standard dotLottie download, a/ai-discomfort.json extracted byte-for-byte",
+      "fps": 24,
+      "segment": [
+        0,
+        96
+      ],
+      "loop": true,
+      "representativeFrame": 0,
+      "reviewFrames": [
+        0,
+        41,
+        60,
+        95
+      ],
+      "canvas": [
+        360,
+        400
+      ],
+      "dependencies": [],
+      "sha256": "715d80a365dbc8b5e2424a24d1aacfc6c08539e17c606481ca3b6747a1870d10",
+      "motionPolicy": "body-parts"
+    },
+    {
+      "id": "inference-uncertain",
+      "version": "2.0.0-review",
+      "status": "exported-review",
+      "file": "ai-uncertain",
+      "source": "sources/ai-uncertain.svg",
+      "figmaNode": "24:6",
+      "sourceSize": [
+        257,
+        321
+      ],
+      "sourceSha256": "4b1f0ea3ad5d27b8f9bb36e5786a30b440e369a3055582f36ac5a1338c3e9e4d",
+      "poster": "ai-uncertain.png",
+      "posterOrigin": "lottie-web frame 0",
+      "logSizes": [
+        56,
+        64,
+        72
+      ],
+      "visualApproval": "not-final",
+      "apiIntegrated": false,
+      "realDeviceTested": false,
+      "animation": "ai-uncertain.json",
+      "exportOrigin": "Lottie Creator standard dotLottie download, a/ai-uncertain.json extracted byte-for-byte",
+      "fps": 24,
+      "segment": [
+        0,
+        24
+      ],
+      "loop": false,
+      "representativeFrame": 0,
+      "reviewFrames": [
+        0,
+        23
+      ],
+      "canvas": [
+        360,
+        400
+      ],
+      "dependencies": [],
+      "sha256": "14235aaf88033ed7963a196e396e5677c6f07b884fbde6286f4d73788c62eb26",
+      "motionPolicy": "static-neutral"
+    },
+    {
+      "id": "action-feeding",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "action-diaper",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "action-holding",
+      "version": "2.0.0-review",
+      "status": "exported-review",
+      "file": "action-holding",
+      "source": "sources/action-holding.svg",
+      "figmaNode": "6:100",
+      "sourceSize": [
+        342,
+        371
+      ],
+      "sourceSha256": "494ecb6e0e728678eba80aa5ef44bacdc5496e74587acb1081616965eaf20231",
+      "poster": "action-holding.png",
+      "posterOrigin": "lottie-web frame 0",
+      "logSizes": [
+        56,
+        64,
+        72
+      ],
+      "visualApproval": "not-final",
+      "apiIntegrated": false,
+      "realDeviceTested": false,
+      "animation": "action-holding.json",
+      "exportOrigin": "Lottie Creator standard JSON download (unmodified)",
+      "fps": 24,
+      "segment": [
+        0,
+        53
+      ],
+      "loop": false,
+      "representativeFrame": 0,
+      "reviewFrames": [
+        0,
+        20,
+        30,
+        52
+      ],
+      "canvas": [
+        400,
+        400
+      ],
+      "dependencies": [],
+      "sha256": "68c6bb911bc83c286fb76db79d790d5f0585eca3682516dce5862382dcae8589",
+      "motionPolicy": "body-parts"
+    },
+    {
+      "id": "action-patting",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "action-burped",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "action-sleeping",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "action-environment",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    },
+    {
+      "id": "action-other",
+      "version": "2.0.0-review",
+      "status": "not-started",
+      "animation": null,
+      "poster": null,
+      "apiIntegrated": false,
+      "realDeviceTested": false
+    }
+  ]
+}

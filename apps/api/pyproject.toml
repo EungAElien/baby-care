@@ -1,0 +1,89 @@
+[project]
+name = "baby-care-api"
+version = "0.1.0"
+description = "FastAPI foundation for the Baby Care service"
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = [
+    "fastapi==0.141.1",
+    "openai==3.16.2",
+    "PyJWT[crypto]==2.10.1",
+    "pydantic==2.13.5",
+    "pydantic-settings==2.15.0",
+    "psycopg[binary,pool]==3.3.6",
+    "uvicorn==0.53.0",
+]
+
+[project.optional-dependencies]
+m2d = [
+    "nnAudio==0.3.4",
+    "numpy==2.4.6",
+    "soundfile==0.13.1",
+    "soxr==1.0.0",
+    "timm==1.0.29",
+    "torch==2.14.0",
+]
+dev = [
+    "httpx2==2.13.0",
+    "jsonschema==4.26.0",
+    "mypy==2.3.1",
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "ruff==0.16.8",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers --cov=baby_care_api --cov-report=term-missing --cov-fail-under=90"
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = ["integration: requires the dedicated local Supabase database"]
+
+[tool.coverage.run]
+branch = true
+source = ["baby_care_api"]
+omit = [
+    # This executable synthetic-media harness is exercised in verify:container.
+    # Keeping it out of pytest coverage avoids crediting a mock for the pinned
+    # FFmpeg process that the container gate actually runs.
+    "*/audio_decoder_smoke.py",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    '\.\.\.',
+]
+show_missing = true
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "SIM", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["baby_care_api"]
+
+[tool.ruff.format]
+line-ending = "lf"
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]
+pretty = true
+show_error_codes = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["numpy", "torch", "torch.*", "soundfile", "soxr", "nnAudio", "nnAudio.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["baby_care_m2d.*"]
+disallow_subclassing_any = false
+warn_return_any = false

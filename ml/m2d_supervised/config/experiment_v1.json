@@ -1,0 +1,193 @@
+{
+  "experiment_version": "m2d-supervised-v1.0.0",
+  "model": {
+    "architecture": "m2d_vit_base_encoder_only",
+    "upstream_release": "M2D/0.7 m2d_vit_base-80x608p16x16-221006-mr7",
+    "source_commit": "3d0c4de9447c404a8d3f9f37e04f53bc902e09b3",
+    "input_size": [80, 608],
+    "patch_size": [16, 16],
+    "frequency_patches": 5,
+    "embedding_dimension": 768,
+    "classifier_feature_dimension": 3840,
+    "registry": {
+      "A": {
+        "initialization_id": "m2d_original_0p7",
+        "checkpoint": "pretrained/m2d_vit_base-80x608p16x16-221006-mr7/checkpoint-300.pth",
+        "sha256": "39c8bbe6f6949b1e0c13b9e46838da19479d034a22c66e370667dd5a97d14a8e",
+        "norm_stats_origin": "m2d_2022_backward_compatibility_default",
+        "trained_heads": ["donate"],
+        "recipe": "donate"
+      },
+      "B": {
+        "initialization_id": "babycry_full_ssl_best",
+        "checkpoint": "runs/babycry_full/best_encoder.pth",
+        "sha256": "edf99468c520903679a065bd3d368a031a84838076a84479f86839ab5dbd9f97",
+        "norm_stats_origin": "checkpoint",
+        "trained_heads": ["donate"],
+        "recipe": "donate"
+      },
+      "C": {
+        "initialization_id": "babycry_full_ssl_best",
+        "checkpoint": "runs/babycry_full/best_encoder.pth",
+        "sha256": "edf99468c520903679a065bd3d368a031a84838076a84479f86839ab5dbd9f97",
+        "norm_stats_origin": "checkpoint",
+        "trained_heads": ["donate", "enes"],
+        "recipe": "joint"
+      }
+    }
+  },
+  "datasets": {
+    "donate": {
+      "root": "학습데이터셋/Donate-a-Cry",
+      "labels": ["belly_pain", "burping", "discomfort", "hungry", "tired"],
+      "counts": {"all": 457, "development": 367, "test": 90},
+      "group_field": "group_id",
+      "label_source": "contributor_suspected_cause_unverified",
+      "manifest_sha256": {
+        "all": "903da969a42784218141ba589ae1829dc8b60a502070bb18c6646b02424a0c54",
+        "development": "7728f8d0db404512262b8a045982f64d2d882dcbcf264f7f479689cc16d7ea98",
+        "test": "b442b27bb8d37315aed221b1dc8bffcfe5b4c76666990a0d5b9f8ab6c7492a5d",
+        "fold0_train": "e608849aa7940c0d78aa3e5fb09a2afa0779313f1781e3c8e28ab32963aae93e",
+        "fold0_val": "e19016f2398a9ee0b2000f1904824e3d465cd0d4f64b1f94c20e74b9fc4ea2c6",
+        "fold1_train": "fc0ed65dd8e1b7f03429b7fbebcce80457b181ac056bcfc27ae7f19ab5cd5a47",
+        "fold1_val": "ad89d7383944900785bce945e37e3cccd43387558df5a55722014b570f13220d",
+        "fold2_train": "9ef5e3277ecfb0de204e1026ed8b732bd01860284cef8719588ee6b534f82d74",
+        "fold2_val": "82cafd05bf4984224b3230f64305444eeaa0a29976a609fbfe7d28d69b80c4e5"
+      }
+    },
+    "enes": {
+      "root": "학습데이터셋/EnesBabyCries1",
+      "labels": ["discomfort", "hunger", "isolation"],
+      "counts": {"all": 39201, "development": 31578, "test": 7623},
+      "group_field": "baby_id",
+      "bout_field": "bout_id",
+      "label_source": "caregiver_action_that_stopped_crying",
+      "label_mapping": {"loneliness": "isolation"},
+      "excluded_original_labels": ["DK", "pain", "other"],
+      "manifest_sha256": {
+        "all": "d04ca4334f27b891cf743152a7a3a30c327d07a44d54aa94bdbeff78dcfc9cee",
+        "development": "953aa55135ea6d75477c7e6e1de98d28a36bd6dfec55ab94a7b76181bd08a1a9",
+        "test": "24c9f6972ad35d96af1e6f8174230e5ea1cbc39c51c102d93c7c8398ba4a4a9f",
+        "fold0_train": "ef216a8ca3994ade3cfb64e9d95473a07ab633401496c6ec3e4da0ec04bd2019",
+        "fold0_val": "316b9089802038b292275ffaa2bf7524bf5dc4b0d8880b4aea3c236c4a87943f",
+        "fold1_train": "c021fe595ab588e87fbb028c4a4264eefe5bdb37483b01ccd3724a7cdb71c99a",
+        "fold1_val": "ce02aaa36a41f36bf485f00ea22a3d2277041e481f67bef9a3d2d9f64e9c9138",
+        "fold2_train": "21d0f2ebf18c7b01a8b5d0188e8ae47b7a08de694558826b071e1c0e50db777a",
+        "fold2_val": "d583419557ff3abce17f67e7f27d208c00cad2a85cd70d5880c576abdcd4ce80"
+      }
+    },
+    "babycry_pretraining": {
+      "root": "data/babycry_m2d",
+      "progress_database": "progress.sqlite3",
+      "stage4_completion_report": "reports/stage4_full_completion_check.json"
+    }
+  },
+  "preprocessing": {
+    "sample_rate": 16000,
+    "mono": "channel_mean_float32",
+    "resampler": "soxr_hq_ceil_length",
+    "n_fft": 400,
+    "win_length": 400,
+    "hop_length": 160,
+    "n_mels": 80,
+    "f_min": 50,
+    "f_max": 8000,
+    "center": true,
+    "power": 2,
+    "window": "hann",
+    "pad_mode": "reflect",
+    "htk": false,
+    "mel_norm": 1,
+    "log": "natural_log_after_float32_epsilon",
+    "normalization_mean": -7.1,
+    "normalization_std": 4.2,
+    "maximum_frames": 608,
+    "frame_multiple": 16,
+    "minimum_frames": 32,
+    "train_crop": "seeded_random_contiguous",
+    "evaluation_crop": "center",
+    "padding_or_repetition": false,
+    "preparation_source_sha256": "a3c5c55eafe9ed51e6ca6788beeb5b55d2129d6e77878926d273e299e323865b"
+  },
+  "training": {
+    "seeds": [42, 43, 44],
+    "folds": [0, 1, 2],
+    "execution_order": ["B", "C", "A"],
+    "device": "mps",
+    "dtype": "float32",
+    "head_initialization": "deterministic_uniform_equivalent_to_torch_linear_default",
+    "warmup": {"epochs": 3, "effective_batch": 32, "head_lr": 0.001},
+    "finetune": {
+      "maximum_epochs": 20,
+      "effective_batch_per_dataset": 16,
+      "micro_batch_maximum": 2,
+      "encoder_lr": 0.00001,
+      "head_lr": 0.001,
+      "trainable_encoder_blocks": [10, 11],
+      "train_final_norm": true,
+      "patience": 5,
+      "minimum_absolute_improvement": 0.001
+    },
+    "optimizer": {
+      "name": "AdamW",
+      "betas": [0.9, 0.999],
+      "weight_decay": 0.01,
+      "fixed_learning_rates": true
+    },
+    "gradient_clip_norm": 1.0,
+    "class_weight": "inverse_sqrt_frequency_expected_mean_one",
+    "joint_loss": {"donate": 1.0, "enes": 0.25},
+    "checkpoint_every_updates": 25,
+    "minimum_free_gib": 8,
+    "bootstrap_repetitions": 2000
+  },
+  "selection": {
+    "primary_metric": "donate_out_of_fold_macro_f1",
+    "a_b_tie_breaker": "B",
+    "c_minimum_mean_gain": 0.02,
+    "c_minimum_improved_seeds": 2,
+    "c_maximum_non_hungry_recall_drop": 0.05,
+    "final_seed": 42,
+    "final_epoch_rule": "median_selected_total_epoch_across_nine_development_runs",
+    "baseline_for_selected": {"A": "B", "B": "A", "C": "B"}
+  },
+  "rights": {
+    "decision_date": "2026-09-20",
+    "project_owner_decision": "APPROVED_FOR_PROJECT_TRAINING_AND_PRIVATE_HOSTED_HACKATHON_SERVICE",
+    "m2d": {
+      "source_status": "NTT evaluation license; non-commercial internal testing, analysis and evaluation; redistribution restricted",
+      "project_use": "approved by project owner for this non-commercial hackathon service",
+      "redistribute_code_or_weights": false
+    },
+    "donate": {
+      "source_status": "ODbL-1.0 database and DbCL-1.0 individual contents",
+      "project_use": "approved",
+      "redistribute_raw_audio": false
+    },
+    "enes": {
+      "source_status": "public OSF deposit and paper reuse intent; OSF node license field is null",
+      "project_use": "explicitly approved by project owner for training and service on 2026-09-20",
+      "redistribute_raw_audio": false
+    },
+    "babycry": {
+      "source_status": "CC-BY-4.0 on Zenodo record 19205929",
+      "project_use": "approved with attribution",
+      "redistribute_raw_audio": false
+    }
+  },
+  "product_boundary": {
+    "deployment_head": "donate",
+    "enes_head_is_product_cause_code": false,
+    "cluster_ids_are_product_cause_codes": false,
+    "calibration_status": "NOT_VALIDATED",
+    "release_ready": false,
+    "unsupported_claims": [
+      "medical diagnosis",
+      "non-cry detection",
+      "audio quality validation",
+      "out-of-distribution detection",
+      "product confidence thresholds",
+      "COMPLETE_ABSTAIN_FAILED product-state behavior"
+    ]
+  }
+}

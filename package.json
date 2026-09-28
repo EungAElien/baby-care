@@ -1,0 +1,23 @@
+{
+  "name": "baby-care-supabase-local",
+  "private": true,
+  "scripts": {
+    "supabase:start": "supabase start >/dev/null",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset --local",
+    "test:supabase:db": "supabase test db",
+    "test:supabase:context": "bash scripts/test-supabase-context.sh",
+    "test:supabase:api-db": "bash scripts/test-api-postgres-authorization.sh",
+    "test:supabase:http": "node scripts/test-supabase-http.mjs",
+    "test:supabase": "python3 scripts/verification/verify.py integration",
+    "verify:quick": "python3 scripts/verification/verify.py quick",
+    "verify:container": "python3 scripts/verification/verify.py container",
+    "verify:integration": "python3 scripts/verification/verify.py integration",
+    "verify:failure-detection": "python3 scripts/verification/verify.py failure-detection",
+    "verify:generated": "python3 scripts/verification/check_generated.py",
+    "verify:sensitive": "python3 scripts/verification/scan_sensitive.py .artifacts/verification"
+  },
+  "devDependencies": {
+    "supabase": "2.117.0"
+  }
+}

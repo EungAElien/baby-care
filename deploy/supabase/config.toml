@@ -1,0 +1,6 @@
+# Hosted URL settings only. Do not push the root local-development config.
+project_id = "baby-care-demo"
+
+[auth]
+site_url = "https://baby-care-demo.vercel.app"
+additional_redirect_urls = ["https://baby-care-demo.vercel.app/login"]

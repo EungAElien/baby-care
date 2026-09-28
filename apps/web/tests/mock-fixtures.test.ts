@@ -1,0 +1,85 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+import {
+  activeMembershipsFor,
+  getMockScenario,
+  isForBaby,
+  membershipFor,
+  mockAcceptedInvite,
+  mockAnalysis,
+  mockBabyLabel,
+  mockIssuedInvite,
+  mockRoleAssignments,
+  mockTestBabies,
+  mockTestUsers,
+  testUserByAlias,
+} from "../src/lib/mock/fixtures";
+
+const sourcePath = resolve(process.cwd(), "../../contracts/목 응답과 시험 사용자 배치.json");
+const sourceFixtures = JSON.parse(readFileSync(sourcePath, "utf8")) as {
+  test_users: unknown[];
+  scenarios: { name: string; synthetic: boolean }[];
+};
+
+describe("mock fixtures", () => {
+  it("copies the contract fixture verbatim (no invented data)", () => {
+    const copiedPath = resolve(process.cwd(), "src/lib/mock/fixtures.json");
+    expect(readFileSync(copiedPath, "utf8")).toBe(readFileSync(sourcePath, "utf8"));
+  });
+
+  it("marks every scenario synthetic and exposes it by name", () => {
+    expect(sourceFixtures.scenarios.every((scenario) => scenario.synthetic)).toBe(true);
+    for (const scenario of sourceFixtures.scenarios) {
+      expect(getMockScenario(scenario.name as never).name).toBe(scenario.name);
+    }
+  });
+
+  it("keeps test users and role assignments identical to the contract", () => {
+    expect(mockTestUsers).toHaveLength(sourceFixtures.test_users.length);
+    expect(mockTestUsers).toEqual(sourceFixtures.test_users);
+  });
+
+  it("computes ACTIVE-only memberships per the dev contract's permission table", () => {
+    const ownerA = testUserByAlias("owner_a");
+    const removedA = testUserByAlias("removed_a");
+    expect(activeMembershipsFor(ownerA.user_id)).toHaveLength(2);
+    expect(activeMembershipsFor(removedA.user_id)).toHaveLength(0);
+    expect(membershipFor(removedA.user_id, mockTestBabies.baby_a)).toBeNull();
+    expect(mockRoleAssignments.some((entry) => entry.user_id === removedA.user_id && entry.status === "REVOKED")).toBe(
+      true,
+    );
+  });
+
+  it("labels the two fixture babies without inventing new ones", () => {
+    expect(mockBabyLabel(mockTestBabies.baby_a)).toBe("아기 A");
+    expect(mockBabyLabel(mockTestBabies.baby_b)).toBe("아기 B");
+  });
+
+  it("scopes the issued-invite fixture to its own baby (regression: PR #11 review)", () => {
+    // owner_b viewing baby_b's care-team must not see baby_a's invited_a@example.invalid —
+    // isForBaby is what SC10 uses to null the invite out for the wrong baby.
+    const invite = mockIssuedInvite();
+    expect(isForBaby(mockTestBabies.baby_a, invite.invite)).toBe(true);
+    expect(isForBaby(mockTestBabies.baby_b, invite.invite)).toBe(false);
+  });
+
+  it("names invited_a as the only valid recipient of the invite_accepted fixture (regression: PR #11 review)", () => {
+    // Any test user could previously accept the invite and gain CAREGIVER access to baby_a.
+    // Only the fixture's own membership.user_id (invited_a) may accept it.
+    const accepted = mockAcceptedInvite();
+    expect(accepted.membership.user_id).toBe(testUserByAlias("invited_a").user_id);
+    expect(accepted.membership.user_id).not.toBe(testUserByAlias("owner_b").user_id);
+    expect(accepted.membership.role).toBe("CAREGIVER");
+    expect(accepted.baby.baby_id).toBe(mockTestBabies.baby_a);
+  });
+
+  it("preserves inference_mode=STUB and data_origin=DEMO on analysis fixtures", () => {
+    for (const name of ["analysis_complete_stub", "analysis_running", "analysis_abstain", "analysis_failed"] as const) {
+      const analysis = mockAnalysis(name);
+      expect(analysis.inference_mode).toBe("STUB");
+      expect(analysis.data_origin).toBe("DEMO");
+      expect(analysis.inference_executed).toBe(false);
+    }
+  });
+});

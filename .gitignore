@@ -9,6 +9,7 @@
 node_modules/
 .next/
 .turbo/
+.vercel/
 out/
 coverage/
 *.tsbuildinfo
@@ -22,10 +23,14 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+coverage.xml
+.artifacts/
 
 # Local Supabase CLI state
 supabase/.branches/
 supabase/.temp/
+.supabase-home/
 
 # Editor and OS files
 .DS_Store

@@ -1,0 +1,335 @@
+{
+  "captured_at_utc": "2026-09-19T10:36:39.488233+00:00",
+  "captured_at_kst": "2026-09-19T19:36:39.488233+09:00",
+  "scope": {
+    "project_root": "/Users/iyejun/.codex/.chatgpt-projects/g-p-6aa8fad322348191ab1b5e55051d7cbe",
+    "training_root": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머",
+    "source_documents": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/pre-development/윤정이가 만든 것",
+    "remote_supabase_cloud_run_inspected": false,
+    "training_or_model_tests_rerun": false
+  },
+  "active_training": {
+    "run": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머/runs/babycry_aux_k32_w010_fast",
+    "k": 32,
+    "auxiliary_weight": 0.1,
+    "phase": {
+      "phase": "training",
+      "updated_unix": 1789811933.939258,
+      "pid": 22534,
+      "k": 32,
+      "auxiliary_weight": 0.1
+    },
+    "live": {
+      "status": "running",
+      "epoch": 0,
+      "position": 22200,
+      "global_step": 2775,
+      "examples_seen": 22200,
+      "compute_seconds": 3066.6375973570157,
+      "best_val": 0.2007646775893841,
+      "best_epoch": 0,
+      "history": [],
+      "updated_unix": 1789814188.741376
+    },
+    "saved_checkpoint_progress": {
+      "status": "running",
+      "epoch": 0,
+      "position": 20000,
+      "global_step": 2500,
+      "examples_seen": 20000,
+      "compute_seconds": 2771.9716983160124,
+      "best_val": 0.2007646775893841,
+      "best_epoch": 0,
+      "history": []
+    },
+    "planned_max_updates": 32235,
+    "max_schedule_progress_percent": 8.61,
+    "first_epoch_progress_percent": 25.83,
+    "completion_check_exists": false,
+    "process_snapshot": "PID  PPID ELAPSED  %CPU %MEM COMM\n22532     1   39:13   0.0  0.1 /opt/homebrew/Cellar/python@3.11/3.11.16/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python\n22534 22532   39:13  39.3  4.1 /opt/homebrew/Cellar/python@3.11/3.11.16/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python",
+    "continuation_verified": true
+  },
+  "baseline_self_supervision": {
+    "status": "completed",
+    "verification_report_verified": true,
+    "verification_timestamp_utc": "2026-09-19T07:37:16.537255+00:00",
+    "train_files": 85953,
+    "val_files": 11743,
+    "updates": 32235,
+    "best_epoch": 1,
+    "best_ssl_loss": 0.1780296009055173,
+    "initial_ssl_loss": 0.2007646775893841,
+    "cause_classification_evaluated": false,
+    "checkpoint": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머/runs/babycry_full/best_encoder.pth",
+    "checkpoint_exists": true,
+    "checkpoint_bytes": 341650961,
+    "checkpoint_reloaded_in_this_audit": false
+  },
+  "clustering": {
+    "verified": true,
+    "recordings": 85953,
+    "unique_crops": 170336,
+    "exact_training_targets": 257859,
+    "primary_k": 64,
+    "validation_audio_used": false,
+    "test_audio_used": false,
+    "donateacry_used": false,
+    "teacher_updated": false,
+    "cluster_ids_are_cause_labels": false,
+    "downstream_performance_verified": false,
+    "ready_for_auxiliary_experiment": true,
+    "updated_unix": 1789802110.312565
+  },
+  "supervised": {
+    "data_verified_in_saved_report": true,
+    "runner_smoke_verified_in_saved_report": true,
+    "saved_report_time_utc": "2026-09-19T05:20:18.017164+00:00",
+    "counts": {
+      "donate": {
+        "all": 457,
+        "development": 367,
+        "test": 90,
+        "fold0_train": 246,
+        "fold0_val": 121,
+        "fold1_train": 243,
+        "fold1_val": 124,
+        "fold2_train": 245,
+        "fold2_val": 122
+      },
+      "enes": {
+        "all": 39201,
+        "development": 31578,
+        "test": 7623,
+        "fold0_train": 21027,
+        "fold0_val": 10551,
+        "fold1_train": 21033,
+        "fold1_val": 10545,
+        "fold2_train": 21096,
+        "fold2_val": 10482
+      }
+    },
+    "saved_stage4_blockers_are_outdated": true,
+    "full_run_directory_exists": false,
+    "comparison": {
+      "checked_utc": "2026-09-19T05:15:46.800534+00:00",
+      "status": "awaiting_complete_training",
+      "test_used": false,
+      "weight": 0.25,
+      "seeds": [
+        42
+      ],
+      "experiments": {
+        "donate": {
+          "head": "donate",
+          "complete": false,
+          "seeds": [],
+          "missing_runs": [
+            "donate_w0p25_fold0_seed42",
+            "donate_w0p25_fold1_seed42",
+            "donate_w0p25_fold2_seed42"
+          ]
+        },
+        "joint": {
+          "head": "donate",
+          "complete": false,
+          "seeds": [],
+          "missing_runs": [
+            "joint_w0p25_fold0_seed42",
+            "joint_w0p25_fold1_seed42",
+            "joint_w0p25_fold2_seed42"
+          ]
+        }
+      },
+      "note": "Validation selected the checkpoints. These are development comparisons, not final test estimates."
+    },
+    "runner_initialization": "runs/babycry_full/best_encoder.pth",
+    "runner_statically_requires_baseline_report_and_baseline_best_files": true,
+    "training_has_not_been_started_by_this_audit": true
+  },
+  "product": {
+    "contract_version": "1.0.0",
+    "path_count": 54,
+    "operation_count": 63,
+    "validation_record": {
+      "openapi_validation": "passed",
+      "reference_validation": "passed",
+      "operations": 63,
+      "paths": 54,
+      "schemas": 117,
+      "response_examples_validated": 46,
+      "request_examples_validated": 7,
+      "invalid_contract_examples_rejected": [
+        "ABSTAIN cannot return cause candidates",
+        "FAILED requires failure details",
+        "COMPLETE requires a saved recommendation",
+        "STUB cannot claim a real model call",
+        "Deletion COMPLETE cannot have pending cleanup",
+        "LLM confirmation needs run_id",
+        "Unresolved conflicting statements cannot be confirmed",
+        "Action cannot create and link an event simultaneously",
+        "Client cannot inject owner user id"
+      ],
+      "not_verified": [
+        "Live FastAPI implementation",
+        "Supabase RLS and Storage runtime behavior",
+        "Actual accounts or OTP",
+        "Real audio or LLM model execution",
+        "Browser end-to-end behavior"
+      ]
+    },
+    "application_artifacts_found_in_scanned_roots": false,
+    "absence_scope": "Searched project mirror, pre-development, training root; excluded vendored M2D and dependencies. No remote deployment claim."
+  },
+  "resources": {
+    "disk_free_gib": 19.91,
+    "training_lock_must_be_respected": true
+  },
+  "source_inventory": [
+    {
+      "path": "/Users/iyejun/.codex/.chatgpt-projects/g-p-6aa8fad322348191ab1b5e55051d7cbe/DEVELOPMENT_PRINCIPLES.md",
+      "bytes": 9651,
+      "sha256": "c2720659af6b3ffd15f4bc2f3907701d7e78fde32ece48f4a0b5cfc4092e8f93",
+      "mtime_utc": "2026-09-19T10:02:10.130642+00:00"
+    },
+    {
+      "path": "/Users/iyejun/.codex/.chatgpt-projects/g-p-6aa8fad322348191ab1b5e55051d7cbe/deliverables/team-contract-v1/README.md",
+      "bytes": 38068,
+      "sha256": "515244b624d2d03e3ad080e8a3d3d992ed68851f34e2b1ec46ecb69fd1e1209a",
+      "mtime_utc": "2026-09-19T10:02:10.131406+00:00"
+    },
+    {
+      "path": "/Users/iyejun/.codex/.chatgpt-projects/g-p-6aa8fad322348191ab1b5e55051d7cbe/deliverables/team-contract-v1/openapi.json",
+      "bytes": 295327,
+      "sha256": "e6f8ae19bc23031edc24834a48024316726d3522b004b1ece3fa905b829ca348",
+      "mtime_utc": "2026-09-19T09:52:24.091541+00:00"
+    },
+    {
+      "path": "/Users/iyejun/.codex/.chatgpt-projects/g-p-6aa8fad322348191ab1b5e55051d7cbe/deliverables/team-contract-v1/validation.json",
+      "bytes": 888,
+      "sha256": "f23d52b518b88f9e988d9a130ac145d0a79ef886c8065db02ea0543eba9b1402",
+      "mtime_utc": "2026-09-19T09:52:25.040641+00:00"
+    },
+    {
+      "path": "/Users/iyejun/.codex/.chatgpt-projects/g-p-6aa8fad322348191ab1b5e55051d7cbe/deliverables/security-design-v1/IMPLEMENTATION-HANDOFF.md",
+      "bytes": 10890,
+      "sha256": "b7668dd3a1ea3e515428f3673f680239e78588a142d62d0867e2a2c33e98d4d8",
+      "mtime_utc": "2026-09-19T10:00:41.943792+00:00"
+    },
+    {
+      "path": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/pre-development/윤정이가 만든 것/내가 맡을 일.md",
+      "bytes": 12508,
+      "sha256": "2a4762b3b0b29d33b66900972e6ce88deaf021a90be58832e9749d0a4490e9b2",
+      "mtime_utc": "2026-09-19T09:16:34.642568+00:00"
+    },
+    {
+      "path": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/pre-development/윤정이가 만든 것/baby-care-functional-spec-v2.docx",
+      "bytes": 615338,
+      "sha256": "bf297e0b23dbecb875134e1548d62a38eacd2c5ef9e4653b63faefc81efe24f2",
+      "mtime_utc": "2026-09-19T08:14:43.850483+00:00"
+    },
+    {
+      "path": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머/CLUSTER_AUX.md",
+      "bytes": 8890,
+      "sha256": "afdf25c4949602e287bfac2a25352fb77e25b160e2d64350c888be3f6dd78808",
+      "mtime_utc": "2026-09-19T09:59:45.206564+00:00"
+    },
+    {
+      "path": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머/STAGE5_DUAL.md",
+      "bytes": 10730,
+      "sha256": "fdc3072e4a3eaf6fcbe0f4309b55a1b3ea0e6146e059b7e2d18bf0d888e073b3",
+      "mtime_utc": "2026-09-19T05:20:42.140079+00:00"
+    },
+    {
+      "path": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머/train_stage5_dual.py",
+      "bytes": 17406,
+      "sha256": "2637e363f21725e24e03f4ddff60612f0d8714f835641d747aba7dc05b65bd7e",
+      "mtime_utc": "2026-09-19T05:19:26.360487+00:00"
+    },
+    {
+      "path": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머/stage5_dual_experiments.json",
+      "bytes": 5278,
+      "sha256": "02efb23df45cdba6ae21256009ad4080f6a9d35f5ff1b7d38ecf90043a102e6d",
+      "mtime_utc": "2026-09-19T05:08:39.508830+00:00"
+    },
+    {
+      "path": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머/reports/stage4_full_completion_check.json",
+      "bytes": 6236,
+      "sha256": "2411171c778a88ad4b8bd38f9c120b98bdc47e6c87348eec1ba8f945dc25613e",
+      "mtime_utc": "2026-09-19T07:37:16.546158+00:00"
+    },
+    {
+      "path": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머/reports/stage5_dual_verification.json",
+      "bytes": 2210,
+      "sha256": "4bd0d72c353ef4a9319ca873a2913292235d32340e22a4dc78c98e754d10916d",
+      "mtime_utc": "2026-09-19T05:21:18.674675+00:00"
+    },
+    {
+      "path": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머/reports/stage5_dual_comparison_w0p25.json",
+      "bytes": 759,
+      "sha256": "d5c40e05f509c1e90a1f5e2b573456e1d9a88b94168d5b720bc2a89be67b73b2",
+      "mtime_utc": "2026-09-19T05:15:46.801303+00:00"
+    },
+    {
+      "path": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머/data/babycry_clusters_v1/verification.json",
+      "bytes": 409,
+      "sha256": "5d645e7226d7deff423481e81b6e514d3e196d63b7402934f282c77404f29c55",
+      "mtime_utc": "2026-09-19T07:15:10.313144+00:00"
+    },
+    {
+      "path": "/Users/iyejun/Desktop/Me2.0/Contests/Wanted AI Championship 2026/아기울음소리번역트랜스포머/runs/babycry_aux_k32_w010_fast/continuation_check.json",
+      "bytes": 676,
+      "sha256": "5ec093bcd268e7704a4a804bdc1a5673aaef39556f36730577187b2cb4c355f6",
+      "mtime_utc": "2026-09-19T09:56:49.413398+00:00"
+    }
+  ],
+  "verified_external_references": [
+    {
+      "url": "https://docs.cloud.google.com/run/docs/configuring/request-timeout",
+      "finding": "A request timeout does not necessarily stop container processing; implement an application deadline and reject late results."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/realtime/authorization",
+      "finding": "Channel access policies are cached for the connection; check current recipients and retain authenticated changes polling."
+    },
+    {
+      "url": "https://supabase.com/docs/guides/storage/uploads/resumable-uploads",
+      "finding": "Resumable uploads recommended for files above 6MB or unstable networks; project authorization expiry and overwrite restrictions remain separate."
+    }
+  ],
+  "training_observations": [
+    {
+      "captured_at_kst": "2026-09-19T19:24:43.922667+09:00",
+      "live": {
+        "status": "running",
+        "epoch": 0,
+        "position": 16736,
+        "global_step": 2092,
+        "examples_seen": 16736,
+        "compute_seconds": 2356.872799737006,
+        "best_val": 0.2007646775893841,
+        "best_epoch": 0,
+        "history": [],
+        "updated_unix": 1789813475.0843258
+      }
+    },
+    {
+      "captured_at_kst": "2026-09-19T19:32:09.229617+09:00",
+      "global_step": 2530,
+      "examples_seen": 20240,
+      "remaining_training_compute_hours": 8.571974241161046,
+      "recent_seconds_per_audio": 0.12986801252500754,
+      "window_updates": 200,
+      "excludes_validation_saving_and_interruptions": true
+    }
+  ],
+  "submission_constraints": {
+    "deadline_date": "2026-09-20",
+    "timezone": "Asia/Seoul",
+    "exact_cutoff_time_confirmed": false,
+    "link_required": true,
+    "internal_feature_freeze": "2026-09-20T18:00:00+09:00",
+    "internal_submission_ready_target": "2026-09-20T20:00:00+09:00",
+    "internal_targets_are_not_official_deadline": true,
+    "deployment_executed_in_this_task": false
+  }
+}

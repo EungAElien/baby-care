@@ -1,0 +1,45 @@
+# syntax=docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+FROM mwader/static-ffmpeg:7.1.1@sha256:11a44711684c0b9f754c047dcd64235b8b52deab251bd0e0a86f22faa160749c AS ffmpeg
+
+FROM python:3.12.12-slim-bookworm@sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONPATH=/app/src \
+    OMP_NUM_THREADS=1 \
+    OPENBLAS_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1 \
+    HF_HUB_OFFLINE=1 \
+    BABY_CARE_HOST=0.0.0.0 \
+    BABY_CARE_PORT=8080 \
+    BABY_CARE_M2D_ENABLED=true \
+    BABY_CARE_M2D_ALLOWED_ROOT=/opt/baby-care-runtime \
+    BABY_CARE_M2D_BUNDLE_PATH=/opt/baby-care-runtime/model/selected \
+    BABY_CARE_M2D_SOURCE_PATH=/opt/baby-care-runtime/m2d-source \
+    BABY_CARE_M2D_FFMPEG_PATH=/usr/local/bin/ffmpeg
+
+WORKDIR /app
+
+RUN addgroup --system app && adduser --system --ingroup app app
+
+COPY --from=ffmpeg /ffmpeg /usr/local/bin/ffmpeg
+COPY --from=ffmpeg /ffprobe /usr/local/bin/ffprobe
+COPY --chown=app:app --from=m2d_source / /opt/baby-care-runtime/m2d-source/
+
+COPY requirements-m2d.lock ./requirements-m2d.lock
+RUN python -m pip install --require-hashes --no-deps -r requirements-m2d.lock
+
+COPY src ./src
+
+RUN mkdir -p /opt/baby-care-runtime/model && chown -R app:app /opt/baby-care-runtime /app
+
+USER app
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=90s --retries=3 \
+    CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health/live', timeout=2)"]
+
+CMD ["python", "-m", "baby_care_api"]

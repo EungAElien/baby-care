@@ -20,6 +20,7 @@ function safePublicUrl(value: string): boolean {
 const publicConfigSchema = z.object({
   apiBaseUrl: z.url().refine(safePublicUrl).refine((value) => new URL(value).pathname.replace(/\/$/, "") === "/v1"),
   supabaseUrl: z.url().refine(safePublicUrl),
+  supabaseStorageUrl: z.url().refine(safePublicUrl).optional(),
   supabasePublishableKey: z.string().min(1).refine((value) => !/secret|service_role/i.test(value)),
 });
 
@@ -30,8 +31,20 @@ export function readPublicConfig(): PublicConfig {
   return publicConfigSchema.parse({
     apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    supabaseStorageUrl: process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL || undefined,
     supabasePublishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   });
+}
+
+/** Non-throwing variant so screens can fall back (e.g. to the dev mock nav) when no real backend is configured. */
+export function tryReadPublicConfig(): PublicConfig | null {
+  const result = publicConfigSchema.safeParse({
+    apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    supabaseStorageUrl: process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL || undefined,
+    supabasePublishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  });
+  return result.success ? result.data : null;
 }
 
 export function validateApiBaseUrl(baseUrl: string): string {

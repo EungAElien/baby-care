@@ -1,0 +1,29 @@
+{
+  "mps_available": true,
+  "synthetic_only": true,
+  "pretrained_loaded": true,
+  "input_shape": [
+    1,
+    1,
+    80,
+    608
+  ],
+  "mask_ratio": 0.7,
+  "loss": 0.334958016872406,
+  "gradient_norm_before_clipping": 1.3423333168029785,
+  "online_weights_updated": true,
+  "target_gradients_disabled": true,
+  "ema_update_completed": true,
+  "single_cold_step_seconds_not_a_training_benchmark": 1.1694875000030152,
+  "mps_tensor_GiB": 2.00961971282959,
+  "mps_driver_GiB": 2.1678466796875,
+  "trained_weights_saved": false,
+  "checkpoint": "/private/tmp/m2d-stage2-validation-20260917/pretrained/m2d_vit_base-80x608p16x16-221006-mr7/checkpoint-300.pth",
+  "receipt": {
+    "url": "https://github.com/nttcslab/m2d/releases/download/v0.1.0/m2d_vit_base-80x608p16x16-221006-mr7.zip",
+    "archive_sha256": "cf08ac3d91a552b3a9298d4f111a9f0ddacd2097bef2dd510c7bbf53c9d4d646",
+    "checkpoint_sha256": "39c8bbe6f6949b1e0c13b9e46838da19479d034a22c66e370667dd5a97d14a8e",
+    "checkpoint_bytes": 1676669879,
+    "integrity": "ZIP member CRC and locally recorded SHA256; no publisher SHA256 comparison"
+  }
+}

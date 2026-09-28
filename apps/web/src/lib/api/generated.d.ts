@@ -21,6 +21,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/reauthentication/challenges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * createReauthenticationChallenge
+         * @description Creates a 10-minute challenge; the client then performs a fresh Supabase email OTP sign-in. Access-token refresh is insufficient.
+         */
+        post: operations["createReauthenticationChallenge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/reauthentication/proofs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * createReauthenticationProof
+         * @description Requires a JWT whose amr contains a fresh otp or magiclink authentication after challenge creation. The proof is returned once and lasts 5 minutes.
+         */
+        post: operations["createReauthenticationProof"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/session-revocations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * revokeSessions
+         * @description Durably blocks selected sessions locally, then invokes the matching Supabase local/others/global sign-out scope. Provider failure returns 503 with the durable revocation id.
+         */
+        post: operations["revokeSessions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/session-revocations/{revocation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * getSessionRevocation
+         * @description Requester only. Use another live session or a new login when the current session was revoked.
+         */
+        get: operations["getSessionRevocation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/babies": {
         parameters: {
             query?: never;
@@ -168,7 +248,7 @@ export interface paths {
         put?: never;
         /**
          * createInvite
-         * @description OWNER only. 24-hour single-use token; old pending invite for the same target is revoked.
+         * @description OWNER only. Requires a CREATE_INVITE reauthentication proof. 24-hour single-use token; old pending invite for the same target is revoked.
          */
         post: operations["createInvite"];
         delete?: never;
@@ -191,6 +271,26 @@ export interface paths {
          * @description Verified email must match. Atomic membership creation and shared-use consent.
          */
         post: operations["acceptInvite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invites/{invite_id}/reissue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * reissueInvite
+         * @description OWNER only. Requires a CREATE_INVITE reauthentication proof, revokes the selected pending link, and returns a new invite id and one-time plaintext link. The old link remains unusable.
+         */
+        post: operations["reissueInvite"];
         delete?: never;
         options?: never;
         head?: never;
@@ -228,6 +328,26 @@ export interface paths {
         get: operations["listConsents"];
         /** setBabyConsent */
         put: operations["setBabyConsent"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/babies/{baby_id}/child-data-verification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * getChildDataVerification
+         * @description Current members may inspect the gate. UNVERIFIED and SYNTHETIC_TEST_ONLY never enable production child-data processing.
+         */
+        get: operations["getChildDataVerification"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -611,6 +731,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/state-observations/{state_observation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * getStateObservation
+         * @description Current members can refetch a confirmed observation named by the B-09 change feed.
+         */
+        get: operations["getStateObservation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/episodes/{episode_id}/observations": {
         parameters: {
             query?: never;
@@ -635,7 +775,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * listMyCareEntries
+         * @description Returns only the authenticated author own unconfirmed server drafts. Never place drafts on the shared timeline.
+         */
+        get: operations["listMyCareEntries"];
         put?: never;
         /** createCareEntry */
         post: operations["createCareEntry"];
@@ -759,7 +903,7 @@ export interface paths {
         };
         /**
          * getChanges
-         * @description Foreground fallback every 5 seconds. Realtime carries only change signals; fetch data through FastAPI.
+         * @description Primary foreground recovery path. Returns coalesced identifiers for all committed shared changes after since_revision through one atomic current_revision boundary. Empty changes means no change only when resync_required=false. Initial revision 0, retained-history gaps, future revisions, or more than 500 distinct resources return an empty list with resync_required=true. Poll every 5 seconds only while visible and immediately on return; this interval is not a 5-second screen guarantee. Realtime remains disabled until SEC30 and SEC31 are verified.
          */
         get: operations["getChanges"];
         put?: never;
@@ -977,7 +1121,7 @@ export interface paths {
         post?: never;
         /**
          * deleteBabyData
-         * @description OWNER only; sets Baby=DELETING and enqueues durable cleanup atomically. Ordinary reads and writes are blocked immediately.
+         * @description OWNER only; requires a DELETE_BABY reauthentication proof, then sets Baby=DELETING and enqueues durable cleanup atomically. Ordinary reads and writes are blocked immediately.
          */
         delete: operations["deleteBabyData"];
         options?: never;
@@ -1036,7 +1180,7 @@ export interface paths {
         put?: never;
         /**
          * retryDeletion
-         * @description Requester only; same failed job and matching expected_attempt. Returns to PENDING while access remains blocked.
+         * @description Requester only; same failed job and matching expected_attempt. Returns to RUNNING while access remains blocked.
          */
         post: operations["retryDeletion"];
         delete?: never;
@@ -1074,7 +1218,7 @@ export interface components {
         };
         Capabilities: {
             /** @constant */
-            contract_version: "1.0.0";
+            contract_version: "1.2.0";
             audio_model: components["schemas"]["ModelInfo"];
             supported_mime_types: string[];
             /** @constant */
@@ -1082,6 +1226,7 @@ export interface components {
             /** @constant */
             upload_max_seconds: 60;
             normalizer_available: boolean;
+            normalizer_unavailable_reason: ("DISABLED" | "CREDENTIALS_MISSING" | "DEPENDENCY_MISSING" | "DATABASE_UNAVAILABLE") | null;
             automatic_detection_supported: boolean;
             detector: components["schemas"]["DetectorInfo"];
         };
@@ -1225,6 +1370,10 @@ export interface components {
             /** Format: email */
             email: string;
         };
+        ReissueInvite: {
+            /** Format: uuid */
+            client_request_id: string;
+        };
         AcceptInvite: {
             /** Format: uuid */
             client_request_id: string;
@@ -1238,6 +1387,110 @@ export interface components {
         InvitePage: {
             items: components["schemas"]["Invite"][];
             next_cursor: string | null;
+        };
+        /** @description A challenge is valid for 10 minutes. Complete a fresh Supabase email OTP sign-in; token_refresh alone is never proof. */
+        ReauthenticationChallenge: {
+            /** Format: uuid */
+            challenge_id: string;
+            /** Format: uuid */
+            user_id: string;
+            /** Format: uuid */
+            requested_session_id: string;
+            /** @enum {string} */
+            operation: "CREATE_INVITE" | "DELETE_BABY" | "ENABLE_BABY_TRAINING";
+            /** Format: uuid */
+            baby_id: string;
+            /** @constant */
+            auth_method: "SUPABASE_OTP";
+            /** @enum {string} */
+            status: "PENDING" | "PROVED" | "EXPIRED";
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        CreateReauthenticationChallenge: {
+            /** Format: uuid */
+            client_request_id: string;
+            /** @enum {string} */
+            operation: "CREATE_INVITE" | "DELETE_BABY" | "ENABLE_BABY_TRAINING";
+            /** Format: uuid */
+            baby_id: string;
+        };
+        /** @description The 5-minute proof is bound to user, OTP-authenticated session, operation, and baby. It is consumed atomically with the protected mutation. Idempotent replay recovers the prior mutation result without consuming it again. */
+        ReauthenticationProof: {
+            /** Format: uuid */
+            proof_id: string;
+            /** Format: uuid */
+            challenge_id: string;
+            /** Format: uuid */
+            user_id: string;
+            /** Format: uuid */
+            session_id: string;
+            /** @enum {string} */
+            operation: "CREATE_INVITE" | "DELETE_BABY" | "ENABLE_BABY_TRAINING";
+            /** Format: uuid */
+            baby_id: string;
+            proof_token: string | null;
+            token_reissue_required: boolean;
+            /** Format: date-time */
+            issued_at: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        CreateReauthenticationProof: {
+            /** Format: uuid */
+            client_request_id: string;
+            /** Format: uuid */
+            challenge_id: string;
+        };
+        SessionRevocationFailure: {
+            /** @enum {string} */
+            code: "PROVIDER_REJECTED_REVOCATION" | "PROVIDER_UNREACHABLE";
+            message: string;
+            retryable: boolean;
+        };
+        /** @description Local API and Storage access is blocked durably before provider refresh-session revocation. FAILED is not reported as logout success. */
+        SessionRevocation: {
+            /** Format: uuid */
+            revocation_id: string;
+            /** Format: uuid */
+            requester_user_id: string;
+            /** Format: uuid */
+            requester_session_id: string;
+            /** @enum {string} */
+            scope: "CURRENT" | "OTHERS" | "ALL";
+            /** @enum {string} */
+            status: "PENDING" | "COMPLETE" | "FAILED";
+            target_session_count: number;
+            /** @enum {string} */
+            provider_scope: "local" | "others" | "global";
+            provider_http_status: number | null;
+            failure: components["schemas"]["SessionRevocationFailure"] | null;
+            /** @constant */
+            access_blocked: true;
+            /** Format: date-time */
+            requested_at: string;
+            completed_at: string | null;
+        };
+        RevokeSessions: {
+            /** Format: uuid */
+            client_request_id: string;
+            /** @enum {string} */
+            scope: "CURRENT" | "OTHERS" | "ALL";
+        };
+        /** @description OWNER role and email OTP do not establish legal-guardian status. Production child-data processing remains disabled until an approved verification method and policy are configured. */
+        ChildDataVerification: {
+            /** Format: uuid */
+            baby_id: string;
+            /** Format: uuid */
+            subject_user_id: string;
+            /** @enum {string} */
+            status: "UNVERIFIED" | "SYNTHETIC_TEST_ONLY" | "VERIFIED";
+            method: string | null;
+            policy_version: string | null;
+            verified_at: string | null;
+            production_processing_allowed: boolean;
         };
         Consent: {
             /** Format: uuid */
@@ -1405,7 +1658,7 @@ export interface components {
         };
         Failure: {
             /** @enum {string} */
-            code: "ANALYSIS_TIMEOUT" | "ANALYSIS_LEASE_EXPIRED" | "INFERENCE_ERROR" | "NORMALIZATION_TIMEOUT" | "NORMALIZATION_LEASE_EXPIRED" | "NORMALIZATION_SCHEMA_INVALID" | "NORMALIZATION_PROVIDER_ERROR" | "CLEANUP_FAILED" | "SOURCE_DELETED" | "ACCESS_REVOKED";
+            code: "ANALYSIS_TIMEOUT" | "ANALYSIS_LEASE_EXPIRED" | "INFERENCE_ERROR" | "NORMALIZATION_DISABLED" | "NORMALIZATION_CREDENTIALS_MISSING" | "NORMALIZATION_DEPENDENCY_MISSING" | "NORMALIZATION_TIMEOUT" | "NORMALIZATION_LEASE_EXPIRED" | "NORMALIZATION_REFUSED" | "NORMALIZATION_INCOMPLETE" | "NORMALIZATION_SCHEMA_INVALID" | "NORMALIZATION_PROVIDER_ERROR" | "CLEANUP_FAILED" | "SOURCE_DELETED" | "ACCESS_REVOKED";
             message: string;
             retryable: boolean;
         };
@@ -1770,6 +2023,10 @@ export interface components {
             visual_mapping_version: string;
             /** Format: uuid */
             created_by_user_id: string;
+            /** Format: uuid */
+            updated_by_user_id: string;
+            /** Format: uuid */
+            confirmed_by_user_id: string;
             /** @enum {string} */
             data_origin: "USER" | "DEMO";
             version: number;
@@ -1940,6 +2197,10 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
         };
+        CareEntryPage: {
+            items: components["schemas"]["CareEntry"][];
+            next_cursor: string | null;
+        };
         CreateCareEntry: {
             /** Format: uuid */
             client_request_id: string;
@@ -1977,6 +2238,7 @@ export interface components {
             lease_expires_at: string | null;
             /** @enum {string} */
             execution_mode: "REAL" | "STUB";
+            provider_call_executed: boolean;
             provider: string | null;
             model: string | null;
             prompt_version: string;
@@ -2039,18 +2301,30 @@ export interface components {
             next_cursor: string | null;
         };
         Change: {
-            /** @enum {string} */
+            /**
+             * @description Identifies the existing authorized FastAPI resource to refetch. DELETION never exposes a requester-private DeletionJob.
+             * @enum {string}
+             */
             resource_type: "BABY" | "MEMBERSHIP" | "CARE_EVENT" | "EPISODE" | "ANALYSIS" | "RECOMMENDATION" | "STATE_OBSERVATION" | "OUTCOME" | "DELETION";
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description Opaque identifier only. The change feed never contains resource bodies, caregiver text, audio URLs, or tokens.
+             */
             resource_id: string;
+            /** @description Actual version of the changed resource after the mutation, including the tombstone version when deleted=true. */
             version: number;
+            /** @description When true, remove this resource from the scoped cache. A later response with a lower version must not restore it. */
             deleted: boolean;
         };
+        /** @description Authorization-scoped invalidation feed. Save current_revision only after every required refetch or the documented full-resync flow succeeds. */
         Changes: {
             /** Format: uuid */
             baby_id: string;
+            /** @description A complete high-water mark for this response. When resync_required=false, every committed shared change in (since_revision, current_revision] is represented after same-resource coalescing. */
             current_revision: number;
+            /** @description At most one latest item per resource. One mutation may invalidate multiple resources, such as a CareEvent and the Baby whose public context_revision advanced. Ordering is not a client conflict-resolution rule; use resource version. */
             changes: components["schemas"]["Change"][];
+            /** @description If true, changes is empty and the client must perform a full authorized refetch. This covers initial revision 0, pruned history, a future revision, and more than 500 distinct changed resources. */
             resync_required: boolean;
             /** Format: date-time */
             server_time: string;
@@ -2291,7 +2565,7 @@ export interface components {
             message: string;
         };
         /** @enum {string} */
-        ErrorCode: "AUTH_REQUIRED" | "TOKEN_EXPIRED" | "INVALID_TOKEN" | "OWNER_ONLY" | "AUTHOR_ONLY" | "INVITE_EMAIL_MISMATCH" | "CONSENT_REQUIRED" | "RESOURCE_NOT_FOUND" | "VERSION_CONFLICT" | "SOURCE_REVISION_CHANGED" | "ANALYSIS_IN_PROGRESS" | "NORMALIZATION_IN_PROGRESS" | "OPERATION_IN_PROGRESS" | "IDEMPOTENCY_KEY_REUSED" | "OWNER_REQUIRED" | "ACTIVE_SESSION_EXISTS" | "SLEEP_ALREADY_ACTIVE" | "RESOURCE_DELETING" | "ALREADY_MEMBER" | "INVITE_ALREADY_USED" | "OWNER_BABY_LIMIT" | "ALREADY_CONFIRMED" | "INVALID_STATE" | "INVITE_EXPIRED" | "INVITE_REVOKED" | "RESOURCE_DELETED" | "FILE_TOO_LARGE" | "UNSUPPORTED_MEDIA_TYPE" | "VALIDATION_ERROR" | "INVALID_AUDIO" | "RATE_LIMITED" | "INTERNAL_ERROR" | "MODEL_NOT_READY" | "SERVICE_UNAVAILABLE";
+        ErrorCode: "AUTH_REQUIRED" | "TOKEN_EXPIRED" | "INVALID_TOKEN" | "SESSION_REVOKED" | "REAUTH_REQUIRED" | "REAUTH_PROOF_INVALID" | "OWNER_ONLY" | "AUTHOR_ONLY" | "INVITE_EMAIL_MISMATCH" | "CONSENT_REQUIRED" | "CHILD_DATA_VERIFICATION_REQUIRED" | "RESOURCE_NOT_FOUND" | "VERSION_CONFLICT" | "SOURCE_REVISION_CHANGED" | "ANALYSIS_IN_PROGRESS" | "NORMALIZATION_IN_PROGRESS" | "OPERATION_IN_PROGRESS" | "IDEMPOTENCY_KEY_REUSED" | "OWNER_REQUIRED" | "ACTIVE_SESSION_EXISTS" | "SLEEP_ALREADY_ACTIVE" | "RESOURCE_DELETING" | "ALREADY_MEMBER" | "INVITE_ALREADY_USED" | "OWNER_BABY_LIMIT" | "ALREADY_CONFIRMED" | "INVALID_STATE" | "INVITE_EXPIRED" | "INVITE_REVOKED" | "RESOURCE_DELETED" | "FILE_TOO_LARGE" | "UNSUPPORTED_MEDIA_TYPE" | "VALIDATION_ERROR" | "INVALID_AUDIO" | "RATE_LIMITED" | "INTERNAL_ERROR" | "MODEL_NOT_READY" | "SERVICE_UNAVAILABLE" | "AUTH_PROVIDER_REVOCATION_FAILED";
         ErrorDetails: {
             current_version: number | null;
             current_resource: (components["schemas"]["Baby"] | components["schemas"]["Membership"] | components["schemas"]["CareEvent"] | components["schemas"]["Outcome"] | components["schemas"]["CareEntry"] | components["schemas"]["ActionAttempt"] | components["schemas"]["Consent"] | components["schemas"]["Invite"] | components["schemas"]["Episode"] | components["schemas"]["StateObservation"] | components["schemas"]["AudioAsset"] | components["schemas"]["Reminder"] | components["schemas"]["ReminderSetting"] | components["schemas"]["RecordCoverage"]) | null;
@@ -2300,6 +2574,8 @@ export interface components {
             existing_run_id: string | null;
             existing_session_id: string | null;
             deletion_job_id: string | null;
+            session_revocation_id: string | null;
+            reauthentication_challenge_id: string | null;
             status_url: string | null;
             retry_after_seconds: number | null;
         };
@@ -2432,6 +2708,8 @@ export interface components {
         IdempotencyKey: string;
         /** @description Current resource version for destructive changes. */
         Version: number;
+        /** @description Single-use 5-minute proof bound to this user, OTP-authenticated session, operation, and baby. */
+        ReauthenticationProof: string;
     };
     requestBodies: never;
     headers: never;
@@ -2464,6 +2742,139 @@ export interface operations {
             409: components["responses"]["Error409"];
             422: components["responses"]["Error422"];
             429: components["responses"]["Error429"];
+            500: components["responses"]["Error500"];
+            503: components["responses"]["Error503"];
+        };
+    };
+    createReauthenticationChallenge: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID per logical mutation. Must equal client_request_id in JSON bodies. Reuse after an uncertain response. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateReauthenticationChallenge"];
+            };
+        };
+        responses: {
+            /** @description Success. Creates a 10-minute challenge; the client then performs a fresh Supabase email OTP sign-in. Access-token refresh is insufficient. */
+            201: {
+                headers: {
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReauthenticationChallenge"];
+                };
+            };
+            401: components["responses"]["Error401"];
+            403: components["responses"]["Error403"];
+            404: components["responses"]["Error404"];
+            409: components["responses"]["Error409"];
+            422: components["responses"]["Error422"];
+            429: components["responses"]["Error429"];
+            500: components["responses"]["Error500"];
+            503: components["responses"]["Error503"];
+        };
+    };
+    createReauthenticationProof: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID per logical mutation. Must equal client_request_id in JSON bodies. Reuse after an uncertain response. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateReauthenticationProof"];
+            };
+        };
+        responses: {
+            /** @description Success. Requires a JWT whose amr contains a fresh otp or magiclink authentication after challenge creation. The proof is returned once and lasts 5 minutes. */
+            201: {
+                headers: {
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReauthenticationProof"];
+                };
+            };
+            401: components["responses"]["Error401"];
+            403: components["responses"]["Error403"];
+            404: components["responses"]["Error404"];
+            409: components["responses"]["Error409"];
+            422: components["responses"]["Error422"];
+            429: components["responses"]["Error429"];
+            500: components["responses"]["Error500"];
+            503: components["responses"]["Error503"];
+        };
+    };
+    revokeSessions: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID per logical mutation. Must equal client_request_id in JSON bodies. Reuse after an uncertain response. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevokeSessions"];
+            };
+        };
+        responses: {
+            /** @description Success. Durably blocks selected sessions locally, then invokes the matching Supabase local/others/global sign-out scope. Provider failure returns 503 with the durable revocation id. */
+            200: {
+                headers: {
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionRevocation"];
+                };
+            };
+            401: components["responses"]["Error401"];
+            409: components["responses"]["Error409"];
+            422: components["responses"]["Error422"];
+            429: components["responses"]["Error429"];
+            500: components["responses"]["Error500"];
+            503: components["responses"]["Error503"];
+        };
+    };
+    getSessionRevocation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                revocation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. Requester only. Use another live session or a new login when the current session was revoked. */
+            200: {
+                headers: {
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionRevocation"];
+                };
+            };
+            401: components["responses"]["Error401"];
+            404: components["responses"]["Error404"];
             500: components["responses"]["Error500"];
             503: components["responses"]["Error503"];
         };
@@ -2780,6 +3191,8 @@ export interface operations {
             header: {
                 /** @description UUID per logical mutation. Must equal client_request_id in JSON bodies. Reuse after an uncertain response. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Single-use 5-minute proof bound to this user, OTP-authenticated session, operation, and baby. */
+                "X-Reauthentication-Proof": components["parameters"]["ReauthenticationProof"];
             };
             path: {
                 baby_id: string;
@@ -2792,7 +3205,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Success. OWNER only. 24-hour single-use token; old pending invite for the same target is revoked. */
+            /** @description Success. OWNER only. Requires a CREATE_INVITE reauthentication proof. 24-hour single-use token; old pending invite for the same target is revoked. */
             201: {
                 headers: {
                     "X-Request-ID"?: string;
@@ -2843,6 +3256,46 @@ export interface operations {
             404: components["responses"]["Error404"];
             409: components["responses"]["Error409"];
             410: components["responses"]["Error410"];
+            422: components["responses"]["Error422"];
+            429: components["responses"]["Error429"];
+            500: components["responses"]["Error500"];
+            503: components["responses"]["Error503"];
+        };
+    };
+    reissueInvite: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description UUID per logical mutation. Must equal client_request_id in JSON bodies. Reuse after an uncertain response. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Single-use 5-minute proof bound to this user, OTP-authenticated session, operation, and baby. */
+                "X-Reauthentication-Proof": components["parameters"]["ReauthenticationProof"];
+            };
+            path: {
+                invite_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReissueInvite"];
+            };
+        };
+        responses: {
+            /** @description Success. OWNER only. Requires a CREATE_INVITE reauthentication proof, revokes the selected pending link, and returns a new invite id and one-time plaintext link. The old link remains unusable. */
+            201: {
+                headers: {
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IssuedInvite"];
+                };
+            };
+            401: components["responses"]["Error401"];
+            403: components["responses"]["Error403"];
+            404: components["responses"]["Error404"];
+            409: components["responses"]["Error409"];
             422: components["responses"]["Error422"];
             429: components["responses"]["Error429"];
             500: components["responses"]["Error500"];
@@ -2923,6 +3376,8 @@ export interface operations {
             header: {
                 /** @description UUID per logical mutation. Must equal client_request_id in JSON bodies. Reuse after an uncertain response. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Required only when granting BABY_TRAINING; must be bound to ENABLE_BABY_TRAINING and the target baby. */
+                "X-Reauthentication-Proof"?: string;
             };
             path?: never;
             cookie?: never;
@@ -2941,6 +3396,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Consent"];
+                };
+            };
+            401: components["responses"]["Error401"];
+            403: components["responses"]["Error403"];
+            404: components["responses"]["Error404"];
+            409: components["responses"]["Error409"];
+            422: components["responses"]["Error422"];
+            429: components["responses"]["Error429"];
+            500: components["responses"]["Error500"];
+            503: components["responses"]["Error503"];
+        };
+    };
+    getChildDataVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. Current members may inspect the gate. UNVERIFIED and SYNTHETIC_TEST_ONLY never enable production child-data processing. */
+            200: {
+                headers: {
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChildDataVerification"];
                 };
             };
             401: components["responses"]["Error401"];
@@ -3800,6 +4286,37 @@ export interface operations {
             503: components["responses"]["Error503"];
         };
     };
+    getStateObservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                state_observation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. Current members can refetch a confirmed observation named by the B-09 change feed. */
+            200: {
+                headers: {
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateObservation"];
+                };
+            };
+            401: components["responses"]["Error401"];
+            403: components["responses"]["Error403"];
+            404: components["responses"]["Error404"];
+            409: components["responses"]["Error409"];
+            422: components["responses"]["Error422"];
+            429: components["responses"]["Error429"];
+            500: components["responses"]["Error500"];
+            503: components["responses"]["Error503"];
+        };
+    };
     createObservation: {
         parameters: {
             query?: never;
@@ -3826,6 +4343,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CaregiverObservation"];
+                };
+            };
+            401: components["responses"]["Error401"];
+            403: components["responses"]["Error403"];
+            404: components["responses"]["Error404"];
+            409: components["responses"]["Error409"];
+            422: components["responses"]["Error422"];
+            429: components["responses"]["Error429"];
+            500: components["responses"]["Error500"];
+            503: components["responses"]["Error503"];
+        };
+    };
+    listMyCareEntries: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                status?: "DRAFT" | "NORMALIZING" | "REVIEW_READY" | "NEEDS_MANUAL_REVIEW";
+            };
+            header?: never;
+            path: {
+                baby_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. Returns only the authenticated author own unconfirmed server drafts. Never place drafts on the shared timeline. */
+            200: {
+                headers: {
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CareEntryPage"];
                 };
             };
             401: components["responses"]["Error401"];
@@ -4138,7 +4690,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Success. Foreground fallback every 5 seconds. Realtime carries only change signals; fetch data through FastAPI. */
+            /** @description Success. Primary foreground recovery path. Returns coalesced identifiers for all committed shared changes after since_revision through one atomic current_revision boundary. Empty changes means no change only when resync_required=false. Initial revision 0, retained-history gaps, future revisions, or more than 500 distinct resources return an empty list with resync_required=true. Poll every 5 seconds only while visible and immediately on return; this interval is not a 5-second screen guarantee. Realtime remains disabled until SEC30 and SEC31 are verified. */
             200: {
                 headers: {
                     "X-Request-ID"?: string;
@@ -4559,6 +5111,8 @@ export interface operations {
             header: {
                 /** @description UUID per logical mutation. Must equal client_request_id in JSON bodies. Reuse after an uncertain response. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description Single-use 5-minute proof bound to this user, OTP-authenticated session, operation, and baby. */
+                "X-Reauthentication-Proof": components["parameters"]["ReauthenticationProof"];
             };
             path: {
                 baby_id: string;
@@ -4567,7 +5121,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Success. OWNER only; sets Baby=DELETING and enqueues durable cleanup atomically. Ordinary reads and writes are blocked immediately. */
+            /** @description Success. OWNER only; requires a DELETE_BABY reauthentication proof, then sets Baby=DELETING and enqueues durable cleanup atomically. Ordinary reads and writes are blocked immediately. */
             202: {
                 headers: {
                     "X-Request-ID"?: string;
@@ -4672,7 +5226,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Success. Requester only; same failed job and matching expected_attempt. Returns to PENDING while access remains blocked. */
+            /** @description Success. Requester only; same failed job and matching expected_attempt. Returns to RUNNING while access remains blocked. */
             202: {
                 headers: {
                     "X-Request-ID"?: string;
