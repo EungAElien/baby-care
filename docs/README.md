@@ -29,7 +29,7 @@
 | [B-09 → A-08 변경 조회 인계](handoffs/b09-shared-change-feed.md) | 폴링 복구 계약, 쓰기별 재조회, revision 경계와 남은 Realtime 인수 |
 | [B-13 자동 검사·CI 인계](handoffs/b13-automatic-verification.md) | 로컬/CI 명령, 계약 재생성, 필수 check·산출물·실패 복구와 후속 전체 인수 |
 | [아기 상태·완료 조치·기록 그래프 범주 v2](product/baby-state-care-action-categories-v2.md) | 사용자 선택을 반영한 기획. 계약에 반영할 차이는 8절에 명시. API enum이나 구현을 이미 바꾼 것으로 취급하지 않음 |
-| [아기·양육자 일러스트와 모션 제작안](design/character-motion/README.md) | Inside the Head 공개 코드·화면 조사, 범주별 이미지 초안과 모션·정적 로그 제작 명세. 편집 원본·애니메이션·제품 연동은 후속 |
+| [아기·양육자 일러스트와 모션 제작안](design/character-motion/README.md) | 범주별 시안·제작 명세와 [전용 도구 v2 제작](design/character-motion/production-v2/README.md). 실제 Lottie 2종·편집 원본 3종, 나머지 범주·실제 API·기기 연동 미완료 |
 | [B-02 LLM 선검증 → B-07·B-14 인계](handoffs/b02-llm-prevalidation.md) | 합성 평가, 분리 프롬프트·판정, 제한된 Terra smoke, 재사용/미구현 경계 |
 
 ## 보안 설계와 시험 항목

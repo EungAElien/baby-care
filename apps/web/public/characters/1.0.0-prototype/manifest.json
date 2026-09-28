@@ -1,0 +1,337 @@
+{
+  "version": "1.0.0-prototype",
+  "status": "design prototype; no production API mapping",
+  "origin": "Original SVG paths reconstructed from repository concept sheets; no external artwork copied",
+  "assets": [
+    {
+      "id": "observation-CRYING",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "observation",
+        "code": "CRYING"
+      },
+      "poster": "/characters/1.0.0-prototype/observation-CRYING.svg",
+      "alt": "우는 중",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Confirmed observation, preserving source and time",
+      "sha256": "d2abbe781f0786c51b8fee41a79a31b905ab99f4bfaa7a2d81c425ad05b790a4"
+    },
+    {
+      "id": "observation-FUSSING",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "observation",
+        "code": "FUSSING"
+      },
+      "poster": "/characters/1.0.0-prototype/observation-FUSSING.svg",
+      "alt": "칭얼거림",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Confirmed observation, preserving source and time",
+      "sha256": "56fb6c8b5bdf7d77ebf16cd056ec3b9576eea6f91b8dde39e691bca7075ada3b"
+    },
+    {
+      "id": "observation-CALM",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "observation",
+        "code": "CALM"
+      },
+      "poster": "/characters/1.0.0-prototype/observation-CALM.svg",
+      "alt": "편안해 보임",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Confirmed observation, preserving source and time",
+      "sha256": "7e4a0d159e3890d90aa6265b59f35a4bfaeec2a88755f106e7ccd18745b230ef"
+    },
+    {
+      "id": "observation-CHEERFUL_APPEARING",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "observation",
+        "code": "CHEERFUL_APPEARING"
+      },
+      "poster": "/characters/1.0.0-prototype/observation-CHEERFUL_APPEARING.svg",
+      "alt": "즐거워 보임",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Confirmed observation, preserving source and time",
+      "sha256": "aca5e23c0ef4e5beb50667a85983963aa7ba00d7e04e8ce47b118f3af07ba33b"
+    },
+    {
+      "id": "observation-AWAKE",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "observation",
+        "code": "AWAKE"
+      },
+      "poster": "/characters/1.0.0-prototype/observation-AWAKE.svg",
+      "alt": "깨어 있음",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Confirmed observation, preserving source and time",
+      "sha256": "03f30959c0e43ebdb4eb086b936f56fa1da2c8d60d95c98e9ccceb7e705d10eb"
+    },
+    {
+      "id": "observation-SLEEPY_APPEARING",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "observation",
+        "code": "SLEEPY_APPEARING"
+      },
+      "poster": "/characters/1.0.0-prototype/observation-SLEEPY_APPEARING.svg",
+      "alt": "졸려 보임",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Confirmed observation, preserving source and time",
+      "sha256": "3984a3158e686c25e78a8d890eb1c0e82570b5f426142d014324dd5adab3c3e9"
+    },
+    {
+      "id": "observation-ASLEEP",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "observation",
+        "code": "ASLEEP"
+      },
+      "poster": "/characters/1.0.0-prototype/observation-ASLEEP.svg",
+      "alt": "잠듦",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Confirmed observation, preserving source and time",
+      "sha256": "4085aadb94aa041bf48b5f9d68e644be67bf4b3738bb43c294d407d399b6eb36"
+    },
+    {
+      "id": "observation-UNKNOWN",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "observation",
+        "code": "UNKNOWN"
+      },
+      "poster": "/characters/1.0.0-prototype/observation-UNKNOWN.svg",
+      "alt": "상태 확인 못함",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Confirmed observation, preserving source and time",
+      "sha256": "c94cbb95e06de0510a257c6074f1e5a2fe3eb01f584a2923939ca0cedb371b06"
+    },
+    {
+      "id": "inference-hungry",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "inference",
+        "code": "hungry"
+      },
+      "poster": "/characters/1.0.0-prototype/inference-hungry.svg",
+      "alt": "배고픔 가능성",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Current COMPLETE supported cause; uncertain for abstention only",
+      "sha256": "f8096719f0f76fbc5728de2fcb9464dd3b9c417fd98ca25fdb652f47efac70ab"
+    },
+    {
+      "id": "inference-tired",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "inference",
+        "code": "tired"
+      },
+      "poster": "/characters/1.0.0-prototype/inference-tired.svg",
+      "alt": "졸림·피곤함 가능성",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Current COMPLETE supported cause; uncertain for abstention only",
+      "sha256": "98d3e065aaf5adcbb6e99f82cc266518fb59f5908b9aa1c08a13d94218d59fb2"
+    },
+    {
+      "id": "inference-burping",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "inference",
+        "code": "burping"
+      },
+      "poster": "/characters/1.0.0-prototype/inference-burping.svg",
+      "alt": "트림 필요 가능성",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Current COMPLETE supported cause; uncertain for abstention only",
+      "sha256": "cebdb999d6c0d94e3f2db061ae0b41ae6ea93c8958abe717ccb804317255329a"
+    },
+    {
+      "id": "inference-belly_pain",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "inference",
+        "code": "belly_pain"
+      },
+      "poster": "/characters/1.0.0-prototype/inference-belly_pain.svg",
+      "alt": "배 불편함 가능성",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Current COMPLETE supported cause; uncertain for abstention only",
+      "sha256": "777720dde0f03b45f2232434d4a3bb4c5bab43d7cdecd9b1c5647a77d49f8783"
+    },
+    {
+      "id": "inference-discomfort",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "inference",
+        "code": "discomfort"
+      },
+      "poster": "/characters/1.0.0-prototype/inference-discomfort.svg",
+      "alt": "일반적인 불편함 가능성",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Current COMPLETE supported cause; uncertain for abstention only",
+      "sha256": "fc0776fc03bd590bb446a471b270bbdcab6ab9d051a3ffbbb93ce59d2bf99a96"
+    },
+    {
+      "id": "inference-uncertain",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "inference",
+        "code": "uncertain"
+      },
+      "poster": "/characters/1.0.0-prototype/inference-uncertain.svg",
+      "alt": "판단 어려움",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Current COMPLETE supported cause; uncertain for abstention only",
+      "sha256": "81d2f9fcd4f735952f82463f60eedd5607e2931254cbf0139d1d622c61a97dc7"
+    },
+    {
+      "id": "action-feeding",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "action",
+        "code": "feeding"
+      },
+      "poster": "/characters/1.0.0-prototype/action-feeding.svg",
+      "alt": "수유함",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Explicitly confirmed completed action; sleeping/burped also require observed result",
+      "sha256": "1ffe32af97120c0e3d3f30937d242a5926f0f0ccc306414c595e8ff245a926f2"
+    },
+    {
+      "id": "action-diaper",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "action",
+        "code": "diaper"
+      },
+      "poster": "/characters/1.0.0-prototype/action-diaper.svg",
+      "alt": "기저귀 갈아줌",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Explicitly confirmed completed action; sleeping/burped also require observed result",
+      "sha256": "e351b3f7af6630481eff30a9a8b7d7b98b2d7f25315f1aedfbdf51004b9cdaff"
+    },
+    {
+      "id": "action-holding",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "action",
+        "code": "holding"
+      },
+      "poster": "/characters/1.0.0-prototype/action-holding.svg",
+      "alt": "안아줌",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Explicitly confirmed completed action; sleeping/burped also require observed result",
+      "sha256": "f96477123117e9dccd8e59fe6a8fcd6f187aea57c655e9d1ecd93b3e18236539"
+    },
+    {
+      "id": "action-patting",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "action",
+        "code": "patting"
+      },
+      "poster": "/characters/1.0.0-prototype/action-patting.svg",
+      "alt": "토닥여줌",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Explicitly confirmed completed action; sleeping/burped also require observed result",
+      "sha256": "af1711ca08e7c78f4a3a24526ca4385d4af9dc23f9cda3de0480f430751acb98"
+    },
+    {
+      "id": "action-burped",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "action",
+        "code": "burped"
+      },
+      "poster": "/characters/1.0.0-prototype/action-burped.svg",
+      "alt": "트림시킴",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Explicitly confirmed completed action; sleeping/burped also require observed result",
+      "sha256": "2c2d72383d8ea7ecd45c3849ccafb9b8eb3c0966a1645523d37c43e2d70a80f1"
+    },
+    {
+      "id": "action-sleeping",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "action",
+        "code": "sleeping"
+      },
+      "poster": "/characters/1.0.0-prototype/action-sleeping.svg",
+      "alt": "재워줌",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Explicitly confirmed completed action; sleeping/burped also require observed result",
+      "sha256": "5af4674a84201aacd787bcc6dd84de4645f94920cc37a87e9e2a82f528f0b25d"
+    },
+    {
+      "id": "action-environment",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "action",
+        "code": "environment"
+      },
+      "poster": "/characters/1.0.0-prototype/action-environment.svg",
+      "alt": "환경 바꿔줌",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Explicitly confirmed completed action; sleeping/burped also require observed result",
+      "sha256": "427ec0c9b95c4294ed06bbaaa722dc381b68777a5f258cceb58365020522b54e"
+    },
+    {
+      "id": "action-other",
+      "version": "1.0.0-prototype",
+      "pose": {
+        "kind": "action",
+        "code": "other"
+      },
+      "poster": "/characters/1.0.0-prototype/action-other.svg",
+      "alt": "기타 완료 조치",
+      "source": "src/components/character/character-art.tsx",
+      "motion": "src/components/character/character.css + character-scene.tsx",
+      "representativePose": "base SVG before animation",
+      "allowedInput": "Explicitly confirmed completed action; sleeping/burped also require observed result",
+      "sha256": "434e37c3950f191ea55882b2f22643eff322fd7b5ecfc0abcf47c473b3b84bf8"
+    }
+  ]
+}

@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "generate:api": "openapi-typescript ../../contracts/openapi계약.json -o src/lib/api/generated.d.ts",
-    "generate:fixtures": "node scripts/generate-fixtures.mjs"
+    "generate:fixtures": "node scripts/generate-fixtures.mjs",
+    "generate:characters": "node scripts/export-character-posters.mjs",
+    "check:characters": "node scripts/export-character-posters.mjs --check"
   },
   "dependencies": {
     "@hookform/resolvers": "5.9.1",
@@ -20,6 +22,7 @@
     "@tanstack/react-query": "5.103.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
+    "lottie-web": "5.13.0",
     "lucide-react": "1.47.0",
     "next": "16.3.5",
     "openapi-fetch": "0.17.0",
