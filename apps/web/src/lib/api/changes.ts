@@ -32,13 +32,22 @@ export async function getChanges(
   sinceRevision: number,
 ): Promise<SharedChanges> {
   if (!Number.isInteger(sinceRevision) || sinceRevision < 0) {
-    throw new ContractRequestError("since_revision must be a non-negative integer.");
+    throw new ContractRequestError(
+      "since_revision must be a non-negative integer.",
+    );
   }
-  const result = requireData(await client.GET("/babies/{baby_id}/changes", {
-    params: { path: { baby_id: babyId }, query: { since_revision: sinceRevision } },
-  }));
+  const result = requireData(
+    await client.GET("/babies/{baby_id}/changes", {
+      params: {
+        path: { baby_id: babyId },
+        query: { since_revision: sinceRevision },
+      },
+    }),
+  );
   if (result.baby_id !== babyId) {
-    throw new ContractRequestError("Changes response does not match the requested baby.");
+    throw new ContractRequestError(
+      "Changes response does not match the requested baby.",
+    );
   }
   if (!result.resync_required && result.current_revision < sinceRevision) {
     throw new ContractRequestError("Changes response revision moved backward.");
@@ -47,10 +56,8 @@ export async function getChanges(
 }
 
 /**
- * Applies one coalesced Change to the local query cache. Only BABY, MEMBERSHIP, and CARE_EVENT
- * are wired to a real A-side query today (B-09 handoff §의미 연결표); the remaining enum values
- * (EPISODE/ANALYSIS/RECOMMENDATION/STATE_OBSERVATION/OUTCOME/DELETION) have no cached resource
- * to invalidate yet and are left for the slice that adds them.
+ * Refresh only implemented query resources. Observation/episode changes also affect the
+ * timeline and the home's latest-confirmed-observation view.
  */
 async function applyChange(
   queryClient: QueryClient,
@@ -59,24 +66,47 @@ async function applyChange(
   change: SharedChange,
 ): Promise<void> {
   switch (change.resource_type) {
+    case "STATE_OBSERVATION":
+    case "EPISODE": {
+      await queryClient.invalidateQueries(
+        { queryKey: timelineKey(scope, babyId) },
+        { throwOnError: true },
+      );
+      return;
+    }
     case "CARE_EVENT": {
       const key = careEventKey(scope, babyId, change.resource_id);
       if (change.deleted) {
         queryClient.removeQueries({ queryKey: key, exact: true });
       } else {
-        await queryClient.invalidateQueries({ queryKey: key, exact: true }, { throwOnError: true });
+        await queryClient.invalidateQueries(
+          { queryKey: key, exact: true },
+          { throwOnError: true },
+        );
       }
-      await queryClient.invalidateQueries({ queryKey: timelineKey(scope, babyId) }, { throwOnError: true });
+      await queryClient.invalidateQueries(
+        { queryKey: timelineKey(scope, babyId) },
+        { throwOnError: true },
+      );
       return;
     }
     case "BABY": {
       if (!scope.userId) return;
-      await queryClient.invalidateQueries({ queryKey: babiesKey(scope.userId) }, { throwOnError: true });
-      await queryClient.invalidateQueries({ queryKey: activeBabyKey(scope.userId) }, { throwOnError: true });
+      await queryClient.invalidateQueries(
+        { queryKey: babiesKey(scope.userId) },
+        { throwOnError: true },
+      );
+      await queryClient.invalidateQueries(
+        { queryKey: activeBabyKey(scope.userId) },
+        { throwOnError: true },
+      );
       return;
     }
     case "MEMBERSHIP": {
-      await queryClient.invalidateQueries({ queryKey: membersKey(babyId) }, { throwOnError: true });
+      await queryClient.invalidateQueries(
+        { queryKey: membersKey(babyId) },
+        { throwOnError: true },
+      );
       return;
     }
     default:
@@ -91,28 +121,58 @@ async function applyChanges(
   changes: readonly SharedChange[],
 ): Promise<void> {
   // Tombstones first, per B-09 handoff §A의 안전한 폴링·복구 순서 step 5.
-  for (const change of changes) if (change.deleted) await applyChange(queryClient, scope, babyId, change);
-  for (const change of changes) if (!change.deleted) await applyChange(queryClient, scope, babyId, change);
+  for (const change of changes)
+    if (change.deleted) await applyChange(queryClient, scope, babyId, change);
+  for (const change of changes)
+    if (!change.deleted) await applyChange(queryClient, scope, babyId, change);
+  if (
+    changes.some((change) =>
+      ["CARE_EVENT", "STATE_OBSERVATION", "BABY"].includes(
+        change.resource_type,
+      ),
+    )
+  ) {
+    await queryClient.invalidateQueries(
+      { queryKey: ["private", scope.userId, babyId, "summary"] },
+      { throwOnError: true },
+    );
+    await queryClient.invalidateQueries(
+      { queryKey: ["private", scope.userId, babyId, "patterns"] },
+      { throwOnError: true },
+    );
+  }
 }
 
-function clearBabyScopeCache(queryClient: QueryClient, scope: PrivateScopeSnapshot, babyId: string): void {
+function clearBabyScopeCache(
+  queryClient: QueryClient,
+  scope: PrivateScopeSnapshot,
+  babyId: string,
+): void {
   queryClient.removeQueries({ queryKey: ["private", scope.userId, babyId] });
   queryClient.removeQueries({ queryKey: membersKey(babyId) });
   if (scope.userId) {
     void queryClient.invalidateQueries({ queryKey: babiesKey(scope.userId) });
-    void queryClient.invalidateQueries({ queryKey: activeBabyKey(scope.userId) });
+    void queryClient.invalidateQueries({
+      queryKey: activeBabyKey(scope.userId),
+    });
   }
 }
 
 /** 401 is handled by the client's own refresh-then-reset; 404 means this baby is gone/unreachable. */
 function isTerminal(error: unknown): boolean {
-  return error instanceof ContractApiError && (error.kind === "authentication" || error.kind === "not-found");
+  return (
+    error instanceof ContractApiError &&
+    (error.kind === "authentication" || error.kind === "not-found")
+  );
 }
 
 function nextBackoffMs(error: unknown, currentMs: number): number {
   if (error instanceof ContractApiError) {
     if (error.kind === "rate-limit") {
-      return Math.min(Math.max((error.retryAfterSeconds ?? 1) * 1000, POLL_INTERVAL_MS), MAX_BACKOFF_MS);
+      return Math.min(
+        Math.max((error.retryAfterSeconds ?? 1) * 1000, POLL_INTERVAL_MS),
+        MAX_BACKOFF_MS,
+      );
     }
     if (error.kind === "service") {
       return Math.min(currentMs * 2, MAX_BACKOFF_MS);
@@ -135,11 +195,18 @@ export function useSharedChangePolling(babyId: string, enabled: boolean): void {
   const client = useApiClient();
   const queryClient = useQueryClient();
   const scope = usePrivateScope();
-  const subscribe = useCallback((listener: () => void) => scope.subscribe(listener), [scope]);
+  const subscribe = useCallback(
+    (listener: () => void) => scope.subscribe(listener),
+    [scope],
+  );
   const getSnapshot = useCallback(() => scope.snapshot(), [scope]);
   const snapshot = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
-  const ready = enabled && client !== null && snapshot.userId !== null && snapshot.babyId === babyId;
+  const ready =
+    enabled &&
+    client !== null &&
+    snapshot.userId !== null &&
+    snapshot.babyId === babyId;
   const userId = snapshot.userId;
 
   useEffect(() => {
@@ -147,7 +214,11 @@ export function useSharedChangePolling(babyId: string, enabled: boolean): void {
     // generation is a placeholder: privateQueryKey only reads userId/babyId, and this effect
     // deliberately does not restart on a same-scope generation bump (see the dependency array
     // below) — an in-place revalidation must not race this hook's own visibility-driven resume.
-    const scopeSnapshot: PrivateScopeSnapshot = { userId, babyId, generation: 0 };
+    const scopeSnapshot: PrivateScopeSnapshot = {
+      userId,
+      babyId,
+      generation: 0,
+    };
 
     let cancelled = false;
     let halted = false;
@@ -189,7 +260,9 @@ export function useSharedChangePolling(babyId: string, enabled: boolean): void {
       }
     };
 
-    const fetchIncremental = async (sinceRevision: number): Promise<StepResult> => {
+    const fetchIncremental = async (
+      sinceRevision: number,
+    ): Promise<StepResult> => {
       try {
         const result = await getChanges(client, babyId, sinceRevision);
         if (cancelled) return { kind: "error" };

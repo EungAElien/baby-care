@@ -1,14 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Clock, BarChart3, Settings } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Home, Clock, BarChart3, Settings, Heart } from "lucide-react";
 import { useDraft } from "@/lib/mock/draft";
+import { ActionButton } from "@/components/seed-design/ui/action-button";
+import {
+  AlertDialogRoot,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from "@/components/seed-design/ui/alert-dialog";
 
 type NavItem = Readonly<{ href: string; label: string; icon: typeof Home }>;
-
 function navItems(babyId: string): readonly NavItem[] {
   return [
     { href: `/babies/${babyId}`, label: "홈", icon: Home },
@@ -17,21 +24,15 @@ function navItems(babyId: string): readonly NavItem[] {
     { href: `/babies/${babyId}/settings`, label: "설정", icon: Settings },
   ];
 }
-
 export type OtherBaby = Readonly<{ babyId: string; label: string }>;
 
-/**
- * Mobile-first shell shared by SC02~SC10: sticky baby header + bottom tab
- * bar. Purely presentational — the real and mock baby layouts each resolve
- * identity and pass the result in, so this component doesn't care which one
- * is active.
- */
 export function BabyShell({
   babyId,
   babyLabel,
   role,
   otherBabies,
   onSignOut,
+  demo = false,
   children,
 }: Readonly<{
   babyId: string;
@@ -39,162 +40,178 @@ export function BabyShell({
   role: "OWNER" | "CAREGIVER";
   otherBabies: readonly OtherBaby[];
   onSignOut: () => void | Promise<void>;
+  demo?: boolean;
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
   const router = useRouter();
   const draft = useDraft();
-  const items = navItems(babyId);
   const [pendingSwitch, setPendingSwitch] = useState<string | null>(null);
   const [signOutPending, setSignOutPending] = useState(false);
   const [signOutError, setSignOutError] = useState<string | null>(null);
+  const signOutLock = useRef(false);
+  const switchRef = useRef<HTMLSelectElement>(null);
 
   async function handleSignOut() {
+    if (signOutLock.current) return;
+    signOutLock.current = true;
     draft.clearBaby(babyId);
     setSignOutPending(true);
     setSignOutError(null);
     try {
       await onSignOut();
     } catch {
-      setSignOutError("이 기기의 로그아웃을 확인하지 못했어요. 다시 시도해 주세요.");
+      setSignOutError(
+        "이 기기의 로그아웃을 확인하지 못했어요. 다시 시도해 주세요.",
+      );
     } finally {
+      signOutLock.current = false;
       setSignOutPending(false);
     }
   }
-
   function requestSwitch(nextBabyId: string) {
     if (nextBabyId === babyId) return;
-    if (draft.hasLiveText(babyId) || draft.hasCareEventDirty(babyId)) {
+    switchRef.current?.focus();
+    if (draft.hasLiveText(babyId) || draft.hasCareEventDirty(babyId))
       setPendingSwitch(nextBabyId);
-    } else {
+    else {
+      draft.clearBaby(babyId);
       router.push(`/babies/${nextBabyId}`);
     }
   }
+  function closeSwitch() {
+    setPendingSwitch(null);
+  }
+  function finishSwitch() {
+    const target = pendingSwitch;
+    if (!target) return;
+    draft.clearBaby(babyId);
+    closeSwitch();
+    router.push(`/babies/${target}`);
+  }
 
   return (
-    <div className="mx-auto flex min-h-svh max-w-xl flex-col bg-background">
-      <header
-        className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border bg-card px-4 py-3"
-        style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top, 0px))" }}
-      >
-        <div className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-semibold text-foreground">{babyLabel}</span>
-          <span className="text-xs text-muted-foreground">{role === "OWNER" ? "관리 보호자" : "공동 보호자"}</span>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          {otherBabies.length > 0 && (
-            <label className="sr-only" htmlFor="baby-switch">
-              다른 아기로 전환
-            </label>
-          )}
-          {otherBabies.length > 0 && (
-            <select
-              id="baby-switch"
-              className="h-11 rounded-md border border-border bg-background px-2 text-sm"
-              value={babyId}
-              onChange={(event) => requestSwitch(event.target.value)}
-            >
-              <option value={babyId}>{babyLabel}</option>
-              {otherBabies.map((other) => (
-                <option key={other.babyId} value={other.babyId}>
-                  {other.label}
-                </option>
-              ))}
-            </select>
-          )}
-          <button
-            type="button"
-            onClick={handleSignOut}
-            disabled={signOutPending}
-            className="h-11 rounded-md px-3 text-sm font-medium text-muted-foreground hover:bg-muted disabled:opacity-50"
-          >
-            {signOutPending ? "로그아웃 중…" : "로그아웃"}
-          </button>
-        </div>
-      </header>
-      {signOutError && <p role="alert" className="px-4 py-2 text-sm text-destructive">{signOutError}</p>}
-
-      {pendingSwitch && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="switch-draft-title"
-          className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-6"
-        >
-          <div className="flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-card p-4">
-            <h2 id="switch-draft-title" className="text-sm font-semibold text-foreground">
-              저장하지 않은 빠른 기록이 있어요
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              다른 아기로 전환하면 지금 화면의 입력은 사라져요. 어떻게 할까요?
+    <div className="app-shell">
+      <a href="#main-content" className="skip-link">
+        본문으로 이동
+      </a>
+      <header className="app-header">
+        <div className="app-identity">
+          <span className="brand-symbol">
+            <Heart size={23} aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate font-bold">{babyLabel}</p>
+            <p className="text-xs text-muted-foreground">
+              {role === "OWNER" ? "관리 보호자" : "공동 보호자"}
             </p>
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => setPendingSwitch(null)}
-                className="min-h-11 rounded-md border border-border px-4 text-sm text-foreground"
-              >
-                계속 작성
-              </button>
-              {!draft.hasCareEventDirty(babyId) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    draft.saveLiveAsDraft(babyId);
-                    const target = pendingSwitch;
-                    setPendingSwitch(null);
-                    router.push(`/babies/${target}`);
-                  }}
-                  className="min-h-11 rounded-md border border-border px-4 text-sm text-foreground"
-                >
-                  개인 초안 저장 후 전환
-                </button>
-              )}
-              {draft.hasCareEventDirty(babyId) && (
-                <p className="text-xs text-muted-foreground">
-                  선택지 기록은 아직 개인 초안으로 저장할 수 없어요. 계속 작성하거나 버린 뒤 전환해 주세요.
-                </p>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  draft.discardLive(babyId);
-                  draft.setCareEventDirty(babyId, false);
-                  const target = pendingSwitch;
-                  setPendingSwitch(null);
-                  router.push(`/babies/${target}`);
-                }}
-                className="min-h-11 rounded-md border border-destructive/40 px-4 text-sm text-destructive"
-              >
-                버리고 전환
-              </button>
-            </div>
           </div>
         </div>
+        <div className="flex min-w-0 items-center gap-1">
+          {otherBabies.length > 0 && (
+            <>
+              <label className="sr-only" htmlFor="baby-switch">
+                다른 아기로 전환
+              </label>
+              <select
+                ref={switchRef}
+                id="baby-switch"
+                className="max-w-32 rounded-lg border px-2 text-sm"
+                value={babyId}
+                onChange={(event) => requestSwitch(event.target.value)}
+              >
+                <option value={babyId}>{babyLabel}</option>
+                {otherBabies.map((other) => (
+                  <option key={other.babyId} value={other.babyId}>
+                    {other.label}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+          <ActionButton
+            type="button"
+            variant="ghost"
+            size="small"
+            onClick={handleSignOut}
+            disabled={signOutPending}
+          >
+            {signOutPending ? "로그아웃 중…" : "로그아웃"}
+          </ActionButton>
+        </div>
+      </header>
+      {demo && (
+        <aside className="demo-notice">
+          <strong>DEMO · 화면 체험</strong>
+          <span>예시 자료예요. 실제 감지·모델 실행 결과가 아니에요.</span>
+        </aside>
       )}
-
-      <main className="flex-1 px-4 py-4 pb-24">
-        {signOutPending ? <p role="status" className="text-sm">로그아웃하고 있어요.</p> : children}
-      </main>
-
-      <nav
-        aria-label="주요 화면 이동"
-        className="fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-xl border-t border-border bg-card"
-        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      <AlertDialogRoot
+        open={pendingSwitch !== null}
+        onOpenChange={(open) => {
+          if (!open) closeSwitch();
+        }}
       >
-        {items.map(({ href, label, icon: Icon }) => {
-          const active = href === `/babies/${babyId}` ? pathname === href : pathname.startsWith(href);
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              저장하지 않은 빠른 기록이 있어요
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              다른 아기로 전환하면 지금 화면의 입력은 사라져요. 어떻게 할까요?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <ActionButton type="button" onClick={closeSwitch}>
+              계속 작성
+            </ActionButton>
+            <p className="text-sm text-muted-foreground">
+              이 화면의 개인 초안은 공유 기록에 저장되지 않았어요.
+            </p>
+            <ActionButton
+              type="button"
+              variant="neutralWeak"
+              onClick={finishSwitch}
+            >
+              버리고 전환
+            </ActionButton>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogRoot>
+      <main id="main-content" tabIndex={-1} className="app-main">
+        {signOutError && (
+          <p role="alert" className="mb-4 text-destructive">
+            {signOutError}
+          </p>
+        )}
+        {signOutPending ? <p role="status">로그아웃하고 있어요.</p> : children}
+      </main>
+      <nav aria-label="주요 화면 이동" className="app-nav">
+        {navItems(babyId).map(({ href, label, icon: Icon }) => {
+          const base = `/babies/${babyId}`;
+          const active =
+            href === base
+              ? pathname === href ||
+                [
+                  "detect",
+                  "quick-record",
+                  "entries",
+                  "results",
+                  "audio-measure",
+                ].some((part) => pathname.startsWith(`${base}/${part}`))
+              : pathname.startsWith(href) ||
+                (label === "타임라인" &&
+                  pathname.startsWith(`${base}/care-events`)) ||
+                (label === "설정" && pathname.startsWith(`${base}/care-team`));
           return (
             <Link
               key={href}
               href={href}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs",
-                active ? "text-primary" : "text-muted-foreground",
-              )}
+              aria-current={
+                active ? (pathname === href ? "page" : "location") : undefined
+              }
             >
-              <Icon aria-hidden size={20} />
+              <Icon aria-hidden="true" size={22} />
               {label}
             </Link>
           );

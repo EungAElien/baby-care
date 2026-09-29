@@ -34,19 +34,45 @@ const state = vi.hoisted(() => {
 });
 vi.mock("@/lib/api/real-client", () => ({ useApiClient: () => state.client }));
 
-function jsonStep(body: Changes, status = 200, headers: Record<string, string> = {}) {
+function jsonStep(
+  body: Changes,
+  status = 200,
+  headers: Record<string, string> = {},
+) {
   return { data: body, response: new Response(null, { status, headers }) };
 }
 
-function errorStep(status: number, code: string, headers: Record<string, string> = {}) {
+function errorStep(
+  status: number,
+  code: string,
+  headers: Record<string, string> = {},
+) {
   return {
-    error: { code, message: code, retryable: true, request_id: "req", field_errors: [], details: {} },
+    error: {
+      code,
+      message: code,
+      retryable: true,
+      request_id: "req",
+      field_errors: [],
+      details: {},
+    },
     response: new Response(null, { status, headers }),
   };
 }
 
-function changes(current: number, entries: Changes["changes"], resync = false, forBabyId = babyId): Changes {
-  return { baby_id: forBabyId, current_revision: current, changes: entries, resync_required: resync, server_time: "2026-09-20T00:00:00Z" };
+function changes(
+  current: number,
+  entries: Changes["changes"],
+  resync = false,
+  forBabyId = babyId,
+): Changes {
+  return {
+    baby_id: forBabyId,
+    current_revision: current,
+    changes: entries,
+    resync_required: resync,
+    server_time: "2026-09-20T00:00:00Z",
+  };
 }
 
 let capturedScope: PrivateScope;
@@ -73,7 +99,10 @@ function Wrapper({ children }: Readonly<{ children: ReactNode }>) {
 
 function setVisibility(value: "visible" | "hidden") {
   act(() => {
-    Object.defineProperty(document, "visibilityState", { value, configurable: true });
+    Object.defineProperty(document, "visibilityState", {
+      value,
+      configurable: true,
+    });
     document.dispatchEvent(new Event("visibilitychange"));
   });
 }
@@ -106,7 +135,9 @@ describe("A-08 ① useSharedChangePolling", () => {
     state.get
       .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
       .mockResolvedValueOnce(jsonStep(changes(8, [])));
-    const { unmount } = renderHook(() => useSharedChangePolling(babyId, true), { wrapper: Wrapper });
+    const { unmount } = renderHook(() => useSharedChangePolling(babyId, true), {
+      wrapper: Wrapper,
+    });
     setScope();
     await flush();
     await flush();
@@ -121,30 +152,59 @@ describe("A-08 ① useSharedChangePolling", () => {
     // Cache entries with no active observer are gcTime:0 and vanish immediately (AppProviders'
     // QueryClient defaults), so this asserts on the cache calls applyChange makes, not on
     // reading the (already garbage-collected) query state back afterward.
-    const careKey = careEventKey({ userId, babyId, generation: 0 }, babyId, careEventId);
+    const careKey = careEventKey(
+      { userId, babyId, generation: 0 },
+      babyId,
+      careEventId,
+    );
     const timeKey = timelineKey({ userId, babyId, generation: 0 }, babyId);
     state.get
       .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
       .mockResolvedValueOnce(jsonStep(changes(8, [])));
-    renderHook(() => useSharedChangePolling(babyId, true), { wrapper: Wrapper });
+    renderHook(() => useSharedChangePolling(babyId, true), {
+      wrapper: Wrapper,
+    });
     setScope();
     await flush();
     await flush();
 
     const calls: Array<{ method: "invalidate" | "remove"; key: unknown }> = [];
-    vi.spyOn(capturedQueryClient, "invalidateQueries").mockImplementation((filters) => {
-      calls.push({ method: "invalidate", key: filters?.queryKey });
-      return Promise.resolve();
-    });
-    vi.spyOn(capturedQueryClient, "removeQueries").mockImplementation((filters) => {
-      calls.push({ method: "remove", key: filters?.queryKey });
-    });
+    vi.spyOn(capturedQueryClient, "invalidateQueries").mockImplementation(
+      (filters) => {
+        calls.push({ method: "invalidate", key: filters?.queryKey });
+        return Promise.resolve();
+      },
+    );
+    vi.spyOn(capturedQueryClient, "removeQueries").mockImplementation(
+      (filters) => {
+        calls.push({ method: "remove", key: filters?.queryKey });
+      },
+    );
 
-    state.get.mockResolvedValueOnce(jsonStep(changes(11, [
-      { resource_type: "CARE_EVENT", resource_id: careEventId, version: 4, deleted: true },
-      { resource_type: "BABY", resource_id: babyId, version: 9, deleted: false },
-      { resource_type: "MEMBERSHIP", resource_id: membershipId, version: 1, deleted: false },
-    ])));
+    state.get.mockResolvedValueOnce(
+      jsonStep(
+        changes(11, [
+          {
+            resource_type: "CARE_EVENT",
+            resource_id: careEventId,
+            version: 4,
+            deleted: true,
+          },
+          {
+            resource_type: "BABY",
+            resource_id: babyId,
+            version: 9,
+            deleted: false,
+          },
+          {
+            resource_type: "MEMBERSHIP",
+            resource_id: membershipId,
+            version: 1,
+            deleted: false,
+          },
+        ]),
+      ),
+    );
     await flush(5000);
 
     expect(calls).toEqual([
@@ -153,6 +213,8 @@ describe("A-08 ① useSharedChangePolling", () => {
       { method: "invalidate", key: babiesKey(userId) },
       { method: "invalidate", key: activeBabyKey(userId) },
       { method: "invalidate", key: membersKey(babyId) },
+      { method: "invalidate", key: ["private", userId, babyId, "summary"] },
+      { method: "invalidate", key: ["private", userId, babyId, "patterns"] },
     ]);
   });
 
@@ -160,23 +222,45 @@ describe("A-08 ① useSharedChangePolling", () => {
     state.get
       .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
       .mockResolvedValueOnce(jsonStep(changes(8, [])));
-    renderHook(() => useSharedChangePolling(babyId, true), { wrapper: Wrapper });
+    renderHook(() => useSharedChangePolling(babyId, true), {
+      wrapper: Wrapper,
+    });
     setScope();
     await flush();
     await flush();
 
     const invalidations = vi.spyOn(capturedQueryClient, "invalidateQueries");
-    invalidations.mockRejectedValueOnce(new Error("synthetic resource refetch failure"));
-    state.get.mockResolvedValueOnce(jsonStep(changes(9, [
-      { resource_type: "CARE_EVENT", resource_id: careEventId, version: 2, deleted: false },
-    ])));
+    invalidations.mockRejectedValueOnce(
+      new Error("synthetic resource refetch failure"),
+    );
+    state.get.mockResolvedValueOnce(
+      jsonStep(
+        changes(9, [
+          {
+            resource_type: "CARE_EVENT",
+            resource_id: careEventId,
+            version: 2,
+            deleted: false,
+          },
+        ]),
+      ),
+    );
     await flush(5000);
     expect(state.get.mock.calls[2]![1].params.query.since_revision).toBe(8);
     expect(invalidations.mock.calls[0]![1]).toEqual({ throwOnError: true });
 
-    state.get.mockResolvedValueOnce(jsonStep(changes(9, [
-      { resource_type: "CARE_EVENT", resource_id: careEventId, version: 2, deleted: false },
-    ])));
+    state.get.mockResolvedValueOnce(
+      jsonStep(
+        changes(9, [
+          {
+            resource_type: "CARE_EVENT",
+            resource_id: careEventId,
+            version: 2,
+            deleted: false,
+          },
+        ]),
+      ),
+    );
     await flush(5000);
     expect(state.get.mock.calls[3]![1].params.query.since_revision).toBe(8);
     expect(invalidations).toHaveBeenCalledWith(
@@ -193,7 +277,9 @@ describe("A-08 ① useSharedChangePolling", () => {
     state.get
       .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
       .mockResolvedValueOnce(jsonStep(changes(8, [])));
-    renderHook(() => useSharedChangePolling(babyId, true), { wrapper: Wrapper });
+    renderHook(() => useSharedChangePolling(babyId, true), {
+      wrapper: Wrapper,
+    });
     setScope();
     await flush();
     await flush();
@@ -214,7 +300,9 @@ describe("A-08 ① useSharedChangePolling", () => {
     state.get
       .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
       .mockResolvedValueOnce(jsonStep(changes(8, [])));
-    renderHook(() => useSharedChangePolling(babyId, true), { wrapper: Wrapper });
+    renderHook(() => useSharedChangePolling(babyId, true), {
+      wrapper: Wrapper,
+    });
     setScope();
     await flush();
     await flush();
@@ -234,16 +322,22 @@ describe("A-08 ① useSharedChangePolling", () => {
     state.get
       .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
       .mockResolvedValueOnce(jsonStep(changes(8, [])));
-    renderHook(() => useSharedChangePolling(babyId, true), { wrapper: Wrapper });
+    renderHook(() => useSharedChangePolling(babyId, true), {
+      wrapper: Wrapper,
+    });
     setScope();
     await flush();
     await flush();
 
     const removed: unknown[] = [];
-    vi.spyOn(capturedQueryClient, "removeQueries").mockImplementation((filters) => {
-      removed.push(filters?.queryKey);
-    });
-    vi.spyOn(capturedQueryClient, "invalidateQueries").mockImplementation(() => Promise.resolve());
+    vi.spyOn(capturedQueryClient, "removeQueries").mockImplementation(
+      (filters) => {
+        removed.push(filters?.queryKey);
+      },
+    );
+    vi.spyOn(capturedQueryClient, "invalidateQueries").mockImplementation(() =>
+      Promise.resolve(),
+    );
 
     state.get.mockResolvedValueOnce(errorStep(404, "RESOURCE_NOT_FOUND"));
     await flush(5000);
@@ -258,12 +352,16 @@ describe("A-08 ① useSharedChangePolling", () => {
     state.get
       .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
       .mockResolvedValueOnce(jsonStep(changes(8, [])));
-    renderHook(() => useSharedChangePolling(babyId, true), { wrapper: Wrapper });
+    renderHook(() => useSharedChangePolling(babyId, true), {
+      wrapper: Wrapper,
+    });
     setScope();
     await flush();
     await flush();
 
-    state.get.mockResolvedValueOnce(errorStep(429, "RATE_LIMITED", { "Retry-After": "20" }));
+    state.get.mockResolvedValueOnce(
+      errorStep(429, "RATE_LIMITED", { "Retry-After": "20" }),
+    );
     await flush(5000);
     expect(state.get).toHaveBeenCalledTimes(3);
 
@@ -278,7 +376,9 @@ describe("A-08 ① useSharedChangePolling", () => {
     state.get
       .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
       .mockResolvedValueOnce(jsonStep(changes(8, [])));
-    const { unmount } = renderHook(() => useSharedChangePolling(babyId, true), { wrapper: Wrapper });
+    const { unmount } = renderHook(() => useSharedChangePolling(babyId, true), {
+      wrapper: Wrapper,
+    });
     setScope();
     await flush();
     await flush();
@@ -300,7 +400,9 @@ describe("A-08 ② baby-switch and leave stop this baby's polling", () => {
     state.get
       .mockResolvedValueOnce(jsonStep(changes(8, [], true)))
       .mockResolvedValueOnce(jsonStep(changes(8, [])));
-    renderHook(() => useSharedChangePolling(babyId, true), { wrapper: Wrapper });
+    renderHook(() => useSharedChangePolling(babyId, true), {
+      wrapper: Wrapper,
+    });
     setScope();
     await flush();
     await flush();
@@ -341,7 +443,9 @@ describe("A-08 ② baby-switch and leave stop this baby's polling", () => {
 
     expect(state.get).toHaveBeenCalledTimes(4);
     const calledBabyIds = state.get.mock.calls.map(
-      (call) => (call[1] as { params: { path: { baby_id: string } } }).params.path.baby_id,
+      (call) =>
+        (call[1] as { params: { path: { baby_id: string } } }).params.path
+          .baby_id,
     );
     expect(calledBabyIds).toEqual([babyId, babyId, otherBabyId, otherBabyId]);
 
@@ -352,7 +456,10 @@ describe("A-08 ② baby-switch and leave stop this baby's polling", () => {
     const laterCalls = state.get.mock.calls.slice(4);
     expect(laterCalls.length).toBeGreaterThan(0);
     for (const call of laterCalls) {
-      expect((call[1] as { params: { path: { baby_id: string } } }).params.path.baby_id).toBe(otherBabyId);
+      expect(
+        (call[1] as { params: { path: { baby_id: string } } }).params.path
+          .baby_id,
+      ).toBe(otherBabyId);
     }
   });
 });
